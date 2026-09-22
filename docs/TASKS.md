@@ -21,18 +21,22 @@ Last updated: 2026-09-22
 - [x] Initialize `/incidentgraph` as a standalone Git repository after approval.
 - [x] Create and connect private `mohammadrezakarami/incidentgraph` GitHub repository.
 - [x] Add focused `.gitignore` and secret/build-context exclusions.
-- [ ] Install and pin uv for the project; provision Python 3.12 without changing system Python.
-- [ ] Resolve exact Python dependencies and commit `uv.lock`.
-- [ ] Pin Node 24/npm and create frontend lockfile.
-- [ ] Pin all container images by exact version/digest after ARM64 probes.
-- [ ] Implement typed configuration and `doctor` command.
-- [ ] Implement initial evidence/report/request/error contracts.
-- [ ] Implement migrations for application tables and checkpoint namespace.
-- [ ] Implement minimal PostgreSQL job queue, lease, heartbeat, fencing, and event store.
-- [ ] Implement thin FastAPI skeleton and hashed development bearer-token authentication.
-- [ ] Run real PostgreSQL and Neo4j connectivity tests.
-- [ ] Demonstrate a non-AI job surviving a controlled worker restart.
-- [ ] Write Phase 1 report and update continuity documents.
+- [x] Install and pin uv for the project; provision Python 3.12 without changing system Python.
+- [x] Resolve exact Python dependencies and commit `uv.lock`.
+- [x] Pin Node 24/npm and create frontend lockfile.
+- [x] Pin all container images by exact version/digest after ARM64 probes.
+- [x] Implement typed configuration and `doctor` command.
+- [x] Implement initial evidence/report/request/error contracts.
+- [x] Implement migrations for application tables and checkpoint namespace.
+- [x] Implement minimal PostgreSQL job queue, lease, heartbeat, fencing, and event store.
+- [x] Implement thin FastAPI skeleton and hashed development bearer-token authentication.
+- [x] Run real PostgreSQL and Neo4j connectivity tests.
+- [x] Demonstrate a non-AI job surviving a controlled worker restart.
+- [x] Prove normal Compose teardown preserves persisted data.
+- [x] Prove clean-clone bootstrap and checks.
+- [x] Write Phase 1 report and update continuity documents.
+
+Phase 1 gate result: **PASS**. Await explicit approval before Phase 2.
 
 ## Later phase gates
 

@@ -4,21 +4,21 @@ Last updated: 2026-09-22
 
 ## Current phase
 
-Phase 0 is complete and passed. Phase 1 is approved and in progress.
+Phase 0 and Phase 1 are complete and passed. Phase 2 is not approved yet.
 
 ## Last verified command
 
-Read-only Docker engine inspection:
+Real PostgreSQL/Neo4j connectivity after safe teardown and restart:
 
 ```text
-docker version --format 'client={{.Client.Version}} server={{.Server.Version}} os={{.Server.Os}} arch={{.Server.Arch}}'
+make smoke
 ```
 
-Result: Docker client/server 29.4.1 is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned. No project container or service verification has passed yet.
+Result: `{"postgres": true, "neo4j": true}`. All three Phase 1 containers are healthy, and the persisted investigation count remained 1 across `down`/`up`.
 
 ## Configuration assumptions
 
-- Project root will be `/Users/mohammadrezakarami/Documents/New project/incidentgraph`.
+- Project root is `/Users/mohammadrezakarami/Documents/New project/incidentgraph`.
 - The standalone local repository is initialized on branch `main`.
 - Private remote `origin` is `https://github.com/mohammadrezakarami/incidentgraph.git`.
 - Default backend runtime: Python 3.12 managed for the project with uv.
@@ -29,23 +29,24 @@ Result: Docker client/server 29.4.1 is running on Linux/ARM64 with 10 CPUs and a
 - Normal core container target: approximately 6.25 GiB aggregate; optional observability profiles off.
 - No production data, external tracing, public endpoints, remediation, or paid calls.
 
-## Unresolved issues
+## Open issues and honest limitations
 
-1. Python 3.12 and uv are not installed for this project.
-2. Exact Python and image pins/digests require joint resolution and runtime probes.
-3. GitHub CLI authentication is stale, although the private repository was created through the existing authenticated browser session.
-4. No provider credential was detected; account/model availability is unknown.
-5. Provider and monetary budget are intentionally unapproved.
+1. The investigator, lab telemetry, retrieval, reports, review flow, and console are not implemented yet.
+2. Unit-only global coverage is 51.09 percent; the retained 85 percent later-core gate fails today.
+3. The PostgreSQL checkpoint namespace exists, but actual LangGraph checkpoint tables/setup await the workflow phase.
+4. GitHub CLI authentication is stale, although the private remote exists and normal Git push works.
+5. No provider credential was detected; provider and monetary budget are intentionally unapproved.
 
-## Next three tasks after approval
+## Next three tasks after Phase 2 approval
 
-1. Bootstrap pinned uv/Python 3.12 and run a minimal dependency-resolution/import probe.
-2. Pin/probe PostgreSQL and Neo4j containers.
-3. Implement typed configuration and the non-AI durable queue slice.
+1. Define the smallest three-service transaction lab and telemetry contracts.
+2. Add bounded workload, loopback-only fault control, and the first healthy run.
+3. Implement and independently capture the six required fault families without exposing evaluator labels to the agent path.
 
 ## Relevant documents
 
 - `docs/progress/phase-00-report.md`
+- `docs/progress/phase-01-report.md`
 - `docs/adr/0001-single-investigator.md`
 - `docs/adr/0002-neo4j-graph-and-vectors.md`
 - `docs/adr/0003-postgresql-durable-execution.md`
@@ -54,4 +55,4 @@ Result: Docker client/server 29.4.1 is running on Linux/ARM64 with 10 CPUs and a
 
 ## Resume procedure
 
-Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, the Phase 0 report, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not restart Phase 0 or generate a second architecture. If the user says only "continue," confirm Phase 1 approval from conversation context, inspect Docker daemon status, and resume the first unfinished Phase 1 task.
+Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, both phase reports, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not repeat Phase 0/1. If the user says only "continue," ask for Phase 2 approval because the specification requires a gate between phases. Do not begin the lab until that approval exists.
