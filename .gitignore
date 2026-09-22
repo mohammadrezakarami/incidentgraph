@@ -1,0 +1,49 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# JavaScript
+node_modules/
+frontend/dist/
+playwright-report/
+test-results/
+
+# Local runtime data
+.docker-data/
+data/runtime/
+data/replay/private/
+artifacts/evaluation/
+artifacts/traces/
+logs/
+*.log
+
+# Models and large generated files
+models/
+checkpoints/
+*.bin
+*.safetensors
+*.parquet
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
