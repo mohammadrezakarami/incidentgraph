@@ -36,11 +36,25 @@ Last updated: 2026-09-22
 - [x] Prove clean-clone bootstrap and checks.
 - [x] Write Phase 1 report and update continuity documents.
 
-Phase 1 gate result: **PASS**. Await explicit approval before Phase 2.
+Phase 1 gate result: **PASS**. Phase 2 was approved on 2026-09-22.
+
+## Phase 2 — Lab telemetry and incident captures
+
+- [x] User approval to begin Phase 2.
+- [x] Implement three working transaction services and isolated lab storage.
+- [x] Add bounded workload generation and safe operator-only fault controls.
+- [x] Instrument metrics, structured logs, and propagated OpenTelemetry traces.
+- [x] Implement six required fault families plus required controls.
+- [x] Capture at least two independent live runs for each fault family.
+- [x] Prove recovery and separate evaluator-only labels from runtime evidence.
+- [x] Detect and correct the pool occupancy instrumentation error; rerun the full suite.
+- [x] Write the Phase 2 report and update continuity documents.
+
+Phase 2 gate result: **PASS**. Await explicit approval before Phase 3.
 
 ## Later phase gates
 
-- [ ] Phase 2: lab, telemetry, bounded faults, and independent captures.
+- [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
 - [ ] Phase 3: graph, curated corpus, ingestion, embeddings, and indexes.
 - [ ] Phase 4: vector/hybrid/graph-enhanced retrieval and development comparison.
 - [ ] Phase 5: adaptive investigator and grounded reports; requires provider/budget approval.

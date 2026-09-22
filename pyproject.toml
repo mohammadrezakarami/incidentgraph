@@ -18,6 +18,7 @@ dependencies = [
   "psycopg[binary,pool]>=3.2,<4",
   "pydantic>=2.12,<3",
   "pydantic-settings>=2.10,<3",
+  "redis==8.1.0",
   "structlog>=25,<26",
   "uvicorn[standard]>=0.35,<1",
 ]
@@ -25,6 +26,8 @@ dependencies = [
 [project.scripts]
 incidentgraph = "incidentgraph.cli:main"
 incidentgraph-api = "incidentgraph.api:main"
+incidentgraph-lab = "incidentgraph.lab_cli:main"
+incidentgraph-lab-service = "incidentgraph.lab_service:main"
 incidentgraph-worker = "incidentgraph.worker:main"
 
 [dependency-groups]
@@ -49,6 +52,7 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 markers = [
   "integration: requires real local services",
+  "lab_integration: requires the running Phase 2 lab",
 ]
 
 [tool.ruff]

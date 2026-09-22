@@ -4,17 +4,17 @@ Last updated: 2026-09-22
 
 ## Current phase
 
-Phase 0 and Phase 1 are complete and passed. Phase 2 is not approved yet.
+Phase 0, Phase 1, and Phase 2 are complete and passed. Phase 3 is not approved yet.
 
 ## Last verified command
 
-Real PostgreSQL/Neo4j connectivity after safe teardown and restart:
+Executable verification of all eligible Phase 2 captures:
 
 ```text
-make smoke
+make verify-captures
 ```
 
-Result: `{"postgres": true, "neo4j": true}`. All three Phase 1 containers are healthy, and the persisted investigation count remained 1 across `down`/`up`.
+Result: 17 captures total; 12 independent fault captures and 5 controls; hashes, telemetry signals, trace continuity, evaluator separation, and recovery all passed.
 
 ## Configuration assumptions
 
@@ -31,22 +31,24 @@ Result: `{"postgres": true, "neo4j": true}`. All three Phase 1 containers are he
 
 ## Open issues and honest limitations
 
-1. The investigator, lab telemetry, retrieval, reports, review flow, and console are not implemented yet.
-2. Unit-only global coverage is 51.09 percent; the retained 85 percent later-core gate fails today.
+1. The investigator, knowledge ingestion, retrieval, reports, review flow, and console are not implemented yet.
+2. Unit-only global coverage is 32.69 percent; the retained 85 percent later-core gate fails today.
 3. The PostgreSQL checkpoint namespace exists, but actual LangGraph checkpoint tables/setup await the workflow phase.
 4. GitHub CLI authentication is stale, although the private remote exists and normal Git push works.
 5. No provider credential was detected; provider and monetary budget are intentionally unapproved.
+6. Phase 2 captures predate the curated corpus and need recapture before final as-of evaluation pairing.
 
-## Next three tasks after Phase 2 approval
+## Next three tasks after Phase 3 approval
 
-1. Define the smallest three-service transaction lab and telemetry contracts.
-2. Add bounded workload, loopback-only fault control, and the first healthy run.
-3. Implement and independently capture the six required fault families without exposing evaluator labels to the agent path.
+1. Define Neo4j constraints and the authoritative, versioned lab topology.
+2. Create and validate the curated corpus manifest before embedding.
+3. Benchmark the pinned local embedding model on CPU, then build idempotent full-text/vector ingestion.
 
 ## Relevant documents
 
 - `docs/progress/phase-00-report.md`
 - `docs/progress/phase-01-report.md`
+- `docs/progress/phase-02-report.md`
 - `docs/adr/0001-single-investigator.md`
 - `docs/adr/0002-neo4j-graph-and-vectors.md`
 - `docs/adr/0003-postgresql-durable-execution.md`
@@ -55,4 +57,4 @@ Result: `{"postgres": true, "neo4j": true}`. All three Phase 1 containers are he
 
 ## Resume procedure
 
-Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, both phase reports, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not repeat Phase 0/1. If the user says only "continue," ask for Phase 2 approval because the specification requires a gate between phases. Do not begin the lab until that approval exists.
+Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, all phase reports, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not repeat Phase 0/1/2. If the user says only "continue," ask for Phase 3 approval because the specification requires a gate between phases. Do not begin graph/corpus ingestion until that approval exists.

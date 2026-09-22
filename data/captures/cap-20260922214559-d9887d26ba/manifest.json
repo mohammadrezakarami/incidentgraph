@@ -1,0 +1,17 @@
+{
+  "capture_id": "cap-20260922214559-d9887d26ba",
+  "environment": "lab",
+  "limitations": [
+    "laboratory data, not production evidence",
+    "Phase 2 capture predates the curated Phase 3 corpus"
+  ],
+  "mode": "live_capture",
+  "observation_cutoff": "2026-09-22T21:46:06.119386+00:00",
+  "observation_start": "2026-09-22T21:45:59.053684+00:00",
+  "provenance_category": "independent_lab_capture",
+  "services": [
+    "gateway",
+    "checkout",
+    "payments"
+  ]
+}

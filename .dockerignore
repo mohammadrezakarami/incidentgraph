@@ -10,6 +10,8 @@ frontend/dist
 artifacts
 data/evaluation/private
 data/replay/private
+data/evaluator
+data/runtime
 models
 checkpoints
 logs

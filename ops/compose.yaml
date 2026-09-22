@@ -66,8 +66,166 @@ services:
     cpus: 2.0
     restart: unless-stopped
 
+  redis:
+    image: redis:8.10.1@sha256:8a1efc5f479551822b47424ccae982026b633f28818eab0387348120a61e10e2
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "96mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "127.0.0.1:56379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+
+  gateway:
+    image: incidentgraph-lab:phase2
+    build:
+      context: ..
+      dockerfile: lab.Dockerfile
+    environment:
+      LAB_SERVICE: gateway
+      LAB_DATABASE_DSN: postgresql://lab:${INCIDENTGRAPH_LAB_DB_PASSWORD}@lab-db:5432/lab
+      LAB_REDIS_URL: redis://redis:6379/0
+      LAB_CONTROL_TOKEN: ${INCIDENTGRAPH_LAB_CONTROL_TOKEN:?set INCIDENTGRAPH_LAB_CONTROL_TOKEN}
+      LAB_CHECKOUT_URL: http://checkout:8080
+      LAB_PAYMENTS_URL: http://payments:8080
+      LAB_LOG_DIR: /var/log/incidentgraph
+      LAB_TRACE_DIR: /var/traces/incidentgraph
+      LAB_DEPLOYMENT_VERSION: gateway-v1.0.0
+    ports:
+      - "127.0.0.1:58080:8080"
+    volumes:
+      - ../data/runtime/lab-logs:/var/log/incidentgraph
+      - ../data/runtime/lab-traces:/var/traces/incidentgraph
+    depends_on:
+      checkout:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/ready').read()"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    mem_limit: 256m
+    cpus: 0.75
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 5m
+        max-file: "2"
+
+  checkout:
+    image: incidentgraph-lab:phase2
+    build:
+      context: ..
+      dockerfile: lab.Dockerfile
+    environment:
+      LAB_SERVICE: checkout
+      LAB_DATABASE_DSN: postgresql://lab:${INCIDENTGRAPH_LAB_DB_PASSWORD}@lab-db:5432/lab
+      LAB_REDIS_URL: redis://redis:6379/0
+      LAB_CONTROL_TOKEN: ${INCIDENTGRAPH_LAB_CONTROL_TOKEN:?set INCIDENTGRAPH_LAB_CONTROL_TOKEN}
+      LAB_CHECKOUT_URL: http://checkout:8080
+      LAB_PAYMENTS_URL: http://payments:8080
+      LAB_LOG_DIR: /var/log/incidentgraph
+      LAB_TRACE_DIR: /var/traces/incidentgraph
+      LAB_DEPLOYMENT_VERSION: checkout-v1.0.0
+      LAB_DB_POOL_SIZE: 4
+    ports:
+      - "127.0.0.1:58081:8080"
+    volumes:
+      - ../data/runtime/lab-logs:/var/log/incidentgraph
+      - ../data/runtime/lab-traces:/var/traces/incidentgraph
+    depends_on:
+      lab-db:
+        condition: service_healthy
+      payments:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/ready').read()"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    mem_limit: 256m
+    cpus: 0.75
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 5m
+        max-file: "2"
+
+  payments:
+    image: incidentgraph-lab:phase2
+    build:
+      context: ..
+      dockerfile: lab.Dockerfile
+    environment:
+      LAB_SERVICE: payments
+      LAB_DATABASE_DSN: postgresql://lab:${INCIDENTGRAPH_LAB_DB_PASSWORD}@lab-db:5432/lab
+      LAB_REDIS_URL: redis://redis:6379/0
+      LAB_CONTROL_TOKEN: ${INCIDENTGRAPH_LAB_CONTROL_TOKEN:?set INCIDENTGRAPH_LAB_CONTROL_TOKEN}
+      LAB_CHECKOUT_URL: http://checkout:8080
+      LAB_PAYMENTS_URL: http://payments:8080
+      LAB_LOG_DIR: /var/log/incidentgraph
+      LAB_TRACE_DIR: /var/traces/incidentgraph
+      LAB_DEPLOYMENT_VERSION: payments-v1.0.0
+      LAB_DB_POOL_SIZE: 4
+    ports:
+      - "127.0.0.1:58082:8080"
+    volumes:
+      - ../data/runtime/lab-logs:/var/log/incidentgraph
+      - ../data/runtime/lab-traces:/var/traces/incidentgraph
+    depends_on:
+      lab-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/ready').read()"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    mem_limit: 256m
+    cpus: 0.75
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 5m
+        max-file: "2"
+
+  prometheus:
+    image: prom/prometheus:v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=2h
+      - --storage.tsdb.retention.size=256MB
+      - --web.enable-lifecycle
+    ports:
+      - "127.0.0.1:59090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      gateway:
+        condition: service_healthy
+      checkout:
+        condition: service_healthy
+      payments:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9090/-/ready"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    mem_limit: 512m
+    cpus: 0.75
+    restart: unless-stopped
+
 volumes:
   app-db-data:
   lab-db-data:
   neo4j-data:
   neo4j-logs:
+  prometheus-data:
