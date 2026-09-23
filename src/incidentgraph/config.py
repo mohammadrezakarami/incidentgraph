@@ -43,6 +43,13 @@ class Settings(BaseSettings):
     model_max_calls: int = Field(default=10, ge=1, le=20)
     model_cost_ceiling_usd: float = Field(default=0, ge=0, le=100)
 
+    embedding_model_id: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_model_revision: str = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+    embedding_dimension: int = Field(default=384, ge=1, le=4096)
+    embedding_device: Literal["cpu"] = "cpu"
+    embedding_batch_size: int = Field(default=16, ge=1, le=64)
+    corpus_id: str = Field(default="incidentgraph-lab-corpus-v1", min_length=1, max_length=128)
+
     @field_validator("api_host")
     @classmethod
     def bind_local_by_default(cls, value: str) -> str:
@@ -78,4 +85,11 @@ class Settings(BaseSettings):
                 problems.append(
                     "MODEL_COST_CEILING_USD must be positive when a provider is enabled"
                 )
+        if len(self.embedding_model_revision) != 40 or any(
+            char not in "0123456789abcdef" for char in self.embedding_model_revision
+        ):
+            problems.append("EMBEDDING_MODEL_REVISION must be a full lowercase Git commit SHA")
+        if self.embedding_model_id == "sentence-transformers/all-MiniLM-L6-v2":
+            if self.embedding_dimension != 384:
+                problems.append("all-MiniLM-L6-v2 requires EMBEDDING_DIMENSION=384")
         return problems

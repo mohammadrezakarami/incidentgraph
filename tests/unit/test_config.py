@@ -46,3 +46,15 @@ def test_enabled_provider_requires_model_and_budget() -> None:
 
     assert "MODEL_ID is required" in " ".join(settings.validate_runtime())
     assert "MODEL_COST_CEILING_USD" in " ".join(settings.validate_runtime())
+
+
+def test_embedding_revision_and_dimension_are_validated() -> None:
+    values = settings_kwargs() | {
+        "embedding_model_revision": "main",
+        "embedding_dimension": 768,
+    }
+    settings = Settings(**values)
+
+    problems = " ".join(settings.validate_runtime())
+    assert "full lowercase Git commit SHA" in problems
+    assert "requires EMBEDDING_DIMENSION=384" in problems

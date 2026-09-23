@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+  "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "dimension": 384,
+  "tokenizer": "BertTokenizer",
+  "license": "Apache-2.0",
+  "device": "cpu",
+  "hardware": "Darwin arm64",
+  "documents": 37,
+  "chunks": 37,
+  "total_tokens": 3338,
+  "batch_size": 16,
+  "elapsed_seconds": 0.14048,
+  "chunks_per_second": 263.383,
+  "compatible_vectors": 37
+}

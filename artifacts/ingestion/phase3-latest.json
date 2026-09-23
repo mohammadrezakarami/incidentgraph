@@ -1,0 +1,96 @@
+{
+  "status": "pass",
+  "corpus_id": "incidentgraph-lab-corpus-v1",
+  "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+  "started_at": "2026-09-23T08:06:58.330263Z",
+  "finished_at": "2026-09-23T08:06:58.545610Z",
+  "duration_seconds": 0.215235,
+  "manifest_documents": 37,
+  "inserted_documents": 0,
+  "updated_documents": 0,
+  "skipped_documents": 37,
+  "archived_documents": 0,
+  "active_documents": 37,
+  "active_chunks": 37,
+  "embedded_chunks": 0,
+  "rejected_records": [],
+  "embedding": {
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "dimension": 384,
+    "tokenizer": "BertTokenizer",
+    "license": "Apache-2.0",
+    "device": "cpu",
+    "batch_size": 16,
+    "chunk_tokens": 500,
+    "chunk_overlap": 75,
+    "hard_chunk_limit": 600,
+    "encoded_texts": 0,
+    "encoding_seconds": 0.0,
+    "texts_per_second": null,
+    "hardware": "Darwin arm64"
+  },
+  "indexes": [
+    {
+      "name": "chunk_embedding_vector",
+      "state": "ONLINE",
+      "populationPercent": 100.0,
+      "type": "VECTOR"
+    },
+    {
+      "name": "chunk_text_fulltext",
+      "state": "ONLINE",
+      "populationPercent": 100.0,
+      "type": "FULLTEXT"
+    }
+  ],
+  "graph": {
+    "services": 3,
+    "resources": 3,
+    "dependencies": 2,
+    "documents": 37,
+    "chunks": 37
+  },
+  "verification": {
+    "status": "pass",
+    "checks": {
+      "gateway_depends_on_checkout": true,
+      "checkout_has_gateway_dependent": true,
+      "payments_reverse_impact": true,
+      "topology_not_backdated": true,
+      "temporal_document_eligibility": true,
+      "untrusted_filtered": true,
+      "outdated_filtered": true,
+      "indexes_online": true,
+      "source_references_resolve": true,
+      "embedding_compatibility": true
+    },
+    "gateway_outbound": [
+      {
+        "service_id": "svc-gateway",
+        "neighbor_id": "svc-checkout",
+        "source_id": "declared-compose-topology-v1",
+        "topology_version": "incidentgraph-lab-topology-v1"
+      }
+    ],
+    "checkout_inbound": [
+      {
+        "service_id": "svc-checkout",
+        "neighbor_id": "svc-gateway",
+        "source_id": "declared-compose-topology-v1",
+        "topology_version": "incidentgraph-lab-topology-v1"
+      }
+    ],
+    "payments_reverse_impact": [
+      {
+        "service_id": "svc-checkout",
+        "hops": 1
+      },
+      {
+        "service_id": "svc-gateway",
+        "hops": 2
+      }
+    ],
+    "eligible_document_count": 34
+  }
+}

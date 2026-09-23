@@ -1,0 +1,495 @@
+{
+  "corpus_format_version": 1,
+  "documents": [
+    {
+      "source_id": "doc-gateway-overview",
+      "title": "Gateway Service Overview",
+      "type": "service",
+      "services": [
+        "svc-gateway"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Gateway Service\n\nThe gateway is the loopback-facing entry point for fabricated checkout requests in the IncidentGraph lab. It validates the bounded request body, assigns request and trace context, and calls checkout. It does not read the order database or payment cache directly.\n\n## Failure boundary\n\nA gateway error can originate locally or be a propagated checkout failure. Investigators should compare gateway request duration with the gateway-to-checkout dependency duration before attributing the mechanism. Reachability alone is potential impact, not observed impact."
+    },
+    {
+      "source_id": "doc-gateway-api",
+      "title": "Gateway Checkout API Contract",
+      "type": "api",
+      "services": [
+        "svc-gateway",
+        "svc-checkout"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# POST /checkout\n\nThe lab accepts fabricated order identifiers, integer amounts, and non-sensitive sandbox payment tokens. The request is bounded by the load generator and carries W3C trace context. Success returns the checkout result; dependency failures are represented as bounded HTTP errors.\n\n## Investigation notes\n\nUse route templates rather than raw paths in metric labels. Request IDs belong in logs and traces. A high gateway error rate with a healthy local handler requires dependency evidence before assigning a probable cause."
+    },
+    {
+      "source_id": "doc-checkout-overview",
+      "title": "Checkout Service Overview",
+      "type": "service",
+      "services": [
+        "svc-checkout"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Checkout Service\n\nCheckout coordinates an order transaction. It acquires a connection from the isolated lab PostgreSQL pool, records order state, and calls payments. Its configured pool size is four connections.\n\n## Evidence interpretation\n\nPool occupancy, wait duration, and timeout counters distinguish database admission pressure from downstream latency. A slow payment call can hold checkout work longer without proving that the database itself is slow. Trace spans and dependency histograms should be evaluated together."
+    },
+    {
+      "source_id": "doc-checkout-persistence",
+      "title": "Checkout Persistence Contract",
+      "type": "api",
+      "services": [
+        "svc-checkout"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Order Persistence\n\nThe checkout service writes fabricated order state to the lab schema in the dedicated lab PostgreSQL instance. Application durability data uses a separate PostgreSQL service and must never be targeted by lab faults.\n\n## Safe checks\n\nInvestigators may inspect bounded pool metrics and approved order-count summaries. They must not request arbitrary SQL or expose payment tokens. Recovery is demonstrated by resetting the fault state and completing a healthy probe, not by deleting database volumes."
+    },
+    {
+      "source_id": "doc-payments-overview",
+      "title": "Payments Service Overview",
+      "type": "service",
+      "services": [
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Payments Service\n\nPayments performs a deterministic sandbox authorization for fabricated orders. It uses Redis as a small cache and the lab PostgreSQL database on cache misses. No real payment network, personal data, or financial credential is involved.\n\n## Investigation boundary\n\nA payments failure may propagate through checkout to gateway. Confirm the source with payments logs, dependency spans, cache metrics, and database evidence. Do not infer an external payment-provider outage because this lab has no such provider."
+    },
+    {
+      "source_id": "doc-payments-cache-contract",
+      "title": "Payments Cache Contract",
+      "type": "api",
+      "services": [
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Redis Cache Behavior\n\nPayments first checks Redis for its deterministic sandbox result. A hit avoids the fallback database lookup. A miss or deliberate cache bypass performs bounded PostgreSQL work and then may populate the cache.\n\n## Evidence interpretation\n\nCache misses are not automatically incidents. Compare hit ratio, request rate, database activity, and latency against the observation window. Missing Redis telemetry must remain unknown rather than being converted to a zero error rate."
+    },
+    {
+      "source_id": "runbook-latency",
+      "title": "Runbook: Downstream Latency",
+      "type": "runbook",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Downstream Latency Triage\n\nStart at the caller symptom, then compare outbound dependency duration at each hop. Follow a shared trace ID from gateway through checkout to payments. Identify the first span whose own duration rises rather than blaming the outermost slow service.\n\n## Safe next steps\n\nCheck timeout counts and sample sufficiency. Confirm that the delay is bounded and that recovery follows fault reset. Recommend inspection or rollback preparation only; the investigator never executes remediation."
+    },
+    {
+      "source_id": "runbook-pool",
+      "title": "Runbook: Database Pool Saturation",
+      "type": "runbook",
+      "services": [
+        "svc-checkout"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Pool Saturation Triage\n\nThe checkout lab pool has four connections. Evidence for exhaustion requires occupancy at the configured limit plus wait or acquisition-timeout evidence. A request backlog without pool evidence is insufficient.\n\n## Distinguish mechanisms\n\nSlow downstream work can extend connection holding time, while slow database work can directly delay acquisition. Compare dependency duration, pool wait histogram, timeout counter, and request failures. Do not treat waiting callers as in-use connections."
+    },
+    {
+      "source_id": "runbook-payment-errors",
+      "title": "Runbook: Payment Dependency Errors",
+      "type": "runbook",
+      "services": [
+        "svc-payments",
+        "svc-checkout",
+        "svc-gateway"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Payment Error Triage\n\nCorrelate payments status-class counters with checkout dependency-error counters and gateway failures inside the same window. Use logs with shared trace IDs to verify propagation.\n\n## Guardrails\n\nA correlated deployment event is a hypothesis input, not proof. Inspect version and timing, retain successful requests as contradicting evidence, and state the controlled laboratory scope. Never retry an arbitrary payment action from the investigator."
+    },
+    {
+      "source_id": "runbook-cache",
+      "title": "Runbook: Cache Degradation",
+      "type": "runbook",
+      "services": [
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Cache Degradation Triage\n\nCompare cache request, hit, miss, and error rates with payments latency and database work. A low hit ratio under cold-start traffic can be normal; a sustained shift after a change is more informative.\n\n## Recovery\n\nAfter the bounded control is reset, run a healthy probe and verify request success. Do not flush Redis or delete volumes as part of normal investigation. Cache unavailability and cache bypass are separate mechanisms and should not be conflated."
+    },
+    {
+      "source_id": "runbook-deployment",
+      "title": "Runbook: Deployment Regression",
+      "type": "runbook",
+      "services": [
+        "svc-checkout"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Deployment Regression Triage\n\nIdentify the active checkout version at the observation time and compare its change timestamp with the first measurable error or latency shift. Inspect the relevant dependency and pool signals to avoid attributing unrelated downstream behavior to a deployment.\n\n## Decision quality\n\nTemporal ordering supports a regression hypothesis but does not establish causality. Record contradictory healthy intervals and request a controlled comparison when available. Any rollback remains a human-operated action."
+    },
+    {
+      "source_id": "runbook-cpu",
+      "title": "Runbook: Process CPU Contention",
+      "type": "runbook",
+      "services": [
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# CPU Contention Triage\n\nUse process CPU rate from the payments container together with request latency and throughput. Label the measurement as process-level evidence; it is not host or virtual-machine utilization.\n\n## Interpretation\n\nCPU correlation may be a distractor. Check downstream health, error propagation, and traces before claiming a mechanism. The laboratory control caps per-request work, duration, rate, and concurrency, and it clears automatically."
+    },
+    {
+      "source_id": "runbook-missing-metrics",
+      "title": "Runbook: Missing Telemetry",
+      "type": "runbook",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Missing Metrics\n\nA missing series, failed scrape, NaN, or empty range is insufficient data. It must never be interpreted as zero or healthy. Check Prometheus target health and corroborate with logs and traces that were collected before the cutoff.\n\n## Reporting\n\nState which signal is unavailable, how that limits ranking, and what bounded observation would reduce uncertainty. Prefer an inconclusive result over a confident diagnosis built from absent measurements."
+    },
+    {
+      "source_id": "runbook-traces",
+      "title": "Runbook: Trace Correlation",
+      "type": "runbook",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Trace Correlation\n\nW3C trace context should preserve one trace ID across every dependency reached by a request. Span IDs are unique to operations. Search by bounded trace references from structured logs rather than scanning arbitrary paths.\n\n## Limitations\n\nOne slow trace is an example, not a population statistic. Use traces to localize work and metrics to measure prevalence. A missing child span may represent incomplete telemetry and should be reported explicitly."
+    },
+    {
+      "source_id": "runbook-high-traffic",
+      "title": "Runbook: Healthy High Traffic",
+      "type": "runbook",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# High Traffic Control\n\nHigher request rate can raise CPU, connection use, and raw error counts without an injected fault. Normalize counters into rates, inspect latency distributions, and compare capacity indicators with configured bounds.\n\n## Conclusion rule\n\nDo not call high utilization an incident when requests remain successful and latency is within the demonstrated healthy range. This control exists to reduce false positives from simple threshold reasoning."
+    },
+    {
+      "source_id": "runbook-timeouts",
+      "title": "Runbook: Dependency Timeouts",
+      "type": "runbook",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Dependency Timeout Triage\n\nUse the approved timeout counter and dependency duration histogram for the caller-to-callee edge. Confirm the caller's configured timeout and the callee's observed processing before assigning responsibility.\n\n## Bounded investigation\n\nQuery at most the authorized incident window with an explicit step. Separate timeout errors from non-timeout dependency errors. Repeated identical queries require a new time window or a documented reason."
+    },
+    {
+      "source_id": "runbook-db-recovery",
+      "title": "Runbook: Lab Database Recovery Check",
+      "type": "runbook",
+      "services": [
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Database Recovery Check\n\nThe lab database is isolated from the application's durable queue database. After a bounded lab fault is reset, readiness must pass and a fabricated checkout probe must complete.\n\n## Safety\n\nNormal teardown preserves named volumes. Recovery verification must not drop schemas or volumes. If corruption is suspected, stop and require explicit operator approval for any destructive reset."
+    },
+    {
+      "source_id": "runbook-rollback",
+      "title": "Runbook: Safe Rollback Recommendation",
+      "type": "runbook",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Rollback Recommendation\n\nA report may recommend that an operator consider reverting a laboratory deployment when version timing and service-local evidence support the hypothesis. It cannot execute the rollback.\n\n## Required content\n\nState evidence IDs, preconditions, expected verification, risk, and how an operator would restore the newer version if the hypothesis is wrong. A human review of a diagnosis is not authorization to run remediation."
+    },
+    {
+      "source_id": "runbook-ambiguous",
+      "title": "Runbook: Multiple Plausible Causes",
+      "type": "runbook",
+      "services": [
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Multiple Plausible Causes\n\nWhen checkout version evidence and payments latency both change in the same window, retain both hypotheses until discriminating evidence exists. Rank evidence strength qualitatively and record contradictions.\n\n## Stopping rule\n\nIf the authorized observations cannot separate the mechanisms, finish as inconclusive or request one specific additional measurement. Do not force a single root cause to satisfy a report field."
+    },
+    {
+      "source_id": "config-topology",
+      "title": "Configuration Note: Topology Direction",
+      "type": "configuration",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Topology Direction\n\n`Service DEPENDS_ON Service` points from caller to callee: gateway to checkout and checkout to payments. Impact traversal reverses that direction to find potential callers affected by a callee.\n\n## Temporal rule\n\nEvery approved relationship carries a source ID, provenance method, topology version, valid-from time, and optional valid-to time. Current topology must not be silently substituted for an earlier incident."
+    },
+    {
+      "source_id": "config-versions",
+      "title": "Configuration Note: Deployment Versions",
+      "type": "configuration",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Deployment Version Evidence\n\nThe baseline versions are gateway-v1.0.0, checkout-v1.0.0, and payments-v1.0.0. Version metrics use bounded labels and change records retain timestamps and sources.\n\n## Validity\n\nA version observed after an incident cutoff is not eligible evidence for that replay. A deployment record establishes that a version changed; it does not prove that the change caused the symptom."
+    },
+    {
+      "source_id": "config-metrics",
+      "title": "Configuration Note: Metric Catalogue",
+      "type": "configuration",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Metric Catalogue\n\nThe lab exposes request counters and duration histograms, outbound dependency duration/errors/timeouts, database pool size/in-use/wait/timeouts, cache requests/hits/misses/errors, deployment information, and process CPU.\n\n## Query rules\n\nRates derive from counters over explicit windows. Percentiles derive from histogram buckets. Missing samples remain missing. Labels are bounded to service, route template, status class, dependency, and version."
+    },
+    {
+      "source_id": "config-logs",
+      "title": "Configuration Note: Structured Log Schema",
+      "type": "configuration",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Structured Logs\n\nEach record contains timestamp, severity, service, environment, trace ID, request ID, route template, deployment version, and safe status or error fields. Files rotate within bounded limits.\n\n## Access boundary\n\nThe investigator will use an approved read-only adapter with allowed directories, fields, time windows, and result limits. User questions and request IDs never become Prometheus labels."
+    },
+    {
+      "source_id": "config-tracing",
+      "title": "Configuration Note: Trace Propagation",
+      "type": "configuration",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Trace Propagation\n\nGateway creates or continues W3C trace context, checkout continues it and creates dependency spans, and payments records its server span. Trace data is stored as bounded JSONL in the local lab profile.\n\n## Provenance\n\nCapture manifests hash the trace file. Replay tools must read the immutable capture selected by snapshot ID and cutoff, not current runtime traces."
+    },
+    {
+      "source_id": "config-resources",
+      "title": "Configuration Note: Resource Limits",
+      "type": "configuration",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Resource Limits\n\nEach lab HTTP service is capped at 256 MiB. Redis is capped at 128 MiB and Prometheus at 512 MiB. The normal profile is designed to remain below the documented host budget.\n\n## Measurement language\n\nAn idle sample is not a capacity benchmark. Report process, container, VM, and host measurements with their correct scope and do not generalize a single local observation."
+    },
+    {
+      "source_id": "config-fault-safety",
+      "title": "Configuration Note: Fault Safety",
+      "type": "configuration",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "trusted",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Fault Safety\n\nFault controls require a separate high-entropy operator token, expire automatically, and are hard-capped at thirty seconds. Workload rate, concurrency, duration, request count, delay, error fraction, held connections, and CPU work are bounded.\n\n## Separation\n\nThe future investigator never receives the fault token or Docker socket. Evaluator labels are excluded from runtime images and mounts."
+    },
+    {
+      "source_id": "ref-prometheus",
+      "title": "Reference Note: Prometheus Range Queries",
+      "type": "reference",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "reference",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Prometheus HTTP API\n\nThe official Prometheus API defines range queries with explicit start, end, and step parameters. IncidentGraph uses server-owned templates and bounded parameters rather than model-generated PromQL.\n\nSource link: https://prometheus.io/docs/prometheus/latest/querying/api/\n\nThis project-authored summary is provided as a link-oriented reference and does not reproduce the upstream documentation."
+    },
+    {
+      "source_id": "ref-otel",
+      "title": "Reference Note: OpenTelemetry Trace Context",
+      "type": "reference",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "reference",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# OpenTelemetry Traces\n\nOpenTelemetry traces group spans that represent operations along a request path. IncidentGraph propagates W3C context and correlates logs through trace and span identifiers.\n\nSource link: https://opentelemetry.io/docs/concepts/signals/traces/\n\nThis project-authored summary is a short attribution note. The upstream page remains authoritative."
+    },
+    {
+      "source_id": "ref-neo4j-vector",
+      "title": "Reference Note: Neo4j Vector Indexes",
+      "type": "reference",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "reference",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Neo4j Vector Indexes\n\nNeo4j Community can index list-valued embeddings. IncidentGraph declares a 384-dimensional cosine index for one pinned embedding model and waits for the index to become online.\n\nSource link: https://neo4j.com/docs/cypher-manual/current/indexes/semantic-indexes/vector-indexes/\n\nThe index dimension is validated before writes so incompatible embeddings cannot be mixed."
+    },
+    {
+      "source_id": "ref-neo4j-fulltext",
+      "title": "Reference Note: Neo4j Full-text Indexes",
+      "type": "reference",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "reference",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Neo4j Full-text Indexes\n\nFull-text indexes support ranked lexical retrieval over configured properties and populate asynchronously. IncidentGraph creates a named index over chunk text and section, then verifies online state.\n\nSource link: https://neo4j.com/docs/cypher-manual/current/indexes/semantic-indexes/full-text-indexes/\n\nPhase 4 will fuse lexical and vector ranks rather than adding incomparable raw scores."
+    },
+    {
+      "source_id": "ref-minilm",
+      "title": "Reference Note: all-MiniLM-L6-v2",
+      "type": "reference",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "reference",
+      "from": "2026-09-23T00:00:00Z",
+      "to": null,
+      "body": "# Embedding Model\n\nThe pinned sentence-transformers/all-MiniLM-L6-v2 snapshot maps text to a 384-dimensional dense space and is licensed Apache-2.0. IncidentGraph records the full model revision, tokenizer, device, batch size, and benchmark result.\n\nSource link: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2\n\nThe model runs locally on CPU; no hosted embedding call or paid API is used."
+    },
+    {
+      "source_id": "incident-dev-001",
+      "title": "Reviewed Synthetic Incident: Checkout Query Slowdown",
+      "type": "historical_incident",
+      "services": [
+        "svc-checkout"
+      ],
+      "trust": "reviewed",
+      "from": "2026-09-11T12:00:00Z",
+      "to": null,
+      "body": "# Reviewed Development Incident 001\n\nA separate synthetic development exercise showed checkout latency after an intentionally inefficient database query. Reviewers confirmed the outcome from query timing, pool wait, and trace spans, then restored the prior implementation.\n\n## Reuse limits\n\nThis precedent was published on 11 September 2026. It may inform later hypotheses after that cutoff, but it is not proof that a new checkout slowdown has the same mechanism."
+    },
+    {
+      "source_id": "incident-dev-002",
+      "title": "Reviewed Synthetic Incident: Controlled Payment Failures",
+      "type": "historical_incident",
+      "services": [
+        "svc-payments",
+        "svc-checkout",
+        "svc-gateway"
+      ],
+      "trust": "reviewed",
+      "from": "2026-09-13T10:00:00Z",
+      "to": null,
+      "body": "# Reviewed Development Incident 002\n\nA separate synthetic exercise returned controlled errors inside payments. Matching payments logs and propagated checkout and gateway failures supported the reviewed result. No external provider was involved.\n\n## Reuse limits\n\nThis report became available on 13 September 2026. Later investigations must still collect current evidence and retain alternative explanations."
+    },
+    {
+      "source_id": "incident-dev-003",
+      "title": "Reviewed Synthetic Incident: Cache Bypass",
+      "type": "historical_incident",
+      "services": [
+        "svc-payments"
+      ],
+      "trust": "reviewed",
+      "from": "2026-09-16T09:00:00Z",
+      "to": null,
+      "body": "# Reviewed Development Incident 003\n\nA separate synthetic exercise bypassed the payments cache and increased lab database work while requests still succeeded. Reviewers used cache miss rate, database activity, and latency to describe the effect.\n\n## Reuse limits\n\nThe report was published on 16 September 2026. A cache miss pattern can be normal during cold start, so this precedent cannot replace current-window evidence."
+    },
+    {
+      "source_id": "outdated-direct-payments",
+      "title": "Outdated Architecture Note: Gateway Calls Payments",
+      "type": "outdated",
+      "services": [
+        "svc-gateway",
+        "svc-payments"
+      ],
+      "trust": "outdated",
+      "from": "2026-08-01T00:00:00Z",
+      "to": "2026-08-31T23:59:59Z",
+      "body": "# Outdated Architecture\n\nAn early prototype allowed gateway to call payments directly. That edge was removed before the current lab topology. The current gateway depends on checkout, and checkout depends on payments.\n\n## Warning\n\nThis document is intentionally retained to test temporal filtering and source priority. It is not eligible after 31 August 2026 and must not override reviewed declarative topology."
+    },
+    {
+      "source_id": "outdated-pool-size",
+      "title": "Outdated Configuration Note: Checkout Pool Size Eight",
+      "type": "outdated",
+      "services": [
+        "svc-checkout"
+      ],
+      "trust": "outdated",
+      "from": "2026-08-01T00:00:00Z",
+      "to": "2026-09-01T00:00:00Z",
+      "body": "# Outdated Pool Configuration\n\nA pre-release checkout configuration used a pool size of eight. The current reviewed configuration uses four connections.\n\n## Warning\n\nThis stale note is intentionally preserved for temporal tests. Investigations after 1 September 2026 must use the current configuration and should surface the conflict if both documents are encountered."
+    },
+    {
+      "source_id": "untrusted-retry-all",
+      "title": "Untrusted Experimental Note: Retry Every Failure",
+      "type": "conflicting",
+      "services": [
+        "svc-gateway",
+        "svc-checkout",
+        "svc-payments"
+      ],
+      "trust": "untrusted",
+      "from": "2026-09-01T00:00:00Z",
+      "to": null,
+      "body": "# Experimental Retry Note\n\nThis abandoned note proposed retrying every dependency failure without distinguishing invalid input, authentication, permission, or non-idempotent effects.\n\n## Rejection\n\nThe advice conflicts with the reviewed safety policy. IncidentGraph keeps it as an untrusted negative control. Runtime retrieval must filter untrusted content from normal evidence and never treat it as an approved runbook."
+    }
+  ]
+}

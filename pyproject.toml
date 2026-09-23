@@ -19,6 +19,7 @@ dependencies = [
   "pydantic>=2.12,<3",
   "pydantic-settings>=2.10,<3",
   "redis==8.1.0",
+  "sentence-transformers==6.1.0",
   "structlog>=25,<26",
   "uvicorn[standard]>=0.35,<1",
 ]
@@ -28,6 +29,7 @@ incidentgraph = "incidentgraph.cli:main"
 incidentgraph-api = "incidentgraph.api:main"
 incidentgraph-lab = "incidentgraph.lab_cli:main"
 incidentgraph-lab-service = "incidentgraph.lab_service:main"
+incidentgraph-ingest = "incidentgraph.ingestion:main"
 incidentgraph-worker = "incidentgraph.worker:main"
 
 [dependency-groups]
@@ -53,6 +55,7 @@ testpaths = ["tests"]
 markers = [
   "integration: requires real local services",
   "lab_integration: requires the running Phase 2 lab",
+  "graph_integration: requires the running Neo4j service and local embedding model",
 ]
 
 [tool.ruff]

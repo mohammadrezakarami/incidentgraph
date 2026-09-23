@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "topology_version": "incidentgraph-lab-topology-v1",
+  "source_id": "declared-compose-topology-v1",
+  "provenance_method": "reviewed_declarative_configuration",
+  "valid_from": "2026-09-23T00:00:00Z",
+  "valid_to": null,
+  "services": [
+    {
+      "id": "svc-gateway",
+      "name": "gateway",
+      "aliases": ["edge", "checkout-gateway"],
+      "environment": "lab",
+      "owner": "incidentgraph-lab",
+      "metadata_version": "1"
+    },
+    {
+      "id": "svc-checkout",
+      "name": "checkout",
+      "aliases": ["order-coordinator"],
+      "environment": "lab",
+      "owner": "incidentgraph-lab",
+      "metadata_version": "1"
+    },
+    {
+      "id": "svc-payments",
+      "name": "payments",
+      "aliases": ["payment-sandbox"],
+      "environment": "lab",
+      "owner": "incidentgraph-lab",
+      "metadata_version": "1"
+    }
+  ],
+  "resources": [
+    {
+      "id": "res-lab-postgres",
+      "name": "lab-postgres",
+      "kind": "postgresql",
+      "environment": "lab",
+      "endpoint_identifier": "lab-db:5432/lab"
+    },
+    {
+      "id": "res-redis",
+      "name": "payments-cache",
+      "kind": "redis",
+      "environment": "lab",
+      "endpoint_identifier": "redis:6379/0"
+    },
+    {
+      "id": "res-prometheus",
+      "name": "lab-prometheus",
+      "kind": "prometheus",
+      "environment": "lab",
+      "endpoint_identifier": "prometheus:9090"
+    }
+  ],
+  "dependencies": [
+    {"caller": "svc-gateway", "callee": "svc-checkout"},
+    {"caller": "svc-checkout", "callee": "svc-payments"}
+  ],
+  "resource_uses": [
+    {"service": "svc-checkout", "resource": "res-lab-postgres"},
+    {"service": "svc-payments", "resource": "res-lab-postgres"},
+    {"service": "svc-payments", "resource": "res-redis"},
+    {"service": "svc-gateway", "resource": "res-prometheus"},
+    {"service": "svc-checkout", "resource": "res-prometheus"},
+    {"service": "svc-payments", "resource": "res-prometheus"}
+  ],
+  "deployments": [
+    {
+      "id": "deploy-gateway-v1",
+      "service_id": "svc-gateway",
+      "version": "gateway-v1.0.0",
+      "timestamp": "2026-09-23T00:00:00Z",
+      "source_record": "ops/compose.yaml"
+    },
+    {
+      "id": "deploy-checkout-v1",
+      "service_id": "svc-checkout",
+      "version": "checkout-v1.0.0",
+      "timestamp": "2026-09-23T00:00:00Z",
+      "source_record": "ops/compose.yaml"
+    },
+    {
+      "id": "deploy-payments-v1",
+      "service_id": "svc-payments",
+      "version": "payments-v1.0.0",
+      "timestamp": "2026-09-23T00:00:00Z",
+      "source_record": "ops/compose.yaml"
+    }
+  ],
+  "incidents": [
+    {
+      "id": "hist-dev-001",
+      "window_start": "2026-09-10T09:00:00Z",
+      "window_end": "2026-09-10T09:20:00Z",
+      "reviewed_outcome": "A development-only checkout slowdown was resolved after reverting an intentionally inefficient query.",
+      "source_provenance": "synthetic reviewed development exercise",
+      "published_at": "2026-09-11T12:00:00Z",
+      "affected_services": ["svc-checkout"]
+    },
+    {
+      "id": "hist-dev-002",
+      "window_start": "2026-09-12T14:00:00Z",
+      "window_end": "2026-09-12T14:15:00Z",
+      "reviewed_outcome": "A development-only payment dependency returned controlled failures; no production system was involved.",
+      "source_provenance": "synthetic reviewed development exercise",
+      "published_at": "2026-09-13T10:00:00Z",
+      "affected_services": ["svc-payments", "svc-checkout", "svc-gateway"]
+    },
+    {
+      "id": "hist-dev-003",
+      "window_start": "2026-09-15T16:00:00Z",
+      "window_end": "2026-09-15T16:12:00Z",
+      "reviewed_outcome": "A development-only cache bypass increased database work while requests continued to succeed.",
+      "source_provenance": "synthetic reviewed development exercise",
+      "published_at": "2026-09-16T09:00:00Z",
+      "affected_services": ["svc-payments"]
+    }
+  ]
+}
