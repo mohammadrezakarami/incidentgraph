@@ -58,6 +58,7 @@ TOOL_CATALOG = """Permitted observations and exact arguments:
 - retrieve_runbooks: query, service_ids, cutoff, variant (vector|hybrid|graph)
 - get_reviewed_incidents: query, service_ids, cutoff, variant (vector|hybrid|graph)
 Use only canonical authorized service IDs from context. Copy all timestamps exactly from context.
+If tool_validation_error is non-empty, correct every named argument and do not repeat that request.
 For a broad incident question, error_rate is a useful first discriminator. Adapt the next
 observation to returned summaries: errors justify bounded logs; latency without errors justifies
 request_latency or dependencies; pool, cache, CPU, or deployment signals justify their matching
@@ -283,6 +284,7 @@ class Counters(BaseModel):
     model_latency_ms: float = Field(default=0, ge=0)
     tool_latency_ms: float = Field(default=0, ge=0)
     repair_attempts: int = Field(default=0, ge=0, le=1)
+    tool_validation_retries: int = Field(default=0, ge=0, le=2)
 
 
 class InvestigatorState(TypedDict, total=False):
@@ -311,6 +313,7 @@ class InvestigatorState(TypedDict, total=False):
     error_summaries: list[str]
     counters: dict[str, Any]
     request_fingerprints: list[str]
+    tool_validation_error: str
     missing_information: list[str]
     contradictions: list[str]
     decision_summaries: list[str]
@@ -375,8 +378,13 @@ def validate_tool_request(
     runtime: ToolRuntimeContext,
     fingerprints: Sequence[str],
 ) -> tuple[BaseModel, str]:
+    # Some local structured-output runtimes emit unsupported optional keys as null.
+    # Removing null extras does not broaden the request and keeps the strict schema useful.
+    compact_arguments = {
+        key: value for key, value in request.arguments.items() if value is not None
+    }
     try:
-        validated = TOOL_INPUTS[request.tool].model_validate(request.arguments)
+        validated = TOOL_INPUTS[request.tool].model_validate(compact_arguments)
     except ValidationError as exc:
         raise PolicyViolation(f"invalid {request.tool} arguments: {exc}") from exc
     if isinstance(validated, ResolveServiceInput):
@@ -393,7 +401,10 @@ def validate_tool_request(
             raise PolicyViolation("observation time exceeds the cutoff")
     if isinstance(validated, RetrieveInput) and validated.cutoff != runtime.observation_cutoff:
         raise PolicyViolation("retrieval cutoff must equal the immutable observation cutoff")
-    fingerprint = request_fingerprint(request)
+    normalized_request = request.model_copy(
+        update={"arguments": validated.model_dump(mode="json")}
+    )
+    fingerprint = request_fingerprint(normalized_request)
     if fingerprint in fingerprints:
         raise PolicyViolation("duplicate tool request requires a changed window or arguments")
     return validated, fingerprint
@@ -450,6 +461,7 @@ def _state_context(state: InvestigatorState) -> str:
         "missing_information": state.get("missing_information", []),
         "contradictions": state.get("contradictions", []),
         "policy_feedback": state.get("error_summaries", [])[-3:],
+        "tool_validation_error": state.get("tool_validation_error", ""),
     }
     return _canonical_json(safe)
 
@@ -788,16 +800,44 @@ def build_workflow(
                 _runtime_context(state),
                 state.get("request_fingerprints", []),
             )
-        except (PolicyViolation, BudgetExceeded, ValidationError) as exc:
+        except PolicyViolation as exc:
+            message = str(exc)
+            recoverable = message.startswith("invalid ") or message.startswith(
+                "duplicate tool request"
+            )
+            can_retry = (
+                recoverable
+                and counters.tool_validation_retries < 2
+                and counters.model_calls < settings.model_max_calls - 1
+                and counters.rounds < settings.investigator_max_rounds
+            )
+            if can_retry:
+                counters.tool_validation_retries += 1
+                return {
+                    "pending_tool_request": None,
+                    "termination_reason": "",
+                    "tool_validation_error": message[:2_000],
+                    "error_summaries": [*state.get("error_summaries", []), message],
+                    "counters": counters.model_dump(mode="json"),
+                }
+            return {
+                "pending_tool_request": None,
+                "termination_reason": "policy_or_budget_stop",
+                "error_summaries": [*state.get("error_summaries", []), message],
+                "counters": counters.model_dump(mode="json"),
+            }
+        except (BudgetExceeded, ValidationError) as exc:
             return {
                 "pending_tool_request": None,
                 "termination_reason": "policy_or_budget_stop",
                 "error_summaries": [*state.get("error_summaries", []), str(exc)],
+                "counters": counters.model_dump(mode="json"),
             }
         request.arguments = validated.model_dump(mode="json")
         return {
             "pending_tool_request": request.model_dump(mode="json"),
             "request_fingerprints": [*state.get("request_fingerprints", []), fingerprint],
+            "tool_validation_error": "",
         }
 
     async def execute_tools(state: InvestigatorState) -> dict[str, Any]:
@@ -1084,7 +1124,9 @@ def build_workflow(
         return "draft_report" if state.get("termination_reason") else "plan_next_observation"
 
     def after_policy(state: InvestigatorState) -> str:
-        return "draft_report" if state.get("pending_tool_request") is None else "execute_tools"
+        if state.get("pending_tool_request") is not None:
+            return "execute_tools"
+        return "draft_report" if state.get("termination_reason") else "plan_next_observation"
 
     def after_check(state: InvestigatorState) -> str:
         return "draft_report" if state.get("termination_reason") else "plan_next_observation"
@@ -1156,6 +1198,7 @@ def initial_state(
         "mode": mode.value,
         "snapshot_id": snapshot_id,
         "corpus_version": corpus_version,
+        "tool_validation_error": "",
         "trace_reference": f"trace://investigation/{investigation_id}",
         "started_at": datetime.now(UTC).isoformat(),
     }

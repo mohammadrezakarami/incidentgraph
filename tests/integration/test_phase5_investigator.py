@@ -78,6 +78,13 @@ class CheckpointModel:
     async def plan(self, context: str) -> ModelResult:
         state = json.loads(context)
         start, end = state["window"]
+        diagnostic_round = len(
+            [
+                item
+                for item in state["tool_outcomes"]
+                if item["tool"] not in {"resolve_service", "get_service_context"}
+            ]
+        )
         return ModelResult(
             PlanDecision(
                 action="observe",
@@ -89,6 +96,11 @@ class CheckpointModel:
                         "service_ids": ["svc-gateway"],
                         "window_start": start,
                         "window_end": end,
+                        "event": (
+                            "request.failure"
+                            if diagnostic_round == 0
+                            else "dependency.failure"
+                        ),
                         "limit": 20,
                     },
                     reason="Inspect bounded error events.",
@@ -197,7 +209,7 @@ async def test_postgres_checkpointer_persists_completed_workflow_state() -> None
     assert result["status"] == "completed"
     assert saved.values["status"] == "completed"
     assert saved.values["report_valid"] is True
-    assert saved.values["counters"]["model_calls"] == 3
+    assert saved.values["counters"]["model_calls"] == 5
     assert saved.values["evidence"][0]["content"] is None
     database = Database(settings.app_database_dsn.get_secret_value())
     await database.open()

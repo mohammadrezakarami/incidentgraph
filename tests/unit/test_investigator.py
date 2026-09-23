@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 from uuid import NAMESPACE_URL, uuid4, uuid5
 
 import pytest
 
 from incidentgraph.config import Settings
+from incidentgraph.investigation_tools import CaptureToolbox
 from incidentgraph.investigator import (
     HypothesisRevision,
     InvestigatorState,
@@ -275,6 +277,48 @@ async def test_adaptive_workflow_can_choose_different_first_observations(
     assert result["report_reference"].startswith("postgres://incidentgraph_app/reports/")
 
 
+class InvalidThenCorrectModel(ScriptedModel):
+    def __init__(self, selected_tool: ToolName, item: EvidenceItem) -> None:
+        super().__init__(selected_tool, item)
+        self.plan_calls = 0
+
+    async def plan(self, context: str) -> ModelResult:
+        self.plan_calls += 1
+        if self.plan_calls == 1:
+            state = json.loads(context)
+            return ModelResult(
+                PlanDecision(
+                    action="observe",
+                    objective="Inspect the reported symptom.",
+                    decision_summary="The first local-model request is deliberately malformed.",
+                    tool_request=ToolRequest(
+                        tool=ToolName.GET_METRICS,
+                        arguments={
+                            "service_id": "svc-gateway",
+                            "observation_time": state["observation_cutoff"],
+                        },
+                        reason="Exercise bounded validation repair.",
+                    ),
+                ),
+                ModelUsage(input_tokens=20, output_tokens=10, latency_ms=1),
+            )
+        return await super().plan(context)
+
+
+@pytest.mark.asyncio
+async def test_invalid_local_model_tool_arguments_get_one_bounded_retry() -> None:
+    tools = FakeTools(ToolName.GET_METRICS)
+    model = InvalidThenCorrectModel(ToolName.GET_METRICS, tools.item)
+    workflow = build_workflow(settings(), model, tools)
+
+    result = await workflow.ainvoke(state())
+
+    assert result["status"] == "completed"
+    assert result["counters"]["tool_validation_retries"] == 1
+    assert any("invalid get_metrics arguments" in item for item in result["error_summaries"])
+    assert tools.seen == [ToolName.RESOLVE_SERVICE, ToolName.GET_METRICS, ToolName.GET_METRICS]
+
+
 @pytest.mark.asyncio
 async def test_missing_telemetry_produces_an_inconclusive_report() -> None:
     tools = FakeTools(ToolName.GET_METRICS, fail_observation=True)
@@ -326,6 +370,86 @@ def test_policy_rejects_unauthorized_and_duplicate_tool_calls() -> None:
     fingerprint = request_fingerprint(allowed)
     with pytest.raises(PolicyViolation, match="duplicate"):
         validate_tool_request(allowed, runtime, [fingerprint])
+
+
+def test_policy_drops_unsupported_null_keys_without_broadening_request() -> None:
+    now = datetime(2026, 9, 23, 12, tzinfo=UTC)
+    runtime = ToolRuntimeContext(
+        investigation_id=uuid4(),
+        principal_id="viewer-1",
+        authorized_service_ids=("svc-gateway",),
+        environment="lab",
+        window_start=now - timedelta(minutes=10),
+        window_end=now,
+        observation_cutoff=now,
+        snapshot_id="cap-test-00000000",
+    )
+    request = ToolRequest(
+        tool=ToolName.SEARCH_LOGS,
+        arguments={
+            "service_ids": ["svc-gateway"],
+            "window_start": (now - timedelta(minutes=10)).isoformat(),
+            "window_end": now.isoformat(),
+            "event_id": None,
+            "limit": 20,
+        },
+        reason="Inspect bounded logs.",
+    )
+
+    validated, _ = validate_tool_request(request, runtime, [])
+
+    assert validated.model_dump()["limit"] == 20
+
+
+@pytest.mark.asyncio
+async def test_replay_dependencies_use_the_immutable_capture(tmp_path: Path) -> None:
+    snapshot_id = "cap-test-dependencies"
+    capture = tmp_path / snapshot_id
+    capture.mkdir()
+    (capture / "topology.json").write_text(
+        json.dumps(
+            {
+                "services": ["gateway", "checkout", "payments"],
+                "dependencies": [
+                    {"caller": "gateway", "callee": "checkout"},
+                    {"caller": "checkout", "callee": "payments"},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    now = datetime(2026, 9, 23, 12, tzinfo=UTC)
+    runtime = ToolRuntimeContext(
+        investigation_id=uuid4(),
+        principal_id="viewer-1",
+        authorized_service_ids=("svc-gateway", "svc-checkout", "svc-payments"),
+        environment="lab",
+        window_start=now - timedelta(minutes=10),
+        window_end=now,
+        observation_cutoff=now,
+        snapshot_id=snapshot_id,
+    )
+    toolbox = CaptureToolbox(settings(), capture_root=tmp_path)
+    request = ToolRequest(
+        tool=ToolName.GET_DEPENDENCIES,
+        arguments={
+            "service_id": "svc-gateway",
+            "direction": "outbound",
+            "depth": 2,
+            "observation_time": now.isoformat(),
+        },
+        reason="Inspect captured dependencies.",
+    )
+
+    result = await toolbox.execute(request, runtime)
+
+    assert result.status == "ok"
+    assert result.data["path_count"] == 2
+    assert result.data["relationships"] == [
+        "svc-checkout->svc-payments",
+        "svc-gateway->svc-checkout",
+    ]
+    assert result.evidence[0].source_id == "topology.json#dependencies"
 
 
 def test_report_validator_rejects_unknown_or_unsupported_citations() -> None:

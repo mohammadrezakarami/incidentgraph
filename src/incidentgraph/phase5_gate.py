@@ -42,6 +42,15 @@ def _jsonl(path: Path) -> list[dict[str, Any]]:
 def _model_settings(base: Settings) -> Settings:
     return base.model_copy(
         update={
+            "environment": "local",
+            "auth_tokens_json": json.dumps(
+                {
+                    "0" * 64: {
+                        "principal_id": "phase5-local-gate",
+                        "roles": ["viewer"],
+                    }
+                }
+            ),
             "model_provider": "local_openai_compatible",
             "model_id": MODEL_ID,
             "model_api_key": SecretStr("ollama-local-ignored"),
@@ -172,6 +181,7 @@ def _assess(runs: list[dict[str, Any]]) -> dict[str, Any]:
         "valid_grounded_reports": all(run["report_valid"] for run in runs),
         "real_model_calls_recorded": all(run["counters"].get("model_calls", 0) > 0 for run in runs),
         "real_tools_executed": all(len(sequence) >= 2 for sequence in sequences),
+        "grounded_observation_recorded": all(run["evidence_ids"] for run in runs),
         "different_evidence_driven_next_tools": (
             all(tool is not None for tool in second_tools) and len(set(second_tools)) == 2
         ),

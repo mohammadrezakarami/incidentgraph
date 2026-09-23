@@ -282,6 +282,8 @@ class CaptureToolbox:
         )
 
     def _dependencies(self, value: DependenciesInput, context: ToolRuntimeContext) -> ToolResult:
+        if context.snapshot_id is not None:
+            return self._captured_dependencies(value, context)
         pattern = {
             Direction.OUTBOUND: "-[rels:DEPENDS_ON*1..2]->",
             Direction.INBOUND: "<-[rels:DEPENDS_ON*1..2]-",
@@ -339,6 +341,85 @@ class CaptureToolbox:
             data={
                 "path_count": len(paths),
                 "nodes": sorted({node for path in paths for node in path["nodes"]}),
+                "relationships": sorted(
+                    {
+                        f"{rel['caller']}->{rel['callee']}"
+                        for path in paths
+                        for rel in path["relationships"]
+                    }
+                ),
+            },
+        )
+
+    def _captured_dependencies(
+        self, value: DependenciesInput, context: ToolRuntimeContext
+    ) -> ToolResult:
+        capture = self._capture_dir(context.snapshot_id)
+        raw = json.loads((capture / "topology.json").read_text(encoding="utf-8"))
+        edges = [
+            (f"svc-{item['caller']}", f"svc-{item['callee']}")
+            for item in raw.get("dependencies", [])
+            if "callee" in item
+        ]
+        paths: list[dict[str, Any]] = []
+
+        def neighbors(service_id: str) -> list[tuple[str, tuple[str, str]]]:
+            found: list[tuple[str, tuple[str, str]]] = []
+            for caller, callee in edges:
+                if value.direction in {Direction.OUTBOUND, Direction.BOTH} and caller == service_id:
+                    found.append((callee, (caller, callee)))
+                if value.direction in {Direction.INBOUND, Direction.BOTH} and callee == service_id:
+                    found.append((caller, (caller, callee)))
+            return found
+
+        def visit(
+            service_id: str,
+            nodes: list[str],
+            relationships: list[dict[str, str]],
+        ) -> None:
+            if len(relationships) >= value.depth or len(paths) >= 50:
+                return
+            for neighbor, (caller, callee) in neighbors(service_id):
+                if neighbor in nodes or neighbor not in context.authorized_service_ids:
+                    continue
+                next_nodes = [*nodes, neighbor]
+                next_relationships = [
+                    *relationships,
+                    {
+                        "type": "DEPENDS_ON",
+                        "caller": caller,
+                        "callee": callee,
+                        "source_id": "captured-topology-v1",
+                        "topology_version": "capture-v1",
+                    },
+                ]
+                paths.append(
+                    {
+                        "nodes": next_nodes,
+                        "relationships": next_relationships,
+                        "hops": len(next_relationships),
+                    }
+                )
+                visit(neighbor, next_nodes, next_relationships)
+
+        visit(value.service_id, [value.service_id], [])
+        service_ids = sorted({node for path in paths for node in path["nodes"]})
+        evidence = self._evidence(
+            context=context,
+            tool=ToolName.GET_DEPENDENCIES,
+            source_id="topology.json#dependencies",
+            kind="topology",
+            service_ids=service_ids or [value.service_id],
+            content=paths,
+        )
+        return ToolResult(
+            tool=ToolName.GET_DEPENDENCIES,
+            status="ok",
+            summary=f"returned {len(paths)} authorized captured dependency paths",
+            evidence=(evidence,),
+            data={
+                "path_count": len(paths),
+                "nodes": service_ids,
                 "relationships": sorted(
                     {
                         f"{rel['caller']}->{rel['callee']}"
