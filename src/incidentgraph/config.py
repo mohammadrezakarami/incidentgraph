@@ -11,6 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class PrincipalConfig(BaseModel):
     principal_id: str = Field(min_length=1, max_length=128)
     roles: frozenset[Literal["viewer", "reviewer", "operator"]]
+    service_ids: frozenset[str] = frozenset()
 
 
 class Settings(BaseSettings):
@@ -38,6 +39,12 @@ class Settings(BaseSettings):
     human_review_required: bool = False
     review_ttl_seconds: int = Field(default=86_400, ge=60, le=604_800)
     event_retention_days: int = Field(default=30, ge=1, le=365)
+    api_max_request_bytes: int = Field(default=262_144, ge=1_024, le=1_048_576)
+    api_rate_limit_per_minute: int = Field(default=120, ge=10, le=1_000)
+    api_page_size_max: int = Field(default=100, ge=10, le=200)
+    sse_poll_interval_seconds: float = Field(default=0.5, ge=0.1, le=5)
+    sse_heartbeat_seconds: float = Field(default=10, ge=1, le=30)
+    sse_max_connection_seconds: int = Field(default=300, ge=30, le=3_600)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     model_provider: Literal["disabled", "openai", "local_openai_compatible"] = "disabled"
@@ -91,6 +98,11 @@ class Settings(BaseSettings):
                 problems.append(f"{field_name} still contains CHANGE_ME")
         if not self.auth_tokens:
             problems.append("AUTH_TOKENS_JSON contains no principals")
+        for principal in self.auth_tokens.values():
+            if not principal.service_ids:
+                problems.append(
+                    f"principal {principal.principal_id} must declare at least one SERVICE_ID"
+                )
         if self.model_provider != "disabled":
             if not self.model_id:
                 problems.append("MODEL_ID is required when a model provider is enabled")

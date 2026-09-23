@@ -4,9 +4,9 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 6 are complete. The adaptive investigator now joins PostgreSQL queue leases to LangGraph checkpoints, releases workers while waiting for review, resumes only from authenticated stored decisions, fences stale publishers, supports cooperative cancellation, and creates versioned follow-ups with incremental budgets. The Phase 5 real-model gate used free Colab compute; Phase 6 used only lightweight deterministic and PostgreSQL tests. No paid model call was made.
+Phase 0 through Phase 7 are complete. The versioned FastAPI surface and React incident console now expose the durable investigator with authorized history, resumable event streaming, reports, evidence drill-down, metric charts, time-aware dependencies, review, cancellation, and follow-ups. The Phase 5 real-model gate used free Colab compute; Phases 6 and 7 used only deterministic fixtures, PostgreSQL, and one local browser test. No paid model call was made.
 
-Roadmap progress: **Phase 6 of 11 delivery phases is complete; 7 of 12 gated phases are complete when discovery Phase 0 is included, and Phases 7–11 have not started.**
+Roadmap progress: **Phase 7 of 11 delivery phases is complete; 8 of 12 gated phases are complete when discovery Phase 0 is included, and Phases 8–11 have not started.**
 
 See:
 
@@ -17,6 +17,7 @@ See:
 - [`docs/progress/phase-04-report.md`](docs/progress/phase-04-report.md)
 - [`docs/progress/phase-05-report.md`](docs/progress/phase-05-report.md)
 - [`docs/progress/phase-06-report.md`](docs/progress/phase-06-report.md)
+- [`docs/progress/phase-07-report.md`](docs/progress/phase-07-report.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)
@@ -42,7 +43,7 @@ Replace every `CHANGE_ME` in `.env` with local-only URL-safe secrets. Generate a
 .tools/uv run incidentgraph generate-token
 ```
 
-Store only the emitted SHA-256 hash in `INCIDENTGRAPH_AUTH_TOKENS_JSON`; keep the token itself outside Git. Then run:
+Store only the emitted SHA-256 hash in `INCIDENTGRAPH_AUTH_TOKENS_JSON`; keep the token itself outside Git. Each principal entry must also include an explicit non-empty `service_ids` list using canonical IDs such as `svc-gateway`, `svc-checkout`, or `svc-payments`. Then run:
 
 ```bash
 make doctor
@@ -57,18 +58,24 @@ make test-integration
 
 `make down` removes containers and the project network but intentionally preserves database volumes. Removing volumes is a separate destructive operation and is not part of the normal teardown.
 
-## Phase 1 API surface
+## API surface
 
 - `GET /health/live`
 - `GET /health/ready`
 - `POST /api/v1/investigations`
+- `GET /api/v1/investigations`
 - `GET /api/v1/investigations/{id}`
 - `GET /api/v1/investigations/{id}/events`
+- `GET /api/v1/investigations/{id}/report`
+- `GET /api/v1/investigations/{id}/evidence/{evidence_id}`
 - `POST /api/v1/investigations/{id}/reviews`
 - `POST /api/v1/investigations/{id}/cancel`
 - `POST /api/v1/investigations/{id}/followups`
+- `GET /api/v1/services`
+- `GET /api/v1/services/{id}/dependencies`
+- `GET /metrics` (operator only)
 
-Investigation endpoints require a configured bearer token. Review decisions additionally require a `reviewer` or `operator` role and are bound to a report version, expiry, reviewer identity, and idempotency key. Phase 7 will finish the public API and console; the default CLI worker remains a non-AI foundation worker.
+Investigation endpoints require a configured bearer token and enforce owner scope or an explicit operator role. Review decisions additionally require a `reviewer` or `operator` role and are bound to a report version, expiry, reviewer identity, and idempotency key. SSE uses authenticated fetch streaming and `Last-Event-ID`; bearer tokens never enter URLs.
 
 ## Resource and cost boundary
 
@@ -164,3 +171,30 @@ make test-phase6-integration
 ```
 
 The gate uses only the local PostgreSQL container and deterministic model fixtures. It covers expired-lease recovery, stale-worker fencing, idempotent publication and review decisions, process restart at a LangGraph review checkpoint, capacity release while waiting for a human, rejected stale/expired/unauthorized decisions, cooperative cancellation, and a budgeted follow-up that publishes report version 2. At-least-once delivery is assumed; externally visible effects are idempotent rather than described as exactly-once.
+
+## Phase 7 API and incident console
+
+The API and frontend run as separate local processes:
+
+```bash
+make api       # terminal 1
+make worker    # terminal 2; requires an explicitly configured approved model
+make frontend  # terminal 3, then open http://127.0.0.1:5173
+```
+
+The browser asks for the unhashed bearer token. It is sent only in the `Authorization` header and is not stored unless **Keep only for this browser tab** is selected. With the default `MODEL_PROVIDER=disabled`, existing records remain viewable but starting a new investigation returns a clean configuration error; the API never substitutes a fake model.
+
+The console includes authorized history, LIVE/REPLAY and lifecycle states, resumable SSE, a bounded dependency graph, API-backed reports and citations, metric rendering, evidence provenance, human review, cancellation, and versioned follow-ups. Review acceptance explicitly does not execute recommendations or infrastructure changes.
+
+The deterministic browser gate uses the real FastAPI/PostgreSQL queue and a clearly labeled fixture publisher, not a fake success route or an AI-quality claim:
+
+```bash
+make test-frontend
+make test-e2e
+```
+
+Install the single Playwright browser once if it is not cached:
+
+```bash
+cd frontend && npx playwright install chromium
+```

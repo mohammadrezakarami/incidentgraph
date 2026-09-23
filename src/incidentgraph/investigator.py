@@ -282,6 +282,15 @@ class EvidenceRepository(Protocol):
 
     async def persist_report(self, report: InvestigationReport) -> None: ...
 
+    async def append_investigation_event(
+        self,
+        investigation_id: UUID,
+        kind: str,
+        payload: dict[str, Any],
+        *,
+        deduplication_key: str | None = None,
+    ) -> None: ...
+
 
 class Counters(BaseModel):
     model_calls: int = Field(default=0, ge=0)
@@ -668,6 +677,20 @@ def build_workflow(
     repository: EvidenceRepository | None = None,
     persist_reports: bool = True,
 ) -> Any:
+    async def record_event(
+        state: InvestigatorState,
+        kind: str,
+        payload: dict[str, Any],
+        deduplication_key: str,
+    ) -> None:
+        if repository is not None:
+            await repository.append_investigation_event(
+                UUID(state["investigation_id"]),
+                kind,
+                payload,
+                deduplication_key=deduplication_key,
+            )
+
     async def validate_request(state: InvestigatorState) -> dict[str, Any]:
         try:
             window = IncidentWindow(
@@ -720,9 +743,22 @@ def build_workflow(
         )
         started = time.perf_counter()
         result = await tools.execute(request, _runtime_context(state))
+        duration_ms = (time.perf_counter() - started) * 1_000
         counters = Counters.model_validate(state["counters"])
         counters.tool_calls += 1
-        counters.tool_latency_ms += (time.perf_counter() - started) * 1_000
+        counters.tool_latency_ms += duration_ms
+        await record_event(
+            state,
+            "tool.completed",
+            {
+                "tool": request.tool.value,
+                "duration_ms": round(duration_ms, 3),
+                "outcome": result.status,
+                "summary": result.summary,
+                "reason": request.reason,
+            },
+            "tool.resolve_context",
+        )
         if result.status == "error":
             return {
                 "status": "failed",
@@ -760,6 +796,24 @@ def build_workflow(
                 "error_summaries": [*state.get("error_summaries", []), str(exc)],
                 "pending_tool_request": None,
             }
+        await record_event(
+            state,
+            "model.decision",
+            {
+                "action": decision.action,
+                "objective": decision.objective,
+                "summary": decision.decision_summary,
+                "next_tool": (
+                    decision.tool_request.tool.value
+                    if decision.tool_request is not None
+                    else None
+                ),
+            },
+            (
+                f"model.plan:{state.get('report_version', 0)}:"
+                f"{counters.model_calls}:{counters.rounds}"
+            ),
+        )
         termination = ""
         if decision.action == "finish":
             diagnostic_attempts = sum(
@@ -891,7 +945,22 @@ def build_workflow(
         result = result.model_copy(
             update={"evidence": tuple(_checkpoint_evidence(item) for item in result.evidence)}
         )
-        counters.tool_latency_ms += (time.perf_counter() - started) * 1_000
+        duration_ms = (time.perf_counter() - started) * 1_000
+        counters.tool_latency_ms += duration_ms
+        fingerprint = request_fingerprint(request)
+        await record_event(
+            state,
+            "tool.completed",
+            {
+                "tool": request.tool.value,
+                "duration_ms": round(duration_ms, 3),
+                "outcome": result.status,
+                "summary": result.summary,
+                "reason": request.reason,
+                "evidence_ids": [str(item.evidence_id) for item in result.evidence],
+            },
+            f"tool.completed:{fingerprint}",
+        )
         return {
             "pending_tool_request": None,
             "tool_outcomes": [*state.get("tool_outcomes", []), result.model_dump(mode="json")],

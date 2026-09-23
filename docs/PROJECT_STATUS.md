@@ -16,9 +16,11 @@ Phase 5 — Adaptive investigator and grounded reports: **PASS**.
 
 Phase 6 — Durable execution, review, cancellation, and follow-ups: **PASS**.
 
-Roadmap position: **Phase 6 of 11 delivery phases is complete. Including discovery Phase 0, 7 of 12 gated phases are complete and Phases 7–11 have not started.**
+Phase 7 — API and incident console: **PASS**.
 
-The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, and durable human-review lifecycle are implemented and verified. Phase 6 required no real model, GPU, large download, or paid service.
+Roadmap position: **Phase 7 of 11 delivery phases is complete. Including discovery Phase 0, 8 of 12 gated phases are complete and Phases 8–11 have not started.**
+
+The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, production API assembly, and incident console are implemented and verified. Phase 7 required no model, GPU, held-out evaluation, or paid service; it used deterministic browser fixtures and the real local API/PostgreSQL boundary.
 
 ## Verified environment
 
@@ -31,7 +33,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Docker 29.4.1 and Docker Compose v5.1.3 clients are installed.
 - Docker daemon is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned.
 - Digest-pinned PostgreSQL 18.6 and Neo4j 2026.09.0 services are healthy; real connectivity passes.
-- Ruff, strict mypy over 21 source files, 51 unit tests, 6 Phase 6 queue/recovery integration tests, and 4 deterministic PostgreSQL-checkpoint tests pass; earlier live lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
+- Ruff, strict mypy over 22 source files, 58 Python unit tests, 3 Vitest tests, the production frontend build, 1 real FastAPI/PostgreSQL contract test, 1 Playwright end-to-end flow, 6 Phase 6 queue/recovery integration tests, and 4 deterministic PostgreSQL-checkpoint tests pass; earlier live lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
 - Safe Compose teardown preserves named-volume data.
 - Three real transaction services, Redis, and Prometheus are healthy.
 - Twelve independent live fault captures and five control captures pass executable verification.
@@ -53,6 +55,9 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Human-review waits clear the worker lease. Decisions are role-checked, version-bound, expiring, idempotent, and stored before a controlled resume attempt is queued.
 - Cooperative cancellation prevents a requested run from completing or publishing after the worker observes the request; already-issued provider work cannot be retroactively reversed.
 - Follow-ups retain cumulative usage, require an explicit incremental model/tool budget, continue the same checkpoint thread, and publish a new immutable report version.
+- The API now exposes the complete versioned contract with owner/operator enforcement, request IDs, payload and pagination bounds, per-principal local rate limiting, canonical service authorization, consistent errors, report/evidence access, time-aware dependencies, operator-only metrics, and resumable authenticated SSE.
+- The React console displays only API-backed facts and supports LIVE/REPLAY labeling, all lifecycle states, event reconnect, evidence drill-down, metric charts, a lazy-loaded Cytoscape dependency view, review/cancellation/follow-up controls, partial/error states, keyboard focus, responsive layout, and safe text rendering.
+- The Playwright gate creates a real queued investigation through the browser, reconnects from `Last-Event-ID`, publishes through the fenced PostgreSQL worker contract with a clearly labeled deterministic fixture, opens the cited record, accepts review without executing remediation, preserves state across refresh, and proves cross-user access returns 404.
 
 ## Approved decisions recorded in ADRs
 
@@ -64,12 +69,13 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Open gates and limitations
 
-- Phase 7 must connect the production API/worker assembly and build the incident console; the default CLI worker remains the explicit non-AI foundation worker.
+- Phase 8 must add end-to-end correlated tracing, deeper redaction/retention/resource controls, adversarial prompt-injection and dependency-outage tests, and measured latency/resource profiles.
 - The retained 85 percent coverage command currently reports 48.67 percent over all modules; the later core target is not yet met.
 - Phase 2 captures predate the Phase 3 corpus and must not be used as final as-of benchmark cases without recapture.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
 - Hybrid is slightly below vector on this development set; no tuning against held-out data is allowed.
 - Paid provider access remains intentionally unapproved; the completed Phase 5 evidence uses only the free local-compatible Colab path.
+- The existing untracked local `.env` needs an explicit `service_ids` list on each principal before interactive use; an omitted scope fails closed rather than authorizing all services.
 
 ## Repository
 
@@ -79,4 +85,4 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Evidence
 
-See `docs/progress/phase-06-report.md` for the latest completed gate. The Phase 5 real-model evidence remains under `artifacts/evaluation/phase5-real-local/gate-results.json`.
+See `docs/progress/phase-07-report.md` for the latest completed gate. The Phase 5 real-model evidence remains under `artifacts/evaluation/phase5-real-local/gate-results.json`.

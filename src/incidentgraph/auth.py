@@ -13,6 +13,7 @@ from incidentgraph.config import PrincipalConfig
 class Principal(BaseModel):
     principal_id: str
     roles: frozenset[str]
+    service_ids: frozenset[str]
 
 
 def hash_token(token: str) -> str:
@@ -27,7 +28,11 @@ class TokenAuthenticator:
         supplied = hash_token(token)
         for expected, config in self._token_hashes.items():
             if hmac.compare_digest(supplied, expected):
-                return Principal(principal_id=config.principal_id, roles=config.roles)
+                return Principal(
+                    principal_id=config.principal_id,
+                    roles=config.roles,
+                    service_ids=config.service_ids,
+                )
         return None
 
 

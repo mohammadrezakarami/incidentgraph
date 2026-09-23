@@ -69,6 +69,12 @@ class InvestigationRecord(InvestigationAccepted):
     window_end: datetime
     mode: InvestigationMode
     updated_at: datetime
+    current_report_version: int = Field(default=0, ge=0)
+
+
+class InvestigationPage(BaseModel):
+    items: list[InvestigationRecord]
+    next_cursor: UUID | None = None
 
 
 class EventRecord(BaseModel):
@@ -191,6 +197,30 @@ class PublicationResult(BaseModel):
     review_id: UUID | None = None
 
 
+class ServiceSummary(BaseModel):
+    service_id: str
+    name: str
+    aliases: list[str]
+    environment: str
+    owner: str
+    metadata_version: str
+
+
+class DependencyEdge(BaseModel):
+    caller: str
+    callee: str
+    relationship: Literal["DEPENDS_ON"] = "DEPENDS_ON"
+
+
+class DependencyView(BaseModel):
+    service_id: str
+    cutoff: datetime
+    direction: Literal["inbound", "outbound", "both"]
+    depth: int = Field(ge=1, le=2)
+    services: list[ServiceSummary]
+    edges: list[DependencyEdge]
+
+
 class IncidentWindow(BaseModel):
     start: datetime
     end: datetime
@@ -278,6 +308,11 @@ class InvestigationReport(BaseModel):
         if self.outcome == ReportOutcome.INCONCLUSIVE and not self.limitations:
             raise ValueError("inconclusive reports must state limitations")
         return self
+
+
+class ReportView(BaseModel):
+    report: InvestigationReport
+    review: ReviewRecord | None = None
 
 
 class ErrorResponse(BaseModel):

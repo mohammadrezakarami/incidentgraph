@@ -1,26 +1,46 @@
+import asyncio
+import json
+import time
 import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Annotated, Protocol, cast
+from datetime import UTC, datetime
+from typing import Annotated, Any, Literal, Protocol, cast
 from uuid import UUID
 
 import uvicorn
-from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, Response, StreamingResponse
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
+from incidentgraph.api_support import (
+    LocalRateLimiter,
+    RateLimitExceeded,
+    authorized_services,
+    dependency_view,
+    encode_sse,
+)
 from incidentgraph.auth import Principal, TokenAuthenticator, principal_dependency
 from incidentgraph.config import Settings
+from incidentgraph.ingestion import load_topology
 from incidentgraph.logging import configure_logging
 from incidentgraph.models import (
     CancellationRecord,
+    DependencyView,
     EventRecord,
+    EvidenceItem,
     FollowUpCreate,
     FollowUpRecord,
     InvestigationAccepted,
     InvestigationCreate,
+    InvestigationPage,
     InvestigationRecord,
+    ReportView,
     ReviewRecord,
     ReviewSubmission,
+    ServiceSummary,
 )
 from incidentgraph.persistence import (
     Database,
@@ -39,13 +59,49 @@ class RepositoryProtocol(Protocol):
         request_id: UUID,
         idempotency_key: str,
         request: InvestigationCreate,
+        authorized_service_ids: tuple[str, ...] = (),
+        corpus_version: str = "",
     ) -> InvestigationAccepted: ...
 
     async def get_investigation(
-        self, investigation_id: UUID, owner_id: str
+        self, investigation_id: UUID, owner_id: str, allow_operator: bool = False
     ) -> InvestigationRecord | None: ...
 
-    async def list_events(self, investigation_id: UUID, owner_id: str) -> list[EventRecord]: ...
+    async def list_investigations(
+        self,
+        owner_id: str,
+        *,
+        allow_operator: bool = False,
+        limit: int = 25,
+        cursor: UUID | None = None,
+    ) -> InvestigationPage: ...
+
+    async def list_events(
+        self,
+        investigation_id: UUID,
+        owner_id: str,
+        *,
+        allow_operator: bool = False,
+        after_sequence: int = 0,
+        limit: int = 100,
+    ) -> list[EventRecord]: ...
+
+    async def get_report_view(
+        self,
+        investigation_id: UUID,
+        owner_id: str,
+        *,
+        allow_operator: bool = False,
+    ) -> ReportView | None: ...
+
+    async def get_evidence_authorized(
+        self,
+        investigation_id: UUID,
+        evidence_id: UUID,
+        owner_id: str,
+        *,
+        allow_operator: bool = False,
+    ) -> EvidenceItem | None: ...
 
     async def submit_review(
         self,
@@ -58,7 +114,11 @@ class RepositoryProtocol(Protocol):
     ) -> ReviewRecord: ...
 
     async def request_cancellation(
-        self, investigation_id: UUID, *, owner_id: str
+        self,
+        investigation_id: UUID,
+        *,
+        owner_id: str,
+        allow_operator: bool = False,
     ) -> CancellationRecord: ...
 
     async def create_follow_up(
@@ -68,6 +128,7 @@ class RepositoryProtocol(Protocol):
         owner_id: str,
         idempotency_key: str,
         request: FollowUpCreate,
+        allow_operator: bool = False,
     ) -> FollowUpRecord: ...
 
 
@@ -78,6 +139,8 @@ def create_app(
     app_settings = settings or Settings()  # type: ignore[call-arg]
     authenticator = TokenAuthenticator(app_settings.auth_tokens)
     require_principal = principal_dependency(authenticator)
+    limiter = LocalRateLimiter(app_settings.api_rate_limit_per_minute)
+    topology = load_topology()
     managed_database: Database | None = None
 
     @asynccontextmanager
@@ -105,11 +168,148 @@ def create_app(
         allow_origins=[app_settings.frontend_origin],
         allow_credentials=False,
         allow_methods=["GET", "POST"],
-        allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-Request-ID"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "Idempotency-Key",
+            "Last-Event-ID",
+            "X-Request-ID",
+        ],
+        expose_headers=["Last-Event-ID", "Retry-After", "X-Request-ID"],
     )
+
+    def error_payload(
+        request: Request, code: str, message: str, retryable: bool
+    ) -> dict[str, Any]:
+        return {
+            "error": {
+                "code": code,
+                "message": message,
+                "request_id": getattr(request.state, "request_id", None),
+                "retryable": retryable,
+            }
+        }
+
+    @app.middleware("http")
+    async def request_guard(request: Request, call_next: Any) -> Response:
+        supplied = request.headers.get("X-Request-ID")
+        try:
+            request_id = str(UUID(supplied)) if supplied else str(uuid.uuid4())
+        except ValueError:
+            request_id = str(uuid.uuid4())
+            request.state.request_id = request_id
+            response = JSONResponse(
+                error_payload(request, "INVALID_ARGUMENT", "X-Request-ID must be a UUID", False),
+                status_code=422,
+            )
+            response.headers["X-Request-ID"] = request_id
+            return response
+        request.state.request_id = request_id
+        content_length = request.headers.get("Content-Length")
+        try:
+            declared_length = int(content_length) if content_length else 0
+        except ValueError:
+            response = JSONResponse(
+                error_payload(
+                    request, "INVALID_ARGUMENT", "Content-Length must be an integer", False
+                ),
+                status_code=422,
+            )
+        else:
+            if declared_length < 0:
+                response = JSONResponse(
+                    error_payload(
+                        request, "INVALID_ARGUMENT", "Content-Length cannot be negative", False
+                    ),
+                    status_code=422,
+                )
+            elif declared_length > app_settings.api_max_request_bytes:
+                response = JSONResponse(
+                    error_payload(
+                        request, "PAYLOAD_TOO_LARGE", "request body is too large", False
+                    ),
+                    status_code=413,
+                )
+            else:
+                bounded_body = bytearray()
+                body_too_large = False
+                async for chunk in request.stream():
+                    if len(bounded_body) + len(chunk) > app_settings.api_max_request_bytes:
+                        body_too_large = True
+                        break
+                    bounded_body.extend(chunk)
+                if body_too_large:
+                    response = JSONResponse(
+                        error_payload(
+                            request, "PAYLOAD_TOO_LARGE", "request body is too large", False
+                        ),
+                        status_code=413,
+                    )
+                else:
+                    request._body = bytes(bounded_body)
+                    response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+        return response
+
+    @app.exception_handler(HTTPException)
+    async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
+        code = {
+            401: "UNAUTHORIZED",
+            403: "FORBIDDEN",
+            404: "NOT_FOUND",
+            409: "CONFLICT",
+            413: "PAYLOAD_TOO_LARGE",
+            422: "INVALID_ARGUMENT",
+            429: "RATE_LIMITED",
+            503: "UNAVAILABLE",
+        }.get(exc.status_code, "REQUEST_FAILED")
+        response = JSONResponse(
+            error_payload(
+                request,
+                code,
+                str(exc.detail),
+                exc.status_code in {429, 503},
+            ),
+            status_code=exc.status_code,
+            headers=exc.headers,
+        )
+        return response
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+        return JSONResponse(
+            error_payload(request, "INVALID_ARGUMENT", "request validation failed", False)
+            | {"details": json.loads(json.dumps(exc.errors(), default=str))},
+            status_code=422,
+        )
 
     def repo(request: Request) -> RepositoryProtocol:
         return cast(RepositoryProtocol, request.app.state.repository)
+
+    def api_principal(
+        principal: Annotated[Principal, Depends(require_principal)],
+    ) -> Principal:
+        try:
+            limiter.check(principal.principal_id)
+        except RateLimitExceeded as exc:
+            raise HTTPException(
+                status_code=429,
+                detail=str(exc),
+                headers={"Retry-After": "60"},
+            ) from exc
+        return principal
+
+    def is_operator(principal: Principal) -> bool:
+        return "operator" in principal.roles
+
+    def resolve_target_service(value: str, principal: Principal) -> str | None:
+        normalized = value.casefold()
+        for item in topology.services:
+            candidates = {item.id.casefold(), item.name.casefold()}
+            candidates.update(alias.casefold() for alias in item.aliases)
+            if item.id in principal.service_ids and normalized in candidates:
+                return item.id
+        return None
 
     @app.get("/health/live")
     async def liveness() -> dict[str, str]:
@@ -133,51 +333,175 @@ def create_app(
     )
     async def create_investigation(
         body: InvestigationCreate,
-        principal: Annotated[Principal, Depends(require_principal)],
+        request: Request,
+        principal: Annotated[Principal, Depends(api_principal)],
         repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
         idempotency_key: Annotated[
             str,
             Header(alias="Idempotency-Key", min_length=8, max_length=128),
         ],
-        request_id_header: Annotated[str | None, Header(alias="X-Request-ID")] = None,
     ) -> InvestigationAccepted:
-        try:
-            request_id = UUID(request_id_header) if request_id_header else uuid.uuid4()
-        except ValueError as exc:
-            raise HTTPException(status_code=422, detail="X-Request-ID must be a UUID") from exc
+        service_id = resolve_target_service(body.target_service, principal)
+        if service_id is None:
+            raise HTTPException(status_code=403, detail="target service is outside authorization")
+        if app_settings.model_provider == "disabled":
+            raise HTTPException(
+                status_code=503,
+                detail="model provider is disabled; configure an approved provider before starting",
+            )
+        model_configuration_problems = [
+            problem
+            for problem in app_settings.validate_runtime()
+            if problem.startswith(("MODEL_", "local MODEL_"))
+        ]
+        if model_configuration_problems:
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "model provider configuration is invalid: "
+                    f"{model_configuration_problems[0]}"
+                ),
+            )
+        request_id = UUID(request.state.request_id)
+        normalized_body = body.model_copy(update={"target_service": service_id})
         return await repository_dependency.create_investigation(
             owner_id=principal.principal_id,
             request_id=request_id,
             idempotency_key=idempotency_key,
-            request=body,
+            request=normalized_body,
+            authorized_service_ids=tuple(sorted(principal.service_ids)),
+            corpus_version=app_settings.corpus_id,
+        )
+
+    @app.get("/api/v1/investigations", response_model=InvestigationPage)
+    async def list_investigations(
+        principal: Annotated[Principal, Depends(api_principal)],
+        repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
+        limit: Annotated[int, Query(ge=1)] = 25,
+        cursor: UUID | None = None,
+    ) -> InvestigationPage:
+        return await repository_dependency.list_investigations(
+            principal.principal_id,
+            allow_operator=is_operator(principal),
+            limit=min(limit, app_settings.api_page_size_max),
+            cursor=cursor,
         )
 
     @app.get("/api/v1/investigations/{investigation_id}", response_model=InvestigationRecord)
     async def get_investigation(
         investigation_id: UUID,
-        principal: Annotated[Principal, Depends(require_principal)],
+        principal: Annotated[Principal, Depends(api_principal)],
         repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
     ) -> InvestigationRecord:
         record = await repository_dependency.get_investigation(
             investigation_id,
             principal.principal_id,
+            allow_operator=is_operator(principal),
         )
         if record is None:
             raise HTTPException(status_code=404, detail="investigation not found")
         return record
 
-    @app.get("/api/v1/investigations/{investigation_id}/events", response_model=list[EventRecord])
-    async def list_events(
+    @app.get("/api/v1/investigations/{investigation_id}/events")
+    async def stream_events(
         investigation_id: UUID,
-        principal: Annotated[Principal, Depends(require_principal)],
+        request: Request,
+        principal: Annotated[Principal, Depends(api_principal)],
         repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
-    ) -> list[EventRecord]:
-        return list(
-            await repository_dependency.list_events(
-                investigation_id,
-                principal.principal_id,
-            )
+        last_event_id: Annotated[str | None, Header(alias="Last-Event-ID")] = None,
+    ) -> StreamingResponse:
+        record = await repository_dependency.get_investigation(
+            investigation_id,
+            principal.principal_id,
+            allow_operator=is_operator(principal),
         )
+        if record is None:
+            raise HTTPException(status_code=404, detail="investigation not found")
+        try:
+            after_sequence = int(last_event_id) if last_event_id else 0
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail="Last-Event-ID must be an integer") from exc
+        if after_sequence < 0:
+            raise HTTPException(status_code=422, detail="Last-Event-ID cannot be negative")
+
+        async def events() -> AsyncIterator[bytes]:
+            sequence = after_sequence
+            started = time.monotonic()
+            last_output = started
+            terminal = {"completed", "inconclusive", "failed", "cancelled"}
+            while time.monotonic() - started < app_settings.sse_max_connection_seconds:
+                if await request.is_disconnected():
+                    return
+                records = await repository_dependency.list_events(
+                    investigation_id,
+                    principal.principal_id,
+                    allow_operator=is_operator(principal),
+                    after_sequence=sequence,
+                    limit=100,
+                )
+                for event in records:
+                    sequence = event.sequence
+                    last_output = time.monotonic()
+                    yield encode_sse(event)
+                current = await repository_dependency.get_investigation(
+                    investigation_id,
+                    principal.principal_id,
+                    allow_operator=is_operator(principal),
+                )
+                if current is None or (current.status.value in terminal and not records):
+                    return
+                if time.monotonic() - last_output >= app_settings.sse_heartbeat_seconds:
+                    last_output = time.monotonic()
+                    yield b": heartbeat\n\n"
+                await asyncio.sleep(app_settings.sse_poll_interval_seconds)
+
+        return StreamingResponse(
+            events(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache, no-transform",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    @app.get(
+        "/api/v1/investigations/{investigation_id}/report",
+        response_model=ReportView,
+    )
+    async def get_report(
+        investigation_id: UUID,
+        principal: Annotated[Principal, Depends(api_principal)],
+        repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
+    ) -> ReportView:
+        report = await repository_dependency.get_report_view(
+            investigation_id,
+            principal.principal_id,
+            allow_operator=is_operator(principal),
+        )
+        if report is None:
+            raise HTTPException(status_code=404, detail="report not found")
+        return report
+
+    @app.get(
+        "/api/v1/investigations/{investigation_id}/evidence/{evidence_id}",
+        response_model=EvidenceItem,
+    )
+    async def get_evidence(
+        investigation_id: UUID,
+        evidence_id: UUID,
+        principal: Annotated[Principal, Depends(api_principal)],
+        repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
+    ) -> EvidenceItem:
+        evidence = await repository_dependency.get_evidence_authorized(
+            investigation_id,
+            evidence_id,
+            principal.principal_id,
+            allow_operator=is_operator(principal),
+        )
+        if evidence is None:
+            raise HTTPException(status_code=404, detail="evidence not found")
+        return evidence
 
     @app.post(
         "/api/v1/investigations/{investigation_id}/reviews",
@@ -186,13 +510,22 @@ def create_app(
     async def submit_review(
         investigation_id: UUID,
         body: ReviewSubmission,
-        principal: Annotated[Principal, Depends(require_principal)],
+        principal: Annotated[Principal, Depends(api_principal)],
         repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
         idempotency_key: Annotated[
             str,
             Header(alias="Idempotency-Key", min_length=8, max_length=128),
         ],
     ) -> ReviewRecord:
+        if not principal.roles.intersection({"reviewer", "operator"}):
+            raise HTTPException(status_code=403, detail="reviewer or operator role required")
+        investigation = await repository_dependency.get_investigation(
+            investigation_id,
+            principal.principal_id,
+            allow_operator=is_operator(principal),
+        )
+        if investigation is None:
+            raise HTTPException(status_code=404, detail="investigation not found")
         try:
             return await repository_dependency.submit_review(
                 investigation_id,
@@ -212,13 +545,14 @@ def create_app(
     )
     async def cancel_investigation(
         investigation_id: UUID,
-        principal: Annotated[Principal, Depends(require_principal)],
+        principal: Annotated[Principal, Depends(api_principal)],
         repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
     ) -> CancellationRecord:
         try:
             return await repository_dependency.request_cancellation(
                 investigation_id,
                 owner_id=principal.principal_id,
+                allow_operator=is_operator(principal),
             )
         except DurableConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
@@ -231,7 +565,7 @@ def create_app(
     async def create_follow_up(
         investigation_id: UUID,
         body: FollowUpCreate,
-        principal: Annotated[Principal, Depends(require_principal)],
+        principal: Annotated[Principal, Depends(api_principal)],
         repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
         idempotency_key: Annotated[
             str,
@@ -244,9 +578,53 @@ def create_app(
                 owner_id=principal.principal_id,
                 idempotency_key=idempotency_key,
                 request=body,
+                allow_operator=is_operator(principal),
             )
         except DurableConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.get("/api/v1/services", response_model=list[ServiceSummary])
+    async def list_services(
+        principal: Annotated[Principal, Depends(api_principal)],
+    ) -> list[ServiceSummary]:
+        return authorized_services(topology, principal.service_ids)
+
+    @app.get(
+        "/api/v1/services/{service_id}/dependencies",
+        response_model=DependencyView,
+    )
+    async def get_dependencies(
+        service_id: str,
+        principal: Annotated[Principal, Depends(api_principal)],
+        cutoff: datetime | None = None,
+        direction: Literal["inbound", "outbound", "both"] = "both",
+        depth: Annotated[int, Query(ge=1, le=2)] = 1,
+    ) -> DependencyView:
+        resolved_service_id = resolve_target_service(service_id, principal)
+        if resolved_service_id is None:
+            raise HTTPException(status_code=404, detail="service not found")
+        effective_cutoff = cutoff or datetime.now(UTC)
+        if effective_cutoff.tzinfo is None or effective_cutoff.utcoffset() is None:
+            raise HTTPException(status_code=422, detail="cutoff must include a UTC offset")
+        view = dependency_view(
+            topology,
+            service_id=resolved_service_id,
+            authorized_service_ids=principal.service_ids,
+            cutoff=effective_cutoff,
+            direction=direction,
+            depth=depth,
+        )
+        if view is None:
+            raise HTTPException(status_code=404, detail="dependency view not found at cutoff")
+        return view
+
+    @app.get("/metrics")
+    async def internal_metrics(
+        principal: Annotated[Principal, Depends(api_principal)],
+    ) -> Response:
+        if not is_operator(principal):
+            raise HTTPException(status_code=403, detail="operator role required")
+        return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     return app
 

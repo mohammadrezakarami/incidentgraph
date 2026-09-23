@@ -1,7 +1,7 @@
 UV := UV_PYTHON_INSTALL_DIR='$(CURDIR)/.tools/python' UV_CACHE_DIR='$(CURDIR)/.tools/cache' .tools/uv
 COMPOSE := docker compose -f ops/compose.yaml --env-file .env
 
-.PHONY: doctor bootstrap up down migrate seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures test coverage test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
+.PHONY: doctor bootstrap up down migrate seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures api worker frontend test test-frontend test-e2e coverage test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
 
 doctor:
 	$(UV) run incidentgraph doctor
@@ -86,6 +86,23 @@ verify-captures:
 
 test:
 	$(UV) run pytest -m "not integration"
+	npm --prefix frontend test
+
+api:
+	$(UV) run incidentgraph-api
+
+worker:
+	$(UV) run incidentgraph-worker
+
+frontend:
+	npm --prefix frontend run dev
+
+test-frontend:
+	npm --prefix frontend test
+	npm --prefix frontend run build
+
+test-e2e:
+	npm --prefix frontend run test:e2e
 
 coverage:
 	$(UV) run pytest -m "not integration" --cov --cov-report=term-missing
@@ -114,3 +131,4 @@ lint:
 
 typecheck:
 	$(UV) run mypy
+	npm --prefix frontend run build

@@ -22,11 +22,13 @@ from incidentgraph.models import (
     FollowUpRecord,
     InvestigationAccepted,
     InvestigationCreate,
+    InvestigationPage,
     InvestigationRecord,
     InvestigationReport,
     InvestigationStatus,
     JobLease,
     PublicationResult,
+    ReportView,
     ReviewDecision,
     ReviewRecord,
     ReviewStatus,
@@ -187,6 +189,8 @@ class Database:
         request_id: UUID,
         idempotency_key: str,
         request: InvestigationCreate,
+        authorized_service_ids: Sequence[str] = (),
+        corpus_version: str = "",
     ) -> InvestigationAccepted:
         investigation_id = uuid4()
         async with self.pool.connection() as connection:
@@ -216,10 +220,29 @@ class Database:
                     row = await cursor.fetchone()
                     await connection.execute(
                         """
-                        INSERT INTO incidentgraph_app.jobs (investigation_id, status)
-                        VALUES (%s, 'queued')
+                        INSERT INTO incidentgraph_app.jobs (
+                            investigation_id, status, input_payload
+                        ) VALUES (%s, 'queued', %s)
                         """,
-                        (investigation_id,),
+                        (
+                            investigation_id,
+                            Jsonb(
+                                {
+                                    "principal_id": owner_id,
+                                    "authorized_service_ids": list(authorized_service_ids),
+                                    "question": request.question,
+                                    "target_service": request.target_service,
+                                    "environment": request.environment,
+                                    "window_start": request.window_start.isoformat(),
+                                    "window_end": request.window_end.isoformat(),
+                                    "observation_cutoff": request.window_end.isoformat(),
+                                    "mode": request.mode.value,
+                                    "snapshot_id": None,
+                                    "corpus_version": corpus_version,
+                                    "request_id": str(request_id),
+                                }
+                            ),
+                        ),
                     )
                     await self._append_event(
                         connection,
@@ -246,33 +269,196 @@ class Database:
         self,
         investigation_id: UUID,
         owner_id: str,
+        allow_operator: bool = False,
     ) -> InvestigationRecord | None:
         async with self.pool.connection() as connection:
             cursor = await connection.execute(
                 """
                 SELECT id AS investigation_id, owner_id, request_id, question, target_service,
-                       environment, window_start, window_end, mode, status, created_at, updated_at
+                       environment, window_start, window_end, mode, status, created_at, updated_at,
+                       current_report_version
                 FROM incidentgraph_app.investigations
-                WHERE id = %s AND owner_id = %s
+                WHERE id = %s AND (owner_id = %s OR %s)
                 """,
-                (investigation_id, owner_id),
+                (investigation_id, owner_id, allow_operator),
             )
             row = await cursor.fetchone()
             return InvestigationRecord.model_validate(row) if row else None
 
-    async def list_events(self, investigation_id: UUID, owner_id: str) -> Sequence[EventRecord]:
+    async def list_investigations(
+        self,
+        owner_id: str,
+        *,
+        allow_operator: bool = False,
+        limit: int = 25,
+        cursor: UUID | None = None,
+    ) -> InvestigationPage:
+        async with self.pool.connection() as connection:
+            if cursor is None:
+                result = await connection.execute(
+                    """
+                    SELECT id AS investigation_id, owner_id, request_id, question,
+                           target_service, environment, window_start, window_end, mode,
+                           status, created_at, updated_at, current_report_version
+                    FROM incidentgraph_app.investigations
+                    WHERE owner_id = %s OR %s
+                    ORDER BY created_at DESC, id DESC
+                    LIMIT %s
+                    """,
+                    (owner_id, allow_operator, limit + 1),
+                )
+            else:
+                result = await connection.execute(
+                    """
+                    WITH boundary AS (
+                        SELECT created_at, id
+                        FROM incidentgraph_app.investigations
+                        WHERE id = %s AND (owner_id = %s OR %s)
+                    )
+                    SELECT investigation.id AS investigation_id, investigation.owner_id,
+                           investigation.request_id, investigation.question,
+                           investigation.target_service, investigation.environment,
+                           investigation.window_start, investigation.window_end,
+                           investigation.mode, investigation.status, investigation.created_at,
+                           investigation.updated_at, investigation.current_report_version
+                    FROM incidentgraph_app.investigations investigation, boundary
+                    WHERE (investigation.owner_id = %s OR %s)
+                      AND (investigation.created_at, investigation.id)
+                          < (boundary.created_at, boundary.id)
+                    ORDER BY investigation.created_at DESC, investigation.id DESC
+                    LIMIT %s
+                    """,
+                    (
+                        cursor,
+                        owner_id,
+                        allow_operator,
+                        owner_id,
+                        allow_operator,
+                        limit + 1,
+                    ),
+                )
+            rows = await result.fetchall()
+            has_more = len(rows) > limit
+            items = [InvestigationRecord.model_validate(row) for row in rows[:limit]]
+            next_cursor = items[-1].investigation_id if has_more and items else None
+            return InvestigationPage(items=items, next_cursor=next_cursor)
+
+    async def list_events(
+        self,
+        investigation_id: UUID,
+        owner_id: str,
+        *,
+        allow_operator: bool = False,
+        after_sequence: int = 0,
+        limit: int = 100,
+    ) -> Sequence[EventRecord]:
         async with self.pool.connection() as connection:
             cursor = await connection.execute(
                 """
                 SELECT e.investigation_id, e.sequence, e.kind, e.payload, e.created_at
                 FROM incidentgraph_app.events e
                 JOIN incidentgraph_app.investigations i ON i.id = e.investigation_id
-                WHERE e.investigation_id = %s AND i.owner_id = %s
+                WHERE e.investigation_id = %s
+                  AND (i.owner_id = %s OR %s)
+                  AND e.sequence > %s
                 ORDER BY e.sequence
+                LIMIT %s
                 """,
-                (investigation_id, owner_id),
+                (investigation_id, owner_id, allow_operator, after_sequence, limit),
             )
             return [EventRecord.model_validate(row) for row in await cursor.fetchall()]
+
+    async def append_investigation_event(
+        self,
+        investigation_id: UUID,
+        kind: str,
+        payload: dict[str, Any],
+        *,
+        deduplication_key: str | None = None,
+    ) -> None:
+        """Append a bounded worker event for the authorized SSE timeline."""
+        async with self.pool.connection() as connection:
+            async with connection.transaction():
+                await self._append_event(
+                    connection,
+                    investigation_id,
+                    kind,
+                    payload,
+                    deduplication_key=deduplication_key,
+                )
+
+    async def get_report_view(
+        self,
+        investigation_id: UUID,
+        owner_id: str,
+        *,
+        allow_operator: bool = False,
+    ) -> ReportView | None:
+        async with self.pool.connection() as connection:
+            cursor = await connection.execute(
+                """
+                SELECT report.payload,
+                       review.id AS review_id, review.investigation_id,
+                       review.report_version, review.status AS review_status,
+                       review.reviewer_id, review.requested_at, review.expires_at,
+                       review.decided_at
+                FROM incidentgraph_app.investigations investigation
+                JOIN incidentgraph_app.reports report
+                  ON report.investigation_id = investigation.id
+                 AND report.report_version = investigation.current_report_version
+                LEFT JOIN incidentgraph_app.review_requests review
+                  ON review.investigation_id = report.investigation_id
+                 AND review.report_version = report.report_version
+                WHERE investigation.id = %s
+                  AND (investigation.owner_id = %s OR %s)
+                """,
+                (investigation_id, owner_id, allow_operator),
+            )
+            row = await cursor.fetchone()
+            if row is None:
+                return None
+            review = None
+            if row["review_id"] is not None:
+                review = ReviewRecord.model_validate(
+                    {
+                        "review_id": row["review_id"],
+                        "investigation_id": row["investigation_id"],
+                        "report_version": row["report_version"],
+                        "status": row["review_status"],
+                        "reviewer_id": row["reviewer_id"],
+                        "requested_at": row["requested_at"],
+                        "expires_at": row["expires_at"],
+                        "decided_at": row["decided_at"],
+                    }
+                )
+            return ReportView(
+                report=InvestigationReport.model_validate(row["payload"]),
+                review=review,
+            )
+
+    async def get_evidence_authorized(
+        self,
+        investigation_id: UUID,
+        evidence_id: UUID,
+        owner_id: str,
+        *,
+        allow_operator: bool = False,
+    ) -> EvidenceItem | None:
+        async with self.pool.connection() as connection:
+            cursor = await connection.execute(
+                """
+                SELECT evidence.payload
+                FROM incidentgraph_app.evidence evidence
+                JOIN incidentgraph_app.investigations investigation
+                  ON investigation.id = evidence.investigation_id
+                WHERE evidence.investigation_id = %s
+                  AND evidence.evidence_id = %s
+                  AND (investigation.owner_id = %s OR %s)
+                """,
+                (investigation_id, evidence_id, owner_id, allow_operator),
+            )
+            row = await cursor.fetchone()
+            return EvidenceItem.model_validate(row["payload"]) if row else None
 
     async def claim_job(
         self,
@@ -828,7 +1014,11 @@ class Database:
                 return terminal_status
 
     async def request_cancellation(
-        self, investigation_id: UUID, *, owner_id: str
+        self,
+        investigation_id: UUID,
+        *,
+        owner_id: str,
+        allow_operator: bool = False,
     ) -> CancellationRecord:
         async with self.pool.connection() as connection:
             async with connection.transaction():
@@ -836,10 +1026,10 @@ class Database:
                     """
                     SELECT id, status, cancellation_requested_at
                     FROM incidentgraph_app.investigations
-                    WHERE id = %s AND owner_id = %s
+                    WHERE id = %s AND (owner_id = %s OR %s)
                     FOR UPDATE
                     """,
-                    (investigation_id, owner_id),
+                    (investigation_id, owner_id, allow_operator),
                 )
                 investigation = await cursor.fetchone()
                 if investigation is None:
@@ -935,6 +1125,7 @@ class Database:
         owner_id: str,
         idempotency_key: str,
         request: FollowUpCreate,
+        allow_operator: bool = False,
     ) -> FollowUpRecord:
         async with self.pool.connection() as connection:
             async with connection.transaction():
@@ -954,10 +1145,10 @@ class Database:
                     """
                     SELECT id, status, current_report_version
                     FROM incidentgraph_app.investigations
-                    WHERE id = %s AND owner_id = %s
+                    WHERE id = %s AND (owner_id = %s OR %s)
                     FOR UPDATE
                     """,
-                    (investigation_id, owner_id),
+                    (investigation_id, owner_id, allow_operator),
                 )
                 investigation = await cursor.fetchone()
                 if investigation is None:

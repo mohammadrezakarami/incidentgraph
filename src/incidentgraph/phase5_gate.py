@@ -48,6 +48,7 @@ def _model_settings(base: Settings) -> Settings:
                     "0" * 64: {
                         "principal_id": "phase5-local-gate",
                         "roles": ["viewer"],
+                        "service_ids": ["svc-gateway", "svc-checkout", "svc-payments"],
                     }
                 }
             ),

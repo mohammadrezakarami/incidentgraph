@@ -19,6 +19,7 @@ def settings_kwargs() -> dict[str, object]:
                 hash_token("test-token"): {
                     "principal_id": "viewer-1",
                     "roles": ["viewer"],
+                    "service_ids": ["svc-gateway"],
                 }
             }
         ),
@@ -73,3 +74,18 @@ def test_free_local_provider_requires_loopback_and_zero_cost() -> None:
 
     assert "loopback" in problems
     assert "keep MODEL_COST_CEILING_USD at zero" in problems
+
+
+def test_principal_requires_explicit_service_scope() -> None:
+    values = settings_kwargs()
+    values["auth_tokens_json"] = json.dumps(
+        {
+            hash_token("unscoped-token"): {
+                "principal_id": "viewer-1",
+                "roles": ["viewer"],
+            }
+        }
+    )
+    settings = Settings(**values)
+
+    assert "must declare at least one SERVICE_ID" in " ".join(settings.validate_runtime())

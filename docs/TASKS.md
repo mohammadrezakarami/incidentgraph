@@ -124,6 +124,20 @@ Phase 5 gate result: **PASS**. The two-case free Colab/Ollama/Qwen run passed al
 
 Phase 6 gate result: **PASS**. The gate used deterministic fixtures and the bounded local PostgreSQL container only; no real model, GPU, Ollama, paid call, or held-out evaluation ran.
 
+## Phase 7 — API and incident console
+
+- [x] Complete the versioned FastAPI contract, pagination, request IDs, request bounds, rate limiting, service authorization, and consistent errors.
+- [x] Add authenticated SSE with persisted sequence IDs, `Last-Event-ID`, heartbeat, bounded connection lifetime, and reconnect behavior.
+- [x] Add owner/operator checks for records, streams, reports, evidence, follow-ups, cancellation, and HTTP review access.
+- [x] Connect the production worker entrypoint to the fenced durable coordinator without a fake-model fallback.
+- [x] Persist bounded tool/model decision events for the live console timeline.
+- [x] Build the React/TypeScript/Vite console with API-backed history, create form, LIVE/REPLAY states, timeline, report, evidence, metric chart, and dependency graph.
+- [x] Add human-review meaning, cancellation, follow-up, loading, partial, reconnect, empty, and accessible error states.
+- [x] Create the local threat model before broadening the API surface.
+- [x] Pass Vitest, production build, real API/PostgreSQL contract, cross-user, SSE resume, and Playwright end-to-end gates.
+
+Phase 7 gate result: **PASS**. The gate used no model, GPU, Ollama, paid call, or held-out evaluation. Its browser worker is an explicitly labeled deterministic test fixture that publishes through the real PostgreSQL lease/publication contract.
+
 ## Later phase gates
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
@@ -131,7 +145,7 @@ Phase 6 gate result: **PASS**. The gate used deterministic fixtures and the boun
 - [x] Phase 4: vector/hybrid/graph-enhanced retrieval and development comparison.
 - [x] Phase 5: adaptive investigator and grounded reports, including the free real-model gate.
 - [x] Phase 6: durability, review, recovery, cancellation, and follow-ups.
-- [ ] Phase 7: complete API and incident console.
+- [x] Phase 7: complete API and incident console.
 - [ ] Phase 8: observability and security hardening.
 - [ ] Phase 9: frozen evaluation; requires a separate approved run budget.
 - [ ] Phase 10: reproducible release and operations.
