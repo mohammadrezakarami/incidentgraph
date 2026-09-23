@@ -34,8 +34,8 @@ artifacts/evaluation/*
 !artifacts/evaluation/phase4-dev/
 !artifacts/evaluation/phase4-dev/**
 !artifacts/evaluation/phase5-real-local/
+artifacts/evaluation/phase5-real-local/*
 !artifacts/evaluation/phase5-real-local/gate-results.json
-!artifacts/evaluation/phase5-real-local/gate-attempt-*.json
 artifacts/traces/
 logs/
 *.log

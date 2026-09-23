@@ -1,71 +1,81 @@
-# Phase 5 Progress Report — Adaptive Investigator and Grounded Reports
+# Phase 5 Completion Report — Adaptive Investigator and Grounded Reports
 
 Date: 2026-09-23
 
-Status: **IN PROGRESS — deterministic/local implementation ready; real-model gate BLOCKED**
+Status: **COMPLETE — PASS**
 
-## Scope completed without paid services
+## Delivered scope
 
 - Implemented one typed LangGraph investigator with all 12 required lifecycle nodes.
-- Added strict LangChain structured-output model boundaries and a disabled-by-default provider adapter.
-- Added eight typed, read-only observation tools with deterministic authorization, cutoff, query-template, payload, and timeout boundaries.
-- Added deterministic call, token, cost, tool, round, and active-runtime budget checks.
-- Added typed grounded reports, citation resolution, contradiction fields, abstention, and one bounded repair route.
-- Added PostgreSQL LangGraph checkpointing plus immutable evidence and report persistence.
-- Kept raw telemetry outside checkpoint state. Checkpoints contain evidence IDs, hashes, provenance, and bounded deterministic summaries; the full redacted observation is stored separately.
-- Built the incident evaluation manifest with 60 cases: 30 development and 30 held-out, each containing 20 identifiable, 5 insufficient-evidence, and 5 healthy cases.
-- Sealed the held-out cases and evaluator labels before model/prompt tuning. Current seal: `1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67`.
-- Demonstrated with deterministic model fixtures that different incidents can select `get_metrics` or `search_logs`, and that absent telemetry produces an inconclusive report.
-- Added explicit tests for unauthorized and duplicate tool requests, invalid model boundary output, unavailable citations, and pre-call token-budget rejection.
+- Added strict LangChain structured-output boundaries for planning, hypothesis revision, and report drafting.
+- Added eight typed, read-only observation tools with authorization, cutoff, template, payload, novelty, and timeout bounds.
+- Added deterministic model-call, token, zero-cost, tool-call, round, and active-runtime budgets.
+- Added grounded report schemas, citation resolution, contradiction fields, safe abstention, and one bounded report-repair route.
+- Added PostgreSQL LangGraph checkpointing and immutable evidence/report persistence. Raw telemetry is stored separately; checkpoints retain bounded summaries, hashes, provenance, and evidence IDs.
+- Added bounded recovery from malformed local-model tool arguments and deterministic partial reports when reserved reporting capacity is unavailable.
+- Made replay dependency observations hermetic by reading the immutable captured topology rather than requiring a live Neo4j service.
+- Built and sealed 60 incident cases: 30 development and 30 held-out, each split containing 20 identifiable, 5 insufficient-evidence, and 5 healthy cases.
+- Kept the held-out split unopened. Seal: `1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67`.
 
-## Verified commands
+## Free real-model gate
+
+The mandatory real-model run was executed on a free Google Colab GPU. No hosted model API or paid service was used.
+
+- Provider: local OpenAI-compatible Ollama endpoint.
+- Model: `qwen3:4b-instruct-2507-q4_K_M`.
+- Model digest: `0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0`.
+- Model size: 2,497,293,803 bytes; 4.0B parameters; Q4_K_M GGUF.
+- Ollama: 0.34.3.
+- Python: 3.12.14.
+- Monetary cost: exactly USD 0.
+- Artifact: `artifacts/evaluation/phase5-real-local/gate-results.json`.
+
+The artifact was independently revalidated after download: its gate result was recomputed from the runs, both reports passed the typed schema, every cited evidence ID belonged to the recorded case evidence, persistence completed, cost remained zero, and the before/after held-out seals were identical.
+
+## Gate results
+
+| Check | Result |
+|---|---|
+| Two real development cases | PASS |
+| Real model calls recorded | PASS |
+| At least two real diagnostic tool executions per case | PASS |
+| Evidence-driven second tools differ | PASS |
+| Grounded observations recorded | PASS |
+| Reports typed and citation-valid | PASS |
+| PostgreSQL checkpoint completion | PASS |
+| Zero monetary cost | PASS |
+
+Observed bounded paths:
+
+- `incident-dev-001`: `get_metrics → get_metrics`; 3 evidence items, 9 model calls, 4 total tool calls.
+- `incident-dev-009`: `get_metrics → get_dependencies → get_metrics`; 3 evidence items, 9 model calls, 5 total tool calls.
+
+Both final reports correctly remained `inconclusive`. The local model produced malformed tool arguments once and later returned structured-output request errors while drafting. The workflow did not invent a cause or exceed its budget: it retained collected evidence, emitted a deterministic citation-valid partial report, persisted the result, and recorded the failures. The Phase 5 gate therefore proves bounded adaptive execution and safe failure behavior; it does not claim diagnosis accuracy or production readiness.
+
+## Verification
 
 ```text
-make lint
-make typecheck
-make test
-make migrate
+ruff check .
+mypy
+pytest -m "not integration"
 make test-investigator-integration
 make verify-incident-eval
-make investigator-status
+incidentgraph-investigator status
 ```
 
-Observed results:
+Observed deterministic results at closure:
 
 - Ruff: pass.
-- Strict mypy: pass over 19 source files.
-- Unit tests: 41 passed; integration tests excluded from this count.
-- Global unit-only coverage: 48.17%; the retained 85% later-core target is not yet met.
-- Phase 5 integration tests: 2 passed against the real local PostgreSQL checkpointer and immutable evidence/report tables, plus real capture adapters.
-- Incident evaluation manifest: 60 total, 30 development, 30 held-out, seal verified, held-out not evaluated.
-- Docker services: eight local services healthy at verification time.
+- Strict mypy: pass.
+- Unit tests: 45 passed; integration tests excluded from this count.
+- Global unit-only coverage: 48.67%; the retained 85% later-core target remains open.
+- Phase 5 PostgreSQL/capture integration tests: 2 passed.
+- Incident manifest: 60 total, 30 development, 30 held-out; seal verified; held-out not evaluated.
+- Real-model gate: 8/8 checks passed.
+- Paid calls: none.
 
-## Gate assessment
+The repository-wide 85% coverage target remains a later-core release gate and is not weakened by this phase result.
 
-| Requirement | Result |
-|---|---|
-| Typed adaptive graph and bounded observation loop | PASS with deterministic fixtures |
-| Two evidence-dependent next-tool choices | PASS with deterministic fixtures |
-| Actual evidence citations and report validation | PASS |
-| Missing telemetry can cause abstention | PASS |
-| Call/time/context/tool limits | PASS in implementation and deterministic tests |
-| Invalid model output and tool failures | PASS in deterministic tests |
-| Persistent checkpointing from the workflow start | PASS against local PostgreSQL |
-| Real model calls drive real tools | **BLOCKED** |
+## Decision
 
-The Phase 5 gate is not passed. `MODEL_PROVIDER=disabled`, no paid call is authorized, and no suitable local chat model/runtime is installed. Deterministic fixtures are test evidence, not a substitute for the required real-model integration.
-
-The repository-wide coverage gate also remains open. The 85% target applies to the later core release and is reported as a failure rather than weakened.
-
-## Cost and compute decision
-
-No hosted model call was made and the configured monetary ceiling remains zero. The remaining gate can be attempted later with either:
-
-1. a free local OpenAI-compatible model runtime, after agreeing to its download and laptop resource cost; or
-2. a free Colab session, with the user running the heavy model step and returning the generated artifacts.
-
-The held-out incident split must remain unopened until prompts, settings, scoring code, and the approved run plan are frozen in Phase 9.
-
-## Next action
-
-Complete one approved free real-model integration run over development cases only. Do not mark Phase 5 complete until real model output invokes the real read-only tools and produces validated grounded reports under the configured limits.
+Phase 5 is complete. Including discovery Phase 0, **6 of 12 phase gates are complete**. Phase 6 is the next unstarted phase and requires explicit continuation before implementation begins.

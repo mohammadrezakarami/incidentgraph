@@ -522,12 +522,43 @@ def test_workflow_contains_every_required_phase5_lifecycle_node() -> None:
     }.issubset(nodes)
 
 
-def test_disabled_provider_is_reported_as_blocked_without_paid_calls() -> None:
-    result = investigator_status(settings())
+def test_disabled_provider_is_reported_as_blocked_without_paid_calls(tmp_path: Path) -> None:
+    result = investigator_status(settings(), tmp_path / "missing-gate.json")
 
     assert result["deterministic_workflow"] == "ready"
     assert result["real_model_gate"] == "blocked"
     assert result["paid_calls_allowed"] is False
+
+
+def test_verified_zero_cost_gate_is_reported_as_passed(tmp_path: Path) -> None:
+    gate = tmp_path / "gate-results.json"
+    gate.write_text(
+        json.dumps(
+            {
+                "provider": "local_openai_compatible",
+                "paid_calls": False,
+                "model": {"name": "local-model", "digest": "a" * 64},
+                "heldout_seal_before": {
+                    "digest": "b" * 64,
+                    "heldout_evaluated": False,
+                },
+                "heldout_seal_after": {
+                    "digest": "b" * 64,
+                    "heldout_evaluated": False,
+                },
+                "runs": [{}, {}],
+                "gate": {"status": "pass", "checks": {"zero_cost": True}},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = investigator_status(settings(), gate)
+
+    assert result["implementation"] == "complete"
+    assert result["real_model_gate"] == "passed"
+    assert result["real_model_blockers"] == []
+    assert result["verified_gate"]["cases"] == 2
 
 
 class InvalidPlanModel(ScriptedModel):

@@ -4,9 +4,9 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 4 are complete. Phase 5 is active: the typed adaptive workflow, read-only tools, grounded-report contracts, deterministic tests, and PostgreSQL checkpoints are implemented. The free real-model gate is prepared for Qwen through Ollama; its CPU run was deliberately stopped to protect the development laptop, and the final gate pass is pending on the free Colab GPU runner. No paid call, production capability, or real-model gate pass is claimed.
+Phase 0 through Phase 5 are complete. The typed adaptive investigator, eight read-only tools, grounded-report contracts, deterministic budgets, PostgreSQL checkpoints, and immutable evidence/report persistence are implemented. The real-model gate passed on two development cases using free Colab GPU compute, Ollama, and Qwen; no paid model call was made. This is laboratory gate evidence, not a production-readiness or diagnosis-accuracy claim.
 
-Roadmap progress: **Phase 5 of 11 delivery phases is active; 5 of 12 gated phases are complete when discovery Phase 0 is included, 1 is active, and 6 later phases have not started.**
+Roadmap progress: **Phase 5 of 11 delivery phases is complete; 6 of 12 gated phases are complete when discovery Phase 0 is included, and Phases 6–11 have not started.**
 
 See:
 
@@ -148,4 +148,4 @@ The 40-question fixture contains 20 development and 20 held-out questions with d
 
 ## Phase 5 free Colab gate
 
-Open [`phase5_colab.ipynb`](phase5_colab.ipynb) in Google Colab, select a free T4 GPU, and run the cells in order. The notebook accepts the generated `incidentgraph-phase5-colab.bundle`, so it does not need repository credentials. It starts only ephemeral Colab-local PostgreSQL and Ollama services, pulls `qwen3:4b-instruct-2507-q4_K_M`, runs deterministic checks and the two-case real-model gate, verifies that the held-out seal is unchanged, and downloads `gate-results.json`. No paid API is configured or permitted.
+The completed gate is reproducible with [`phase5_colab.ipynb`](phase5_colab.ipynb). It accepts a generated Git bundle without repository credentials, starts ephemeral Colab-local PostgreSQL and Ollama services, pulls `qwen3:4b-instruct-2507-q4_K_M`, runs deterministic checks and the two-case real-model gate, verifies that the held-out seal is unchanged, and downloads `gate-results.json`. The verified result is committed under `artifacts/evaluation/phase5-real-local/`; no paid API is configured or permitted.

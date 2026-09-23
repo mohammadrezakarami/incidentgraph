@@ -1,0 +1,533 @@
+{
+  "created_at": "2026-09-23T15:03:03.033510+00:00",
+  "gate": {
+    "checks": {
+      "different_evidence_driven_next_tools": true,
+      "grounded_observation_recorded": true,
+      "persistent_completion": true,
+      "real_model_calls_recorded": true,
+      "real_tools_executed": true,
+      "two_real_cases": true,
+      "valid_grounded_reports": true,
+      "zero_monetary_cost": true
+    },
+    "status": "pass"
+  },
+  "heldout_seal_after": {
+    "dev_cases": 30,
+    "digest": "1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67",
+    "heldout_cases": 30,
+    "heldout_evaluated": false,
+    "status": "pass",
+    "total_cases": 60
+  },
+  "heldout_seal_before": {
+    "dev_cases": 30,
+    "digest": "1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67",
+    "heldout_cases": 30,
+    "heldout_evaluated": false,
+    "status": "pass",
+    "total_cases": 60
+  },
+  "limits": {
+    "deadline_seconds": 900,
+    "model_calls": 10,
+    "rounds": 4,
+    "token_budget": 30000,
+    "tool_calls": 12
+  },
+  "model": {
+    "details": {
+      "context_length": 262144,
+      "embedding_length": 2560,
+      "families": [
+        "qwen3"
+      ],
+      "family": "qwen3",
+      "format": "gguf",
+      "parameter_size": "4.0B",
+      "parent_model": "",
+      "quantization_level": "Q4_K_M"
+    },
+    "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "name": "qwen3:4b-instruct-2507-q4_K_M",
+    "size": 2497293803
+  },
+  "paid_calls": false,
+  "provider": "local_openai_compatible",
+  "run_kind": "phase5-free-local-real-model-gate",
+  "runs": [
+    {
+      "case_id": "incident-dev-001",
+      "checkpoint_status": "inconclusive",
+      "counters": {
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 14708,
+        "model_calls": 9,
+        "model_latency_ms": 145993.98917000007,
+        "output_tokens": 3390,
+        "repair_attempts": 0,
+        "rounds": 3,
+        "tool_calls": 4,
+        "tool_latency_ms": 29.938774000129342,
+        "tool_validation_retries": 1
+      },
+      "decision_summaries": [
+        "Service context is resolved and status is 'ok'. No symptoms or evidence present. No further observations required.",
+        "No hypotheses are initially provided. The only evidence is a topology snapshot for 'svc-gateway' in the lab environment, which resolves the service identity and confirms its configuration. No symptoms, telemetry, or incident data are cited. Therefore, no hypothesis can be updated. The next missing discriminator is the presence of service symptoms or observable telemetry within the bounded window.",
+        "No observable telemetry, topology changes, or recent changes are available. Service context is resolved, but symptoms and operational data are missing. Request clarification on service symptoms to proceed.",
+        "Service identity resolved; topology context loaded. Missing telemetry, symptoms, or changes. Error in get_metrics request due to missing template argument. Proceed with error_rate metric to assess service health, as errors are a primary symptom indicator.",
+        "Missing service symptoms or observable telemetry; no evidence of operational state changes or configuration modifications. The metric data exists but is malformed due to invalid input (service_id 'svc-gatew' instead of 'svc-gateway'). Hypotheses cannot be formed without observable symptoms or state changes. Next missing discriminator: service symptoms or observable telemetry.",
+        "The error_rate metric is malformed due to a service ID typo in the query, invalidating its interpretation. Without valid symptom data or operational telemetry, no service behavior can be inferred. A valid observation must be made to resolve the service context or retrieve operational telemetry.",
+        "The hypothesis that 'service symptom absence' is unsupported due to valid metric data being returned. The error_rate and request_latency metrics are present and valid, indicating observable service behavior. The original hypothesis incorrectly dismissed the metrics as 'malformed' due to a service ID typo in the query, but the query was successfully resolved and the data is valid. Thus, the mechanism of 'service symptom absence' is invalid. The next missing discriminator is 'service symptoms or\u53ef\u89c2"
+      ],
+      "error_summaries": [
+        "invalid get_metrics arguments: 1 validation error for MetricsInput\ntemplate\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...09-22T21:45:55.402667Z'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "model request failed; reserved output counted: OpenAIInvalidRequestError",
+        "model request failed; reserved output counted: OpenAIInvalidRequestError"
+      ],
+      "evidence_ids": [
+        "8ed387fe-9839-5506-8c8e-d74e560cd95b",
+        "ea1d7085-4fd4-5200-8892-fccf106a1fef",
+        "c7eec038-674a-523d-a195-c30df82771d9"
+      ],
+      "report": {
+        "environment": "lab",
+        "incident_window": {
+          "end": "2026-09-22T21:45:55.402667Z",
+          "start": "2026-09-22T21:45:48.313574Z"
+        },
+        "investigation_id": "2f63a587-471c-4e37-b989-1319ee12e857",
+        "limitations": [
+          "Model report unavailable: model request failed; reserved output counted: OpenAIInvalidRequestError",
+          "No probable cause is asserted by this deterministic partial report."
+        ],
+        "mode": "replay",
+        "observation_cutoff": "2026-09-22T21:45:55.402667Z",
+        "observed_impact": [],
+        "observed_symptoms": [
+          {
+            "description": "A bounded topology observation was collected from config/topology.json; no causal interpretation is asserted.",
+            "evidence_ids": [
+              "8ed387fe-9839-5506-8c8e-d74e560cd95b"
+            ]
+          },
+          {
+            "description": "A bounded metric observation was collected from metrics.json#error_rate; no causal interpretation is asserted.",
+            "evidence_ids": [
+              "ea1d7085-4fd4-5200-8892-fccf106a1fef"
+            ]
+          },
+          {
+            "description": "A bounded metric observation was collected from metrics.json#request_latency; no causal interpretation is asserted.",
+            "evidence_ids": [
+              "c7eec038-674a-523d-a195-c30df82771d9"
+            ]
+          }
+        ],
+        "outcome": "inconclusive",
+        "potential_impact": [],
+        "ranked_hypotheses": [],
+        "recommended_next_steps": [],
+        "report_version": 1,
+        "review_status": "not_requested",
+        "snapshot_id": "cap-20260922214548-14c491f743",
+        "summary": "The bounded investigation ended without enough reliable model capacity to support a probable cause. Available evidence is retained for review.",
+        "target_service": "svc-gateway",
+        "termination_reason": "deterministic_partial_report",
+        "trace_reference": "trace://investigation/2f63a587-471c-4e37-b989-1319ee12e857",
+        "usage_and_timing": {
+          "active_duration_ms": 147182.811,
+          "cost_is_estimate": true,
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 14708,
+          "model_calls": 9,
+          "model_latency_ms": 145993.98917000007,
+          "output_tokens": 3390,
+          "tool_calls": 4,
+          "tool_latency_ms": 29.938774000129342
+        }
+      },
+      "report_valid": true,
+      "snapshot_id": "cap-20260922214548-14c491f743",
+      "status": "inconclusive",
+      "target_service": "gateway",
+      "termination_reason": "deterministic_partial_report",
+      "tool_sequence": [
+        "get_metrics",
+        "get_metrics"
+      ],
+      "tool_trace": [
+        {
+          "data": {
+            "name": "gateway",
+            "service_id": "svc-gateway"
+          },
+          "evidence_ids": [],
+          "status": "ok",
+          "summary": "resolved gateway to svc-gateway",
+          "tool": "resolve_service"
+        },
+        {
+          "data": {
+            "aliases": [
+              "edge",
+              "checkout-gateway"
+            ],
+            "environment": "lab",
+            "id": "svc-gateway",
+            "metadata_version": "1",
+            "name": "gateway",
+            "owner": "incidentgraph-lab"
+          },
+          "evidence_ids": [
+            "8ed387fe-9839-5506-8c8e-d74e560cd95b"
+          ],
+          "status": "ok",
+          "summary": "loaded reviewed context for svc-gateway",
+          "tool": "get_service_context"
+        },
+        {
+          "data": {
+            "point_count": 9,
+            "series_count": 1,
+            "series_summaries": [
+              {
+                "first_value": 1.128,
+                "last_value": 3.5,
+                "maximum": 6.0,
+                "metric": {
+                  "dependency": "checkout",
+                  "outcome": "success",
+                  "service": "gateway"
+                },
+                "minimum": 1.064,
+                "point_count": 9,
+                "template_source": "dependency_outcomes",
+                "unit": "requests/second"
+              }
+            ],
+            "template": "error_rate"
+          },
+          "evidence_ids": [
+            "ea1d7085-4fd4-5200-8892-fccf106a1fef"
+          ],
+          "status": "ok",
+          "summary": "returned 1 bounded metric series",
+          "tool": "get_metrics"
+        },
+        {
+          "data": {
+            "point_count": 36,
+            "series_count": 4,
+            "series_summaries": [
+              {
+                "first_value": 0.020769999999999997,
+                "last_value": 0.2425,
+                "maximum": 0.2425,
+                "metric": {
+                  "route": "/checkout",
+                  "service": "gateway"
+                },
+                "minimum": 0.020769999999999997,
+                "point_count": 9,
+                "template_source": "request_latency_p95",
+                "unit": "seconds"
+              },
+              {
+                "first_value": 0.00475,
+                "last_value": 0.00475,
+                "maximum": 0.00475,
+                "metric": {
+                  "route": "/health/ready",
+                  "service": "gateway"
+                },
+                "minimum": 0.004749999999999999,
+                "point_count": 9,
+                "template_source": "request_latency_p95",
+                "unit": "seconds"
+              },
+              {
+                "first_value": 1.128,
+                "last_value": 3.5,
+                "maximum": 6.0,
+                "metric": {
+                  "route": "/checkout",
+                  "service": "gateway",
+                  "status_class": "2xx"
+                },
+                "minimum": 1.064,
+                "point_count": 9,
+                "template_source": "request_rate",
+                "unit": "requests/second"
+              },
+              {
+                "first_value": 0.5,
+                "last_value": 0.25,
+                "maximum": 0.75,
+                "metric": {
+                  "route": "/health/ready",
+                  "service": "gateway",
+                  "status_class": "2xx"
+                },
+                "minimum": 0.25,
+                "point_count": 9,
+                "template_source": "request_rate",
+                "unit": "requests/second"
+              }
+            ],
+            "template": "request_latency"
+          },
+          "evidence_ids": [
+            "c7eec038-674a-523d-a195-c30df82771d9"
+          ],
+          "status": "ok",
+          "summary": "returned 4 bounded metric series",
+          "tool": "get_metrics"
+        }
+      ]
+    },
+    {
+      "case_id": "incident-dev-009",
+      "checkpoint_status": "inconclusive",
+      "counters": {
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 16909,
+        "model_calls": 9,
+        "model_latency_ms": 60097.79073999972,
+        "output_tokens": 3304,
+        "repair_attempts": 0,
+        "rounds": 4,
+        "tool_calls": 5,
+        "tool_latency_ms": 32.50294300028145,
+        "tool_validation_retries": 0
+      },
+      "decision_summaries": [
+        "No symptoms or evidence present in the bounded window; service is reported as 'ok'. No further observations required.",
+        "No hypotheses are initially provided. The only evidence is a topology snapshot for 'svc-gateway' in the lab environment, which resolves the service identity but provides no symptoms or telemetry. Without observed service symptoms, telemetry, or change events, no mechanism is supported. The next missing discriminator is: service symptom manifestation (e.g., latency, error rate, availability).",
+        "Missing service symptoms (error rates, latency, availability) and telemetry data for svc-gateway. First observation required: error_rate to assess service health.",
+        "Missing service symptoms (e.g., error rates, latency, availability) within the bounded window; telemetry or performance data for svc-gateway is absent; no change events or configuration modifications affecting svc-gateway are observed. Hypotheses cannot be updated due to insufficient evidence.",
+        "The error_rate metric for svc-gateway shows a bounded window with dependency outcomes indicating errors for 'checkout' service. This suggests a service symptom (error rate) is present, justifying a deeper investigation into the dependency chain. Next, retrieve dependency context to validate the impact of checkout service errors on gateway.",
+        "The original hypotheses are updated based on newly revealed metric data. The mechanism 'absence of observable symptoms' is now contradicted by the presence of error-rate metrics. The error rate metric shows a dependency outcome of 'error' at 2.749 requests/second, which constitutes observable service symptoms. This refines the mechanism and supports a new, evidence-backed explanation.",
+        "Error rate in dependency outcomes is present and measurable (2.749 requests/second), indicating service symptom. Next observation required to establish temporal trend and root cause. Request temporal trend of error rate over time."
+      ],
+      "error_summaries": [
+        "model request failed; reserved output counted: OpenAIInvalidRequestError",
+        "model request failed; reserved output counted: OpenAIInvalidRequestError"
+      ],
+      "evidence_ids": [
+        "d65af415-bf60-5b6c-8d23-1f8ccaf947d4",
+        "2327196b-faad-5a7d-8cb2-c75c04758857",
+        "490cdd52-495e-5024-8b4b-841fc4db47e1"
+      ],
+      "report": {
+        "environment": "lab",
+        "incident_window": {
+          "end": "2026-09-22T21:46:38.300959Z",
+          "start": "2026-09-22T21:46:31.441477Z"
+        },
+        "investigation_id": "2bb6f315-1f19-49dc-a595-3ce93bdf5c7d",
+        "limitations": [
+          "Model report unavailable: model request failed; reserved output counted: OpenAIInvalidRequestError",
+          "No probable cause is asserted by this deterministic partial report."
+        ],
+        "mode": "replay",
+        "observation_cutoff": "2026-09-22T21:46:38.300959Z",
+        "observed_impact": [],
+        "observed_symptoms": [
+          {
+            "description": "A bounded topology observation was collected from config/topology.json; no causal interpretation is asserted.",
+            "evidence_ids": [
+              "d65af415-bf60-5b6c-8d23-1f8ccaf947d4"
+            ]
+          },
+          {
+            "description": "A bounded metric observation was collected from metrics.json#error_rate; no causal interpretation is asserted.",
+            "evidence_ids": [
+              "2327196b-faad-5a7d-8cb2-c75c04758857"
+            ]
+          },
+          {
+            "description": "A bounded topology observation was collected from topology.json#dependencies; no causal interpretation is asserted.",
+            "evidence_ids": [
+              "490cdd52-495e-5024-8b4b-841fc4db47e1"
+            ]
+          }
+        ],
+        "outcome": "inconclusive",
+        "potential_impact": [],
+        "ranked_hypotheses": [],
+        "recommended_next_steps": [],
+        "report_version": 1,
+        "review_status": "not_requested",
+        "snapshot_id": "cap-20260922214631-8a73e79c0b",
+        "summary": "The bounded investigation ended without enough reliable model capacity to support a probable cause. Available evidence is retained for review.",
+        "target_service": "svc-gateway",
+        "termination_reason": "deterministic_partial_report",
+        "trace_reference": "trace://investigation/2bb6f315-1f19-49dc-a595-3ce93bdf5c7d",
+        "usage_and_timing": {
+          "active_duration_ms": 60660.927,
+          "cost_is_estimate": true,
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 16909,
+          "model_calls": 9,
+          "model_latency_ms": 60097.79073999972,
+          "output_tokens": 3304,
+          "tool_calls": 5,
+          "tool_latency_ms": 32.50294300028145
+        }
+      },
+      "report_valid": true,
+      "snapshot_id": "cap-20260922214631-8a73e79c0b",
+      "status": "inconclusive",
+      "target_service": "gateway",
+      "termination_reason": "deterministic_partial_report",
+      "tool_sequence": [
+        "get_metrics",
+        "get_dependencies",
+        "get_metrics"
+      ],
+      "tool_trace": [
+        {
+          "data": {
+            "name": "gateway",
+            "service_id": "svc-gateway"
+          },
+          "evidence_ids": [],
+          "status": "ok",
+          "summary": "resolved gateway to svc-gateway",
+          "tool": "resolve_service"
+        },
+        {
+          "data": {
+            "aliases": [
+              "edge",
+              "checkout-gateway"
+            ],
+            "environment": "lab",
+            "id": "svc-gateway",
+            "metadata_version": "1",
+            "name": "gateway",
+            "owner": "incidentgraph-lab"
+          },
+          "evidence_ids": [
+            "d65af415-bf60-5b6c-8d23-1f8ccaf947d4"
+          ],
+          "status": "ok",
+          "summary": "loaded reviewed context for svc-gateway",
+          "tool": "get_service_context"
+        },
+        {
+          "data": {
+            "point_count": 16,
+            "series_count": 2,
+            "series_summaries": [
+              {
+                "first_value": 0.0,
+                "last_value": 2.749312671832042,
+                "maximum": 2.9970029970029977,
+                "metric": {
+                  "dependency": "checkout",
+                  "outcome": "error",
+                  "service": "gateway"
+                },
+                "minimum": 0.0,
+                "point_count": 8,
+                "template_source": "dependency_outcomes",
+                "unit": "requests/second"
+              },
+              {
+                "first_value": 2.002503128911139,
+                "last_value": 1.9995001249687578,
+                "maximum": 3.0,
+                "metric": {
+                  "dependency": "checkout",
+                  "outcome": "success",
+                  "service": "gateway"
+                },
+                "minimum": 1.9995001249687578,
+                "point_count": 8,
+                "template_source": "dependency_outcomes",
+                "unit": "requests/second"
+              }
+            ],
+            "template": "error_rate"
+          },
+          "evidence_ids": [
+            "2327196b-faad-5a7d-8cb2-c75c04758857"
+          ],
+          "status": "ok",
+          "summary": "returned 2 bounded metric series",
+          "tool": "get_metrics"
+        },
+        {
+          "data": {
+            "nodes": [
+              "svc-checkout",
+              "svc-gateway"
+            ],
+            "path_count": 1,
+            "relationships": [
+              "svc-gateway->svc-checkout"
+            ]
+          },
+          "evidence_ids": [
+            "490cdd52-495e-5024-8b4b-841fc4db47e1"
+          ],
+          "status": "ok",
+          "summary": "returned 1 authorized captured dependency paths",
+          "tool": "get_dependencies"
+        },
+        {
+          "data": {
+            "point_count": 16,
+            "series_count": 2,
+            "series_summaries": [
+              {
+                "first_value": 0.0,
+                "last_value": 2.749312671832042,
+                "maximum": 2.9970029970029977,
+                "metric": {
+                  "dependency": "checkout",
+                  "outcome": "error",
+                  "service": "gateway"
+                },
+                "minimum": 0.0,
+                "point_count": 8,
+                "template_source": "dependency_outcomes",
+                "unit": "requests/second"
+              },
+              {
+                "first_value": 2.002503128911139,
+                "last_value": 1.9995001249687578,
+                "maximum": 3.0,
+                "metric": {
+                  "dependency": "checkout",
+                  "outcome": "success",
+                  "service": "gateway"
+                },
+                "minimum": 1.9995001249687578,
+                "point_count": 8,
+                "template_source": "dependency_outcomes",
+                "unit": "requests/second"
+              }
+            ],
+            "template": "error_rate"
+          },
+          "evidence_ids": [
+            "2327196b-faad-5a7d-8cb2-c75c04758857"
+          ],
+          "status": "ok",
+          "summary": "returned 2 bounded metric series",
+          "tool": "get_metrics"
+        }
+      ]
+    }
+  ],
+  "runtime": {
+    "ollama": "0.34.3",
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "python": "3.12.14"
+  },
+  "schema_version": 1
+}
