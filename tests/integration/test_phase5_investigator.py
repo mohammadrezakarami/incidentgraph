@@ -7,8 +7,10 @@ from typing import Any
 from uuid import NAMESPACE_URL, uuid4, uuid5
 
 import pytest
+from langgraph.types import Command
 
 from incidentgraph.config import Settings
+from incidentgraph.durability import DurableWorkflowCoordinator
 from incidentgraph.investigation_tools import CaptureToolbox
 from incidentgraph.investigator import (
     HypothesisRevision,
@@ -25,10 +27,12 @@ from incidentgraph.investigator import (
 )
 from incidentgraph.models import (
     EvidenceItem,
+    FollowUpCreate,
     ImpactStatement,
     InvestigationCreate,
     InvestigationMode,
     RankedHypothesis,
+    ReviewSubmission,
 )
 from incidentgraph.persistence import Database
 
@@ -224,6 +228,298 @@ async def test_postgres_checkpointer_persists_completed_workflow_state() -> None
     assert persisted_evidence.content == "bounded integration evidence"
     assert persisted_report is not None
     assert persisted_report.outcome.value == "probable_cause"
+
+
+@pytest.mark.skipif(
+    os.getenv("RUN_INVESTIGATOR_INTEGRATION") != "1",
+    reason="Phase 6 checkpoint recovery integration is not enabled",
+)
+async def test_review_interrupt_resumes_after_workflow_process_restart() -> None:
+    base_settings = Settings()  # type: ignore[call-arg]
+    settings = base_settings.model_copy(update={"human_review_required": True})
+    tools = CheckpointTools()
+    model = CheckpointModel(tools.item)
+    request_id = uuid4()
+    end = datetime(2026, 9, 23, 12, tzinfo=UTC)
+    database = Database(settings.app_database_dsn.get_secret_value())
+    await database.open()
+    try:
+        accepted = await database.create_investigation(
+            owner_id="phase6-checkpoint-viewer",
+            request_id=request_id,
+            idempotency_key=f"phase6-checkpoint-{request_id}",
+            request=InvestigationCreate(
+                question="Can a review checkpoint survive a process restart?",
+                target_service="gateway",
+                environment="lab",
+                window_start=datetime(2026, 9, 23, 11, 55, tzinfo=UTC),
+                window_end=end,
+                mode=InvestigationMode.REPLAY,
+            ),
+        )
+    finally:
+        await database.close()
+    initial = initial_state(
+        investigation_id=accepted.investigation_id,
+        request_id=request_id,
+        principal_id="phase6-checkpoint-viewer",
+        authorized_service_ids=("svc-gateway", "svc-checkout", "svc-payments"),
+        question="Can a review checkpoint survive a process restart?",
+        target_service="gateway",
+        window_start=datetime(2026, 9, 23, 11, 55, tzinfo=UTC),
+        window_end=end,
+        observation_cutoff=end,
+        mode=InvestigationMode.REPLAY,
+        snapshot_id="cap-integration-0001",
+        corpus_version="integration-corpus-v1",
+    )
+    config: dict[str, Any] = {"configurable": {"thread_id": initial["thread_id"]}}
+
+    async with persistent_workflow(settings, model, tools, setup=True) as first_process:
+        waiting = await first_process.ainvoke(initial, config=config)
+        assert waiting["__interrupt__"][0].value["report_version"] == 1
+
+    async with persistent_workflow(settings, model, tools) as restarted_process:
+        completed = await restarted_process.ainvoke(
+            Command(
+                resume={
+                    "decision": "accept",
+                    "decision_reference": "postgres://review/phase6-restart",
+                }
+            ),
+            config=config,
+        )
+        saved = await restarted_process.aget_state(config)
+
+    assert completed["status"] == "completed"
+    assert saved.values["review_decision_reference"].endswith("phase6-restart")
+    assert saved.values["evidence"][0]["evidence_id"] == str(tools.item.evidence_id)
+
+    database = Database(settings.app_database_dsn.get_secret_value())
+    await database.open()
+    try:
+        async with database.pool.connection() as connection:
+            await connection.execute(
+                "DELETE FROM incidentgraph_app.investigations WHERE id = %s",
+                (accepted.investigation_id,),
+            )
+    finally:
+        await database.close()
+
+
+@pytest.mark.skipif(
+    os.getenv("RUN_INVESTIGATOR_INTEGRATION") != "1",
+    reason="Phase 6 queue/checkpointer coordination integration is not enabled",
+)
+async def test_queue_lease_coordinates_review_checkpoint_across_restart() -> None:
+    base_settings = Settings()  # type: ignore[call-arg]
+    settings = base_settings.model_copy(update={"human_review_required": True})
+    tools = CheckpointTools()
+    model = CheckpointModel(tools.item)
+    request_id = uuid4()
+    end = datetime(2026, 9, 23, 12, tzinfo=UTC)
+    database = Database(settings.app_database_dsn.get_secret_value())
+    await database.open()
+    try:
+        accepted = await database.create_investigation(
+            owner_id="phase6-coordinator-viewer",
+            request_id=request_id,
+            idempotency_key=f"phase6-coordinator-{request_id}",
+            request=InvestigationCreate(
+                question="Can queue and checkpoint recovery coordinate safely?",
+                target_service="gateway",
+                environment="lab",
+                window_start=datetime(2026, 9, 23, 11, 55, tzinfo=UTC),
+                window_end=end,
+                mode=InvestigationMode.REPLAY,
+            ),
+        )
+        lease = await database.claim_job(
+            "phase6-first-process",
+            lease_seconds=30,
+            investigation_id=accepted.investigation_id,
+        )
+        assert lease is not None
+        initial = initial_state(
+            investigation_id=accepted.investigation_id,
+            request_id=request_id,
+            principal_id="phase6-coordinator-viewer",
+            authorized_service_ids=("svc-gateway", "svc-checkout", "svc-payments"),
+            question="Can queue and checkpoint recovery coordinate safely?",
+            target_service="gateway",
+            window_start=datetime(2026, 9, 23, 11, 55, tzinfo=UTC),
+            window_end=end,
+            observation_cutoff=end,
+            mode=InvestigationMode.REPLAY,
+            snapshot_id="cap-integration-0001",
+            corpus_version="integration-corpus-v1",
+        )
+        async with persistent_workflow(
+            settings,
+            model,
+            tools,
+            setup=True,
+            defer_report_publication=True,
+        ) as first_workflow:
+            first_coordinator = DurableWorkflowCoordinator(
+                database,
+                first_workflow,
+                require_review=True,
+                review_ttl_seconds=60,
+            )
+            waiting = await first_coordinator.process(lease, initial_input=initial)
+        assert waiting["durable_publication"]["status"] == "waiting_for_review"
+
+        await database.submit_review(
+            accepted.investigation_id,
+            reviewer_id="phase6-reviewer",
+            roles=frozenset({"reviewer"}),
+            idempotency_key="phase6-coordinator-accept",
+            submission=ReviewSubmission(
+                report_version=1,
+                decision="accept",
+                rationale="The checkpointed report is accepted.",
+            ),
+        )
+        resumed_lease = await database.claim_job(
+            "phase6-restarted-process",
+            lease_seconds=30,
+            investigation_id=accepted.investigation_id,
+        )
+        assert resumed_lease is not None
+        async with persistent_workflow(
+            settings,
+            model,
+            tools,
+            defer_report_publication=True,
+        ) as restarted_workflow:
+            restarted_coordinator = DurableWorkflowCoordinator(
+                database,
+                restarted_workflow,
+                require_review=True,
+                review_ttl_seconds=60,
+            )
+            completed = await restarted_coordinator.process(resumed_lease)
+        assert completed["status"] == "completed"
+        events = await database.list_events(
+            accepted.investigation_id,
+            "phase6-coordinator-viewer",
+        )
+        assert [event.kind for event in events].count("report.published") == 1
+        assert [event.kind for event in events].count("review.resume_completed") == 1
+    finally:
+        if "accepted" in locals():
+            async with database.pool.connection() as connection:
+                await connection.execute(
+                    "DELETE FROM incidentgraph_app.investigations WHERE id = %s",
+                    (accepted.investigation_id,),
+                )
+        await database.close()
+
+
+@pytest.mark.skipif(
+    os.getenv("RUN_INVESTIGATOR_INTEGRATION") != "1",
+    reason="Phase 6 versioned follow-up integration is not enabled",
+)
+async def test_coordinator_runs_budgeted_follow_up_as_report_version_two() -> None:
+    settings = Settings()  # type: ignore[call-arg]
+    tools = CheckpointTools()
+    model = CheckpointModel(tools.item)
+    request_id = uuid4()
+    end = datetime(2026, 9, 23, 12, tzinfo=UTC)
+    database = Database(settings.app_database_dsn.get_secret_value())
+    await database.open()
+    try:
+        accepted = await database.create_investigation(
+            owner_id="phase6-followup-coordinator",
+            request_id=request_id,
+            idempotency_key=f"phase6-followup-coordinator-{request_id}",
+            request=InvestigationCreate(
+                question="Can a follow-up continue the durable graph thread?",
+                target_service="gateway",
+                environment="lab",
+                window_start=datetime(2026, 9, 23, 11, 55, tzinfo=UTC),
+                window_end=end,
+                mode=InvestigationMode.REPLAY,
+            ),
+        )
+        lease = await database.claim_job(
+            "phase6-followup-first",
+            lease_seconds=30,
+            investigation_id=accepted.investigation_id,
+        )
+        assert lease is not None
+        initial = initial_state(
+            investigation_id=accepted.investigation_id,
+            request_id=request_id,
+            principal_id="phase6-followup-coordinator",
+            authorized_service_ids=("svc-gateway", "svc-checkout", "svc-payments"),
+            question="Can a follow-up continue the durable graph thread?",
+            target_service="gateway",
+            window_start=datetime(2026, 9, 23, 11, 55, tzinfo=UTC),
+            window_end=end,
+            observation_cutoff=end,
+            mode=InvestigationMode.REPLAY,
+            snapshot_id="cap-integration-0001",
+            corpus_version="integration-corpus-v1",
+        )
+        async with persistent_workflow(
+            settings,
+            model,
+            tools,
+            setup=True,
+            defer_report_publication=True,
+        ) as first_workflow:
+            coordinator = DurableWorkflowCoordinator(
+                database,
+                first_workflow,
+                require_review=False,
+                review_ttl_seconds=60,
+            )
+            first = await coordinator.process(lease, initial_input=initial)
+        assert first["durable_publication"]["report_version"] == 1
+
+        follow_up = await database.create_follow_up(
+            accepted.investigation_id,
+            owner_id="phase6-followup-coordinator",
+            idempotency_key="phase6-followup-coordinator-v2",
+            request=FollowUpCreate(
+                question="Does another bounded observation change the conclusion?",
+                max_model_calls=5,
+                max_tool_calls=3,
+            ),
+        )
+        assert follow_up.target_report_version == 2
+        follow_up_lease = await database.claim_job(
+            "phase6-followup-second",
+            lease_seconds=30,
+            investigation_id=accepted.investigation_id,
+        )
+        assert follow_up_lease is not None
+        async with persistent_workflow(
+            settings,
+            model,
+            tools,
+            defer_report_publication=True,
+        ) as second_workflow:
+            coordinator = DurableWorkflowCoordinator(
+                database,
+                second_workflow,
+                require_review=False,
+                review_ttl_seconds=60,
+            )
+            second = await coordinator.process(follow_up_lease)
+        assert second["durable_publication"]["report_version"] == 2
+        assert second["report_version"] == 2
+        assert second["counters"]["model_calls"] >= first["counters"]["model_calls"]
+    finally:
+        if "accepted" in locals():
+            async with database.pool.connection() as connection:
+                await connection.execute(
+                    "DELETE FROM incidentgraph_app.investigations WHERE id = %s",
+                    (accepted.investigation_id,),
+                )
+        await database.close()
 
 
 @pytest.mark.skipif(

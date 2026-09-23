@@ -1,7 +1,7 @@
 UV := UV_PYTHON_INSTALL_DIR='$(CURDIR)/.tools/python' UV_CACHE_DIR='$(CURDIR)/.tools/cache' .tools/uv
 COMPOSE := docker compose -f ops/compose.yaml --env-file .env
 
-.PHONY: doctor bootstrap up down migrate seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures test coverage test-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
+.PHONY: doctor bootstrap up down migrate seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures test coverage test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
 
 doctor:
 	$(UV) run incidentgraph doctor
@@ -92,6 +92,10 @@ coverage:
 
 test-integration:
 	RUN_INTEGRATION=1 $(UV) run pytest -m "integration and not lab_integration and not graph_integration" -v
+
+test-phase6-integration:
+	RUN_INTEGRATION=1 $(UV) run pytest tests/integration/test_durable_queue.py -v
+	RUN_INVESTIGATOR_INTEGRATION=1 $(UV) run pytest tests/integration/test_phase5_investigator.py -k "postgres_checkpointer or review_interrupt or queue_lease or budgeted_follow_up" -v
 
 test-lab-integration:
 	RUN_LAB_INTEGRATION=1 $(UV) run pytest -m lab_integration -v

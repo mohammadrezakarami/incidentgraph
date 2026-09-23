@@ -7,10 +7,13 @@ from typing import Any
 from uuid import NAMESPACE_URL, uuid4, uuid5
 
 import pytest
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.types import Command
 
 from incidentgraph.config import Settings
 from incidentgraph.investigation_tools import CaptureToolbox
 from incidentgraph.investigator import (
+    BudgetExceeded,
     HypothesisRevision,
     InvestigatorState,
     MetricsInput,
@@ -24,6 +27,7 @@ from incidentgraph.investigator import (
     ToolRequest,
     ToolResult,
     ToolRuntimeContext,
+    _reserve_model_call,
     build_workflow,
     initial_state,
     investigator_status,
@@ -254,6 +258,32 @@ def state() -> InvestigatorState:
     )
 
 
+def test_follow_up_model_budget_is_incremental_over_cumulative_usage() -> None:
+    current = state()
+    current["counters"] = {
+        "model_calls": 5,
+        "tool_calls": 4,
+        "rounds": 2,
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "estimated_cost_usd": 0,
+        "model_latency_ms": 10,
+        "tool_latency_ms": 10,
+        "repair_attempts": 0,
+        "tool_validation_retries": 0,
+    }
+    current["revision_model_calls_start"] = 5
+    current["revision_max_model_calls"] = 2
+
+    first = _reserve_model_call(current, settings(), "bounded context")
+    current["counters"] = first.model_dump(mode="json")
+    second = _reserve_model_call(current, settings(), "bounded context")
+    current["counters"] = second.model_dump(mode="json")
+
+    with pytest.raises(BudgetExceeded, match="follow-up model-call"):
+        _reserve_model_call(current, settings(), "bounded context")
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("selected_tool", [ToolName.GET_METRICS, ToolName.SEARCH_LOGS])
 async def test_adaptive_workflow_can_choose_different_first_observations(
@@ -275,6 +305,54 @@ async def test_adaptive_workflow_can_choose_different_first_observations(
     assert result["hypothesis_version"] == 2
     assert result["report_version"] == 1
     assert result["report_reference"].startswith("postgres://incidentgraph_app/reports/")
+
+
+@pytest.mark.asyncio
+async def test_human_review_interrupt_resumes_and_preserves_state_across_revision() -> None:
+    tools = FakeTools(ToolName.GET_METRICS)
+    model = ScriptedModel(ToolName.GET_METRICS, tools.item)
+    initial = state()
+    workflow = build_workflow(
+        settings(human_review_required=True),
+        model,
+        tools,
+        checkpointer=InMemorySaver(),
+    )
+    config = {"configurable": {"thread_id": initial["thread_id"]}}
+
+    waiting = await workflow.ainvoke(initial, config=config)
+    review = waiting["__interrupt__"][0].value
+    assert review["report_version"] == 1
+    assert review["allowed_decisions"] == ["accept", "reject", "request_revision"]
+    evidence_ids = [item["evidence_id"] for item in waiting["evidence"]]
+    counters_before = waiting["counters"]
+
+    revised = await workflow.ainvoke(
+        Command(
+            resume={
+                "decision": "request_revision",
+                "decision_reference": "postgres://review/decision-1",
+            }
+        ),
+        config=config,
+    )
+    second_review = revised["__interrupt__"][0].value
+    assert second_review["report_version"] == 2
+    assert [item["evidence_id"] for item in revised["evidence"]] == evidence_ids
+    assert revised["counters"]["tool_calls"] == counters_before["tool_calls"]
+    assert revised["counters"]["model_calls"] > counters_before["model_calls"]
+
+    completed = await workflow.ainvoke(
+        Command(
+            resume={
+                "decision": "accept",
+                "decision_reference": "postgres://review/decision-2",
+            }
+        ),
+        config=config,
+    )
+    assert completed["status"] == "completed"
+    assert completed["report_version"] == 2
 
 
 class InvalidThenCorrectModel(ScriptedModel):

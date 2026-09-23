@@ -4,9 +4,9 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 5 are complete. The typed adaptive investigator, eight read-only tools, grounded-report contracts, deterministic budgets, PostgreSQL checkpoints, and immutable evidence/report persistence are implemented. The real-model gate passed on two development cases using free Colab GPU compute, Ollama, and Qwen; no paid model call was made. This is laboratory gate evidence, not a production-readiness or diagnosis-accuracy claim.
+Phase 0 through Phase 6 are complete. The adaptive investigator now joins PostgreSQL queue leases to LangGraph checkpoints, releases workers while waiting for review, resumes only from authenticated stored decisions, fences stale publishers, supports cooperative cancellation, and creates versioned follow-ups with incremental budgets. The Phase 5 real-model gate used free Colab compute; Phase 6 used only lightweight deterministic and PostgreSQL tests. No paid model call was made.
 
-Roadmap progress: **Phase 5 of 11 delivery phases is complete; 6 of 12 gated phases are complete when discovery Phase 0 is included, and Phases 6–11 have not started.**
+Roadmap progress: **Phase 6 of 11 delivery phases is complete; 7 of 12 gated phases are complete when discovery Phase 0 is included, and Phases 7–11 have not started.**
 
 See:
 
@@ -16,6 +16,7 @@ See:
 - [`docs/progress/phase-03-report.md`](docs/progress/phase-03-report.md)
 - [`docs/progress/phase-04-report.md`](docs/progress/phase-04-report.md)
 - [`docs/progress/phase-05-report.md`](docs/progress/phase-05-report.md)
+- [`docs/progress/phase-06-report.md`](docs/progress/phase-06-report.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)
@@ -63,8 +64,11 @@ make test-integration
 - `POST /api/v1/investigations`
 - `GET /api/v1/investigations/{id}`
 - `GET /api/v1/investigations/{id}/events`
+- `POST /api/v1/investigations/{id}/reviews`
+- `POST /api/v1/investigations/{id}/cancel`
+- `POST /api/v1/investigations/{id}/followups`
 
-Investigation endpoints require a configured bearer token. Submitted investigations currently enqueue an explicitly non-AI durability test job; they do not run an investigator.
+Investigation endpoints require a configured bearer token. Review decisions additionally require a `reviewer` or `operator` role and are bound to a report version, expiry, reviewer identity, and idempotency key. Phase 7 will finish the public API and console; the default CLI worker remains a non-AI foundation worker.
 
 ## Resource and cost boundary
 
@@ -149,3 +153,14 @@ The 40-question fixture contains 20 development and 20 held-out questions with d
 ## Phase 5 free Colab gate
 
 The completed gate is reproducible with [`phase5_colab.ipynb`](phase5_colab.ipynb). It accepts a generated Git bundle without repository credentials, starts ephemeral Colab-local PostgreSQL and Ollama services, pulls `qwen3:4b-instruct-2507-q4_K_M`, runs deterministic checks and the two-case real-model gate, verifies that the held-out seal is unchanged, and downloads `gate-results.json`. The verified result is committed under `artifacts/evaluation/phase5-real-local/`; no paid API is configured or permitted.
+
+## Phase 6 durable execution
+
+Apply the third migration and run the lightweight durability gate with:
+
+```bash
+make migrate
+make test-phase6-integration
+```
+
+The gate uses only the local PostgreSQL container and deterministic model fixtures. It covers expired-lease recovery, stale-worker fencing, idempotent publication and review decisions, process restart at a LangGraph review checkpoint, capacity release while waiting for a human, rejected stale/expired/unauthorized decisions, cooperative cancellation, and a budgeted follow-up that publishes report version 2. At-least-once delivery is assumed; externally visible effects are idempotent rather than described as exactly-once.

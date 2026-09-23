@@ -14,9 +14,11 @@ Phase 4 — Retrieval baselines and development evaluation: **PASS**.
 
 Phase 5 — Adaptive investigator and grounded reports: **PASS**.
 
-Roadmap position: **Phase 5 of 11 delivery phases is complete. Including discovery Phase 0, 6 of 12 gated phases are complete and Phases 6–11 have not started.**
+Phase 6 — Durable execution, review, cancellation, and follow-ups: **PASS**.
 
-The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, and adaptive investigator are implemented and verified. A free local Qwen model running through Ollama on Colab drove the real read-only tools for two development cases and passed the Phase 5 gate at zero monetary cost.
+Roadmap position: **Phase 6 of 11 delivery phases is complete. Including discovery Phase 0, 7 of 12 gated phases are complete and Phases 7–11 have not started.**
+
+The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, and durable human-review lifecycle are implemented and verified. Phase 6 required no real model, GPU, large download, or paid service.
 
 ## Verified environment
 
@@ -29,7 +31,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Docker 29.4.1 and Docker Compose v5.1.3 clients are installed.
 - Docker daemon is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned.
 - Digest-pinned PostgreSQL 18.6 and Neo4j 2026.09.0 services are healthy; real connectivity passes.
-- Ruff, strict mypy over 20 source files, 45 unit tests, and 2 Phase 5 integration tests pass; earlier PostgreSQL recovery, live lab, graph-ingestion, and retrieval integration tests also passed at their phase gates.
+- Ruff, strict mypy over 21 source files, 51 unit tests, 6 Phase 6 queue/recovery integration tests, and 4 deterministic PostgreSQL-checkpoint tests pass; earlier live lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
 - Safe Compose teardown preserves named-volume data.
 - Three real transaction services, Redis, and Prometheus are healthy.
 - Twelve independent live fault captures and five control captures pass executable verification.
@@ -47,6 +49,10 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - The incident evaluation manifest contains 60 cases split 30/30 with the required class balance. The held-out seal is `1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67` and has not been evaluated.
 - The Phase 5 free real-model artifact passed all eight checks for two development cases with Ollama 0.34.3 and `qwen3:4b-instruct-2507-q4_K_M` at digest `0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0`.
 - Both real-model cases safely returned citation-valid `inconclusive` reports after bounded model-output failures; no cause was invented, PostgreSQL checkpoints completed, and estimated cost remained USD 0.
+- Queue attempts are fenced by owner, token, expiration, generation, and target report version. Publication is atomic and idempotent, and stale attempts cannot publish.
+- Human-review waits clear the worker lease. Decisions are role-checked, version-bound, expiring, idempotent, and stored before a controlled resume attempt is queued.
+- Cooperative cancellation prevents a requested run from completing or publishing after the worker observes the request; already-issued provider work cannot be retroactively reversed.
+- Follow-ups retain cumulative usage, require an explicit incremental model/tool budget, continue the same checkpoint thread, and publish a new immutable report version.
 
 ## Approved decisions recorded in ADRs
 
@@ -58,7 +64,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Open gates and limitations
 
-- The current API enqueues only an explicitly non-AI durability job.
+- Phase 7 must connect the production API/worker assembly and build the incident console; the default CLI worker remains the explicit non-AI foundation worker.
 - The retained 85 percent coverage command currently reports 48.67 percent over all modules; the later core target is not yet met.
 - Phase 2 captures predate the Phase 3 corpus and must not be used as final as-of benchmark cases without recapture.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
@@ -73,4 +79,4 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Evidence
 
-See `docs/progress/phase-05-report.md` and `artifacts/evaluation/phase5-real-local/gate-results.json` for the latest completed gate.
+See `docs/progress/phase-06-report.md` for the latest completed gate. The Phase 5 real-model evidence remains under `artifacts/evaluation/phase5-real-local/gate-results.json`.

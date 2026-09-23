@@ -12,12 +12,21 @@ from incidentgraph.auth import Principal, TokenAuthenticator, principal_dependen
 from incidentgraph.config import Settings
 from incidentgraph.logging import configure_logging
 from incidentgraph.models import (
+    CancellationRecord,
     EventRecord,
+    FollowUpCreate,
+    FollowUpRecord,
     InvestigationAccepted,
     InvestigationCreate,
     InvestigationRecord,
+    ReviewRecord,
+    ReviewSubmission,
 )
-from incidentgraph.persistence import Database
+from incidentgraph.persistence import (
+    Database,
+    DurableConflictError,
+    ReviewAuthorizationError,
+)
 
 
 class RepositoryProtocol(Protocol):
@@ -37,6 +46,29 @@ class RepositoryProtocol(Protocol):
     ) -> InvestigationRecord | None: ...
 
     async def list_events(self, investigation_id: UUID, owner_id: str) -> list[EventRecord]: ...
+
+    async def submit_review(
+        self,
+        investigation_id: UUID,
+        *,
+        reviewer_id: str,
+        roles: frozenset[str],
+        idempotency_key: str,
+        submission: ReviewSubmission,
+    ) -> ReviewRecord: ...
+
+    async def request_cancellation(
+        self, investigation_id: UUID, *, owner_id: str
+    ) -> CancellationRecord: ...
+
+    async def create_follow_up(
+        self,
+        investigation_id: UUID,
+        *,
+        owner_id: str,
+        idempotency_key: str,
+        request: FollowUpCreate,
+    ) -> FollowUpRecord: ...
 
 
 def create_app(
@@ -146,6 +178,75 @@ def create_app(
                 principal.principal_id,
             )
         )
+
+    @app.post(
+        "/api/v1/investigations/{investigation_id}/reviews",
+        response_model=ReviewRecord,
+    )
+    async def submit_review(
+        investigation_id: UUID,
+        body: ReviewSubmission,
+        principal: Annotated[Principal, Depends(require_principal)],
+        repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
+        idempotency_key: Annotated[
+            str,
+            Header(alias="Idempotency-Key", min_length=8, max_length=128),
+        ],
+    ) -> ReviewRecord:
+        try:
+            return await repository_dependency.submit_review(
+                investigation_id,
+                reviewer_id=principal.principal_id,
+                roles=principal.roles,
+                idempotency_key=idempotency_key,
+                submission=body,
+            )
+        except ReviewAuthorizationError as exc:
+            raise HTTPException(status_code=403, detail=str(exc)) from exc
+        except DurableConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.post(
+        "/api/v1/investigations/{investigation_id}/cancel",
+        response_model=CancellationRecord,
+    )
+    async def cancel_investigation(
+        investigation_id: UUID,
+        principal: Annotated[Principal, Depends(require_principal)],
+        repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
+    ) -> CancellationRecord:
+        try:
+            return await repository_dependency.request_cancellation(
+                investigation_id,
+                owner_id=principal.principal_id,
+            )
+        except DurableConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.post(
+        "/api/v1/investigations/{investigation_id}/followups",
+        response_model=FollowUpRecord,
+        status_code=status.HTTP_202_ACCEPTED,
+    )
+    async def create_follow_up(
+        investigation_id: UUID,
+        body: FollowUpCreate,
+        principal: Annotated[Principal, Depends(require_principal)],
+        repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
+        idempotency_key: Annotated[
+            str,
+            Header(alias="Idempotency-Key", min_length=8, max_length=128),
+        ],
+    ) -> FollowUpRecord:
+        try:
+            return await repository_dependency.create_follow_up(
+                investigation_id,
+                owner_id=principal.principal_id,
+                idempotency_key=idempotency_key,
+                request=body,
+            )
+        except DurableConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     return app
 

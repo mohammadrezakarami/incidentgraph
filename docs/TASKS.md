@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-23
 
-Progress: **Phase 5 is complete; 6/12 gates are complete including Phase 0.**
+Progress: **Phase 6 is complete; 7/12 gates are complete including Phase 0.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -107,13 +107,30 @@ Phase 4 gate result: **PASS**. Phase 5 was started with an explicit zero-cost co
 
 Phase 5 gate result: **PASS**. The two-case free Colab/Ollama/Qwen run passed all eight checks at zero monetary cost; both bounded reports safely abstained, persistence completed, and the held-out seal remained unchanged.
 
+## Phase 6 — Durable execution, review, cancellation, and follow-ups
+
+- [x] Start Phase 6 with PostgreSQL-only local verification and no model/GPU workload.
+- [x] Bind queue leases and server-owned thread IDs to PostgreSQL LangGraph checkpoints.
+- [x] Add generation-aware job recovery and fence stale completion/publication attempts.
+- [x] Make report publication and lifecycle events idempotent.
+- [x] Implement a real LangGraph human-review interrupt and controlled resume.
+- [x] Release worker capacity while review is pending.
+- [x] Bind review decisions to reviewer role/identity, investigation, report version, expiry, and idempotency key.
+- [x] Reject unauthorized, stale, mismatched, repeated-effect, and expired review submissions safely.
+- [x] Implement cooperative cancellation for queued, waiting, and running work.
+- [x] Persist cumulative usage and implement explicitly budgeted, immutable report-version follow-ups.
+- [x] Add review, cancellation, and follow-up API boundaries ahead of the full Phase 7 surface.
+- [x] Pass kill/restart tests for expired leases, stale publication, checkpoint restart, review wait, and resume.
+
+Phase 6 gate result: **PASS**. The gate used deterministic fixtures and the bounded local PostgreSQL container only; no real model, GPU, Ollama, paid call, or held-out evaluation ran.
+
 ## Later phase gates
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
 - [x] Phase 3: graph, curated corpus, ingestion, embeddings, and indexes.
 - [x] Phase 4: vector/hybrid/graph-enhanced retrieval and development comparison.
 - [x] Phase 5: adaptive investigator and grounded reports, including the free real-model gate.
-- [ ] Phase 6: durability, review, recovery, cancellation, and follow-ups.
+- [x] Phase 6: durability, review, recovery, cancellation, and follow-ups.
 - [ ] Phase 7: complete API and incident console.
 - [ ] Phase 8: observability and security hardening.
 - [ ] Phase 9: frozen evaluation; requires a separate approved run budget.

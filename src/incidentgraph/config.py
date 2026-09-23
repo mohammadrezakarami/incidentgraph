@@ -35,6 +35,8 @@ class Settings(BaseSettings):
 
     worker_id: str = Field(default="local-worker-1", min_length=1, max_length=128)
     worker_lease_seconds: int = Field(default=30, ge=2, le=300)
+    human_review_required: bool = False
+    review_ttl_seconds: int = Field(default=86_400, ge=60, le=604_800)
     event_retention_days: int = Field(default=30, ge=1, le=365)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 

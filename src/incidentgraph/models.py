@@ -86,6 +86,11 @@ class JobLease(BaseModel):
     lease_token: UUID
     attempt: int = Field(ge=1)
     leased_until: datetime
+    generation: int = Field(default=1, ge=1)
+    task_kind: Literal[
+        "investigation", "review_resume", "review_revision", "follow_up"
+    ] = "investigation"
+    target_report_version: int = Field(default=1, ge=1)
 
 
 class EvidenceItem(BaseModel):
@@ -131,6 +136,59 @@ class ReviewStatus(StrEnum):
     ACCEPTED = "accepted"
     REJECTED = "rejected"
     REVISION_REQUESTED = "revision_requested"
+    EXPIRED = "expired"
+
+
+class ReviewDecision(StrEnum):
+    ACCEPT = "accept"
+    REJECT = "reject"
+    REQUEST_REVISION = "request_revision"
+
+
+class ReviewSubmission(BaseModel):
+    report_version: int = Field(ge=1)
+    decision: ReviewDecision
+    rationale: str = Field(min_length=3, max_length=2_000)
+
+
+class ReviewRecord(BaseModel):
+    review_id: UUID
+    investigation_id: UUID
+    report_version: int = Field(ge=1)
+    status: ReviewStatus
+    reviewer_id: str | None = None
+    requested_at: datetime
+    expires_at: datetime
+    decided_at: datetime | None = None
+
+
+class FollowUpCreate(BaseModel):
+    question: str = Field(min_length=8, max_length=2_000)
+    max_model_calls: int = Field(ge=1, le=20)
+    max_tool_calls: int = Field(ge=1, le=32)
+
+
+class FollowUpRecord(BaseModel):
+    follow_up_id: UUID
+    investigation_id: UUID
+    base_report_version: int = Field(ge=1)
+    target_report_version: int = Field(ge=2)
+    status: InvestigationStatus
+    created_at: datetime
+
+
+class CancellationRecord(BaseModel):
+    investigation_id: UUID
+    status: InvestigationStatus
+    cancellation_requested_at: datetime
+
+
+class PublicationResult(BaseModel):
+    investigation_id: UUID
+    report_version: int = Field(ge=1)
+    status: InvestigationStatus
+    duplicate: bool
+    review_id: UUID | None = None
 
 
 class IncidentWindow(BaseModel):

@@ -19,6 +19,9 @@ async def process_one(database: Database, worker_id: str, lease_seconds: int) ->
         attempt=lease.attempt,
     )
     log.info("non_ai_test_job_started")
+    if await database.acknowledge_cancellation(lease):
+        log.info("non_ai_test_job_cancelled")
+        return True
     await database.complete_job(lease)
     log.info("non_ai_test_job_completed")
     return True

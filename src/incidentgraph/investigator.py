@@ -17,6 +17,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.graph import END, START, StateGraph
+from langgraph.types import interrupt
 from psycopg.conninfo import make_conninfo
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, ValidationError, model_validator
 
@@ -35,7 +36,7 @@ from incidentgraph.models import (
 )
 from incidentgraph.persistence import Database
 
-WORKFLOW_VERSION = "phase5-workflow-v1"
+WORKFLOW_VERSION = "phase6-workflow-v1"
 PROMPT_VERSION = "phase5-prompts-v1"
 PHASE5_GATE_ARTIFACT = (
     Path(__file__).resolve().parents[2]
@@ -336,6 +337,10 @@ class InvestigatorState(TypedDict, total=False):
     started_at: str
     trace_reference: str
     report_valid: bool
+    revision_model_calls_start: int
+    revision_tool_calls_start: int
+    revision_max_model_calls: int
+    revision_max_tool_calls: int
 
 
 class PolicyViolation(ValueError):
@@ -582,6 +587,10 @@ def _reserve_model_call(state: InvestigatorState, settings: Settings, context: s
     counters = Counters.model_validate(state.get("counters", {}))
     if counters.model_calls >= settings.model_max_calls:
         raise BudgetExceeded("model-call budget exhausted")
+    revision_limit = state.get("revision_max_model_calls")
+    revision_start = state.get("revision_model_calls_start", 0)
+    if revision_limit is not None and counters.model_calls - revision_start >= revision_limit:
+        raise BudgetExceeded("follow-up model-call budget exhausted")
     estimated_input = max(1, len(context) // 4)
     projected_tokens = (
         counters.input_tokens
@@ -657,6 +666,7 @@ def build_workflow(
     *,
     checkpointer: Any = None,
     repository: EvidenceRepository | None = None,
+    persist_reports: bool = True,
 ) -> Any:
     async def validate_request(state: InvestigatorState) -> dict[str, Any]:
         try:
@@ -800,6 +810,13 @@ def build_workflow(
             _check_deadline(state, settings)
             if counters.tool_calls >= settings.investigator_max_tool_calls:
                 raise BudgetExceeded("tool-call budget exhausted")
+            revision_tool_limit = state.get("revision_max_tool_calls")
+            revision_tool_start = state.get("revision_tool_calls_start", 0)
+            if (
+                revision_tool_limit is not None
+                and counters.tool_calls - revision_tool_start >= revision_tool_limit
+            ):
+                raise BudgetExceeded("follow-up tool-call budget exhausted")
             if counters.rounds >= settings.investigator_max_rounds:
                 raise BudgetExceeded("evidence-gathering round budget exhausted")
             request = ToolRequest.model_validate(raw)
@@ -965,7 +982,7 @@ def build_workflow(
         ]
         return InvestigationReport(
             investigation_id=UUID(state["investigation_id"]),
-            report_version=1,
+            report_version=max(1, state.get("report_version", 0)),
             mode=InvestigationMode(state["mode"]),
             snapshot_id=state.get("snapshot_id"),
             target_service=state.get("resolved_target_service_id", state["target_service"]),
@@ -1010,7 +1027,7 @@ def build_workflow(
             active_ms = (datetime.now(UTC) - _utc(state["started_at"])).total_seconds() * 1_000
             report = InvestigationReport(
                 investigation_id=UUID(state["investigation_id"]),
-                report_version=1,
+                report_version=max(1, state.get("report_version", 0)),
                 mode=InvestigationMode(state["mode"]),
                 snapshot_id=state.get("snapshot_id"),
                 target_service=state.get("resolved_target_service_id", state["target_service"]),
@@ -1096,7 +1113,7 @@ def build_workflow(
                 "error_summaries": [*state.get("error_summaries", []), *errors],
                 "termination_reason": "report_validation_failed",
             }
-        if repository is not None:
+        if repository is not None and persist_reports:
             try:
                 await repository.persist_report(report)
             except (RuntimeError, ValueError) as exc:
@@ -1108,9 +1125,69 @@ def build_workflow(
         return {"report_valid": True}
 
     async def human_review(state: InvestigatorState) -> dict[str, Any]:
-        return {"status": "running"}
+        if not settings.human_review_required:
+            return {"status": "running"}
+        report = InvestigationReport.model_validate(state["report"])
+        evidence_summary = [
+            {
+                "evidence_id": item["evidence_id"],
+                "kind": item["kind"],
+                "source_id": item["source_id"],
+            }
+            for item in state.get("evidence", [])
+        ]
+        review_request = {
+            "investigation_id": state["investigation_id"],
+            "report_version": report.report_version,
+            "report_summary": report.summary,
+            "evidence_summary": evidence_summary,
+            "uncertainties": [
+                *report.limitations,
+                *state.get("missing_information", []),
+                *state.get("contradictions", []),
+            ],
+            "allowed_decisions": ["accept", "reject", "request_revision"],
+        }
+        raw_decision = interrupt(review_request)
+        if not isinstance(raw_decision, dict):
+            raise ValueError("trusted review resume payload must be an object")
+        decision = raw_decision.get("decision")
+        decision_reference = raw_decision.get("decision_reference")
+        if decision not in {"accept", "reject", "request_revision"}:
+            raise ValueError("trusted review resume payload has an invalid decision")
+        if not isinstance(decision_reference, str) or not decision_reference:
+            raise ValueError("trusted review resume payload requires a decision reference")
+        common: dict[str, Any] = {
+            "review_request": review_request,
+            "review_decision_reference": decision_reference,
+        }
+        if decision == "request_revision":
+            counters = Counters.model_validate(state["counters"])
+            counters.repair_attempts = 0
+            return {
+                **common,
+                "status": "running",
+                "report": None,
+                "report_valid": False,
+                "report_reference": None,
+                "report_version": report.report_version + 1,
+                "termination_reason": "review_revision_requested",
+                "counters": counters.model_dump(mode="json"),
+            }
+        if decision == "reject":
+            return {
+                **common,
+                "status": "failed",
+                "termination_reason": "review_rejected",
+            }
+        return {**common, "status": "running", "termination_reason": ""}
 
     async def finalize(state: InvestigatorState) -> dict[str, Any]:
+        if state.get("status") == "failed":
+            return {
+                "status": "failed",
+                "termination_reason": state.get("termination_reason") or "workflow_failed",
+            }
         if state.get("report_valid") and state.get("report"):
             report = InvestigationReport.model_validate(state["report"])
             status = "inconclusive" if report.outcome == ReportOutcome.INCONCLUSIVE else "completed"
@@ -1147,6 +1224,11 @@ def build_workflow(
             return "draft_report"
         return "finalize"
 
+    def after_human_review(state: InvestigatorState) -> str:
+        if state.get("termination_reason") == "review_revision_requested":
+            return "draft_report"
+        return "finalize"
+
     graph = StateGraph(InvestigatorState)
     graph.add_node("validate_request", validate_request)
     graph.add_node("resolve_context", resolve_context)
@@ -1171,7 +1253,7 @@ def build_workflow(
     graph.add_conditional_edges("check_sufficiency", after_check)
     graph.add_edge("draft_report", "validate_report")
     graph.add_conditional_edges("validate_report", after_report_validation)
-    graph.add_edge("human_review", "finalize")
+    graph.add_conditional_edges("human_review", after_human_review)
     graph.add_edge("finalize", END)
     return graph.compile(checkpointer=checkpointer, name="incidentgraph-investigator")
 
@@ -1219,6 +1301,7 @@ async def persistent_workflow(
     tools: InvestigatorTools,
     *,
     setup: bool = False,
+    defer_report_publication: bool = False,
 ) -> AsyncIterator[Any]:
     conninfo = make_conninfo(
         settings.app_database_dsn.get_secret_value(),
@@ -1236,6 +1319,7 @@ async def persistent_workflow(
                 tools,
                 checkpointer=checkpointer,
                 repository=database,
+                persist_reports=not defer_report_publication,
             )
     finally:
         await database.close()
