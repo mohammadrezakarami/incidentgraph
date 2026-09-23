@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-23
 
-Progress: **Phase 4 of 11 delivery phases is complete; 5/12 gates are complete including Phase 0.**
+Progress: **Phase 5 is in progress; 5/12 gates are complete including Phase 0.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -87,14 +87,32 @@ Phase 3 gate result: **PASS**. Phase 4 was approved on 2026-09-23.
 - [x] Run all three variants on the same corpus version, cutoff, candidate limits, and context budget.
 - [x] Write the Phase 4 report and update continuity documents.
 
-Phase 4 gate result: **PASS**. Await explicit approval and provider/budget decision before Phase 5.
+Phase 4 gate result: **PASS**. Phase 5 was started with an explicit zero-cost constraint.
+
+## Phase 5 — Adaptive investigator and grounded reports
+
+- [x] Start Phase 5 without paid calls.
+- [x] Create and seal 60 grouped incident evaluation cases before model tuning.
+- [x] Implement the typed 12-node LangGraph workflow and strict model boundaries.
+- [x] Implement all eight bounded read-only tool contracts.
+- [x] Implement authorization, cutoff, novelty, call, token, cost, round, tool, and deadline policies.
+- [x] Implement grounded report schemas, citation validation, contradictions, and inconclusive outcomes.
+- [x] Configure the PostgreSQL checkpointer and immutable evidence/report persistence.
+- [x] Keep raw telemetry outside checkpoint state.
+- [x] Demonstrate different next-tool choices and abstention with deterministic model fixtures.
+- [x] Test invalid model output, invalid citations, unauthorized/duplicate calls, and pre-call budget rejection.
+- [ ] Run an approved free real chat model against real read-only tools.
+- [ ] Demonstrate two real-model incidents that adapt to returned evidence.
+- [ ] Close the real-model gate and write the final Phase 5 result.
+
+Phase 5 gate result: **BLOCKED** on the required real-model integration. No paid service is authorized; the deterministic/local foundation passes.
 
 ## Later phase gates
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
 - [x] Phase 3: graph, curated corpus, ingestion, embeddings, and indexes.
 - [x] Phase 4: vector/hybrid/graph-enhanced retrieval and development comparison.
-- [ ] Phase 5: adaptive investigator and grounded reports; requires provider/budget approval.
+- [ ] Phase 5: adaptive investigator and grounded reports; deterministic/local scope ready, real-model gate blocked.
 - [ ] Phase 6: durability, review, recovery, cancellation, and follow-ups.
 - [ ] Phase 7: complete API and incident console.
 - [ ] Phase 8: observability and security hardening.

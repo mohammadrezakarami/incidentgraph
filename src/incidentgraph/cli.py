@@ -21,7 +21,7 @@ from incidentgraph.persistence import Database
 from incidentgraph.worker import run_worker_once
 
 ROOT = Path(__file__).resolve().parents[2]
-MIGRATION = ROOT / "ops" / "migrations" / "001_app.sql"
+MIGRATIONS = ROOT / "ops" / "migrations"
 
 
 def load_settings() -> Settings:
@@ -57,10 +57,18 @@ async def migrate(settings: Settings) -> None:
     database = Database(settings.app_database_dsn.get_secret_value())
     await database.open()
     try:
-        await database.apply_migration(MIGRATION)
+        paths = [
+            path
+            for path in sorted(MIGRATIONS.glob("*.sql"))
+            if not path.stem.endswith("_lab")
+        ]
+        if not paths:
+            raise RuntimeError("no database migrations were found")
+        for path in paths:
+            await database.apply_migration(path)
     finally:
         await database.close()
-    print("migration 001_app applied")
+    print(f"applied {len(paths)} migrations: {', '.join(path.stem for path in paths)}")
 
 
 async def check_connections(settings: Settings) -> None:

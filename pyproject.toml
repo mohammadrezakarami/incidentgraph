@@ -30,6 +30,8 @@ incidentgraph-api = "incidentgraph.api:main"
 incidentgraph-lab = "incidentgraph.lab_cli:main"
 incidentgraph-lab-service = "incidentgraph.lab_service:main"
 incidentgraph-ingest = "incidentgraph.ingestion:main"
+incidentgraph-incident-eval = "incidentgraph.incident_evaluation:main"
+incidentgraph-investigator = "incidentgraph.investigator:main"
 incidentgraph-retrieval = "incidentgraph.retrieval:main"
 incidentgraph-worker = "incidentgraph.worker:main"
 
@@ -58,6 +60,7 @@ markers = [
   "lab_integration: requires the running Phase 2 lab",
   "graph_integration: requires the running Neo4j service and local embedding model",
   "retrieval_integration: requires Phase 3 graph data and local embedding model",
+  "investigator_integration: requires PostgreSQL and immutable Phase 2 captures",
 ]
 
 [tool.ruff]

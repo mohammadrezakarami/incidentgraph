@@ -4,9 +4,9 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 4 are complete. The repository now includes the reproducible foundation, working three-service telemetry lab, immutable incident captures, a versioned Neo4j operational graph, incrementally ingested provenance-aware corpus, and bounded vector, hybrid, and graph-enhanced retrieval with executable development evaluation. No AI investigator or production capability is claimed yet.
+Phase 0 through Phase 4 are complete. Phase 5 is active: the typed adaptive workflow, read-only tools, grounded-report contracts, deterministic tests, and local PostgreSQL checkpoints are implemented. The required real-model gate remains blocked because paid calls are prohibited and no free local chat runtime/model has been selected. No production capability or real-model gate pass is claimed.
 
-Roadmap progress: **Phase 4 of 11 delivery phases is complete; 5 of 12 gated phases are complete when discovery Phase 0 is included. Seven phases remain.**
+Roadmap progress: **Phase 5 of 11 delivery phases is active; 5 of 12 gated phases are complete when discovery Phase 0 is included, 1 is active, and 6 later phases have not started.**
 
 See:
 
@@ -15,13 +15,14 @@ See:
 - [`docs/progress/phase-02-report.md`](docs/progress/phase-02-report.md)
 - [`docs/progress/phase-03-report.md`](docs/progress/phase-03-report.md)
 - [`docs/progress/phase-04-report.md`](docs/progress/phase-04-report.md)
+- [`docs/progress/phase-05-report.md`](docs/progress/phase-05-report.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)
 
 ## Safety boundary
 
-The planned agent is read-only. It will not execute remediation, control Docker, inject faults, generate arbitrary shell/Cypher/PromQL, or access production systems.
+The investigator is read-only. It cannot execute remediation, control Docker, inject faults, generate arbitrary shell/Cypher/PromQL, or access production systems.
 
 ## Phase 1 quick start
 
@@ -99,7 +100,7 @@ Supported fault families are `downstream_latency`, `pool_exhaustion`, `dependenc
 
 Agent-readable captures are under `data/captures/`. Evaluator-only labels are under `data/evaluator/`, excluded from the Docker build context, and never mounted into a lab runtime container. The committed Phase 2 dataset contains 12 independent fault captures and five control captures. It is laboratory data, not production incident data.
 
-Faults require a separate high-entropy operator token, expire automatically, are capped at 30 seconds, and can only affect the isolated lab. The services do not receive the Docker socket and the future agent will not receive the fault-control token.
+Faults require a separate high-entropy operator token, expire automatically, are capped at 30 seconds, and can only affect the isolated lab. The services and investigator do not receive the Docker socket or fault-control token.
 
 ## Phase 3 knowledge graph and corpus
 

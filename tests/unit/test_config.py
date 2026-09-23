@@ -58,3 +58,18 @@ def test_embedding_revision_and_dimension_are_validated() -> None:
     problems = " ".join(settings.validate_runtime())
     assert "full lowercase Git commit SHA" in problems
     assert "requires EMBEDDING_DIMENSION=384" in problems
+
+
+def test_free_local_provider_requires_loopback_and_zero_cost() -> None:
+    values = settings_kwargs() | {
+        "model_provider": "local_openai_compatible",
+        "model_id": "local-test-model",
+        "model_base_url": "https://remote.example.invalid/v1",
+        "model_cost_ceiling_usd": 1,
+    }
+    configured = Settings(**values)
+
+    problems = " ".join(configured.validate_runtime())
+
+    assert "loopback" in problems
+    assert "keep MODEL_COST_CEILING_USD at zero" in problems

@@ -14,9 +14,11 @@ from psycopg_pool import AsyncConnectionPool
 
 from incidentgraph.models import (
     EventRecord,
+    EvidenceItem,
     InvestigationAccepted,
     InvestigationCreate,
     InvestigationRecord,
+    InvestigationReport,
     JobLease,
 )
 
@@ -55,6 +57,105 @@ class Database:
         async with self.pool.connection() as connection:
             async with connection.transaction():
                 await connection.execute(statement)
+
+    async def persist_evidence(
+        self, investigation_id: UUID, items: Sequence[EvidenceItem]
+    ) -> None:
+        """Persist full immutable evidence before only references enter checkpoint state."""
+        async with self.pool.connection() as connection:
+            async with connection.transaction():
+                for item in items:
+                    cursor = await connection.execute(
+                        """
+                        INSERT INTO incidentgraph_app.evidence (
+                            investigation_id, evidence_id, content_hash, payload
+                        ) VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (investigation_id, evidence_id) DO NOTHING
+                        RETURNING content_hash
+                        """,
+                        (
+                            investigation_id,
+                            item.evidence_id,
+                            item.content_hash,
+                            Jsonb(item.model_dump(mode="json")),
+                        ),
+                    )
+                    inserted = await cursor.fetchone()
+                    if inserted is None:
+                        existing_cursor = await connection.execute(
+                            """
+                            SELECT content_hash
+                            FROM incidentgraph_app.evidence
+                            WHERE investigation_id = %s AND evidence_id = %s
+                            """,
+                            (investigation_id, item.evidence_id),
+                        )
+                        existing = await existing_cursor.fetchone()
+                        if existing is None or existing["content_hash"] != item.content_hash:
+                            raise ValueError("immutable evidence ID collision")
+
+    async def persist_report(self, report: InvestigationReport) -> None:
+        payload = report.model_dump(mode="json")
+        async with self.pool.connection() as connection:
+            async with connection.transaction():
+                cursor = await connection.execute(
+                    """
+                    INSERT INTO incidentgraph_app.reports (
+                        investigation_id, report_version, outcome, payload
+                    ) VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (investigation_id, report_version) DO NOTHING
+                    RETURNING payload
+                    """,
+                    (
+                        report.investigation_id,
+                        report.report_version,
+                        report.outcome.value,
+                        Jsonb(payload),
+                    ),
+                )
+                inserted = await cursor.fetchone()
+                if inserted is None:
+                    existing_cursor = await connection.execute(
+                        """
+                        SELECT payload
+                        FROM incidentgraph_app.reports
+                        WHERE investigation_id = %s AND report_version = %s
+                        """,
+                        (report.investigation_id, report.report_version),
+                    )
+                    existing = await existing_cursor.fetchone()
+                    if existing is None or existing["payload"] != payload:
+                        raise ValueError("immutable report version collision")
+
+    async def get_evidence(
+        self, investigation_id: UUID, evidence_id: UUID
+    ) -> EvidenceItem | None:
+        async with self.pool.connection() as connection:
+            cursor = await connection.execute(
+                """
+                SELECT payload
+                FROM incidentgraph_app.evidence
+                WHERE investigation_id = %s AND evidence_id = %s
+                """,
+                (investigation_id, evidence_id),
+            )
+            row = await cursor.fetchone()
+            return EvidenceItem.model_validate(row["payload"]) if row else None
+
+    async def get_report(
+        self, investigation_id: UUID, report_version: int
+    ) -> InvestigationReport | None:
+        async with self.pool.connection() as connection:
+            cursor = await connection.execute(
+                """
+                SELECT payload
+                FROM incidentgraph_app.reports
+                WHERE investigation_id = %s AND report_version = %s
+                """,
+                (investigation_id, report_version),
+            )
+            row = await cursor.fetchone()
+            return InvestigationReport.model_validate(row["payload"]) if row else None
 
     async def create_investigation(
         self,

@@ -1,0 +1,15 @@
+{
+  "case_count": 30,
+  "digest": "1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67",
+  "distribution": {
+    "healthy": 5,
+    "identifiable": 20,
+    "insufficient": 5
+  },
+  "hash_algorithm": "sha256",
+  "label_count": 30,
+  "schema_version": 1,
+  "sealed_at": "2026-09-23T12:00:00Z",
+  "split": "heldout",
+  "status": "sealed-before-phase5-development-tuning"
+}

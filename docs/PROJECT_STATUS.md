@@ -12,11 +12,11 @@ Phase 3 — Knowledge graph and ingestion: **PASS**.
 
 Phase 4 — Retrieval baselines and development evaluation: **PASS**.
 
-Phase 5 — Adaptive investigator and grounded reports: **AWAITING USER APPROVAL AND PROVIDER/BUDGET DECISION**.
+Phase 5 — Adaptive investigator and grounded reports: **IN PROGRESS; REAL-MODEL GATE BLOCKED**.
 
-Roadmap position: **Phase 4 of 11 delivery phases is complete. Including discovery Phase 0, 5 of 12 gated phases are complete and 7 remain.**
+Roadmap position: **Phase 5 of 11 delivery phases is active. Including discovery Phase 0, 5 of 12 gated phases are complete, 1 is active, and 6 later phases have not started.**
 
-The foundation, telemetry lab, operational graph, corpus ingestion, and retrieval layer are implemented and verified. It is not an AI investigator yet.
+The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, and deterministic investigator foundation are implemented and verified. A real chat model has not yet driven the tools, so the Phase 5 gate is not passed.
 
 ## Verified environment
 
@@ -29,7 +29,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, and retrieva
 - Docker 29.4.1 and Docker Compose v5.1.3 clients are installed.
 - Docker daemon is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned.
 - Digest-pinned PostgreSQL 18.6 and Neo4j 2026.09.0 services are healthy; real connectivity passes.
-- Ruff, strict mypy over 16 source files, 28 unit tests, 1 real PostgreSQL recovery test, 2 live lab tests, 1 real graph-ingestion test, and 2 real retrieval tests pass.
+- Ruff, strict mypy over 19 source files, 41 unit tests, and 2 Phase 5 integration tests pass; earlier PostgreSQL recovery, live lab, graph-ingestion, and retrieval integration tests also passed at their phase gates.
 - Safe Compose teardown preserves named-volume data.
 - Three real transaction services, Redis, and Prometheus are healthy.
 - Twelve independent live fault captures and five control captures pass executable verification.
@@ -42,6 +42,9 @@ The foundation, telemetry lab, operational graph, corpus ingestion, and retrieva
 - The sealed 20-question development comparison scored graph retrieval at Recall@5 0.908, MRR@5 1.000, and nDCG@5 0.957; the 20-question held-out split was not evaluated.
 - The required downstream-only case is executable: direct vector and direct hybrid miss the payment-cache evidence, while graph retrieval introduces it over `gateway -> checkout -> payments` with exact relationship provenance.
 - No relevant provider/API-key environment variable names were detected.
+- The Phase 5 workflow has all 12 required nodes, strict structured boundaries, eight read-only tools, deterministic budgets, grounded report validation, and PostgreSQL checkpoints.
+- Full evidence and final reports are stored immutably in PostgreSQL; checkpoint state retains bounded summaries and evidence references rather than raw telemetry.
+- The incident evaluation manifest contains 60 cases split 30/30 with the required class balance. The held-out seal is `1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67` and has not been evaluated.
 
 ## Approved decisions recorded in ADRs
 
@@ -53,9 +56,9 @@ The foundation, telemetry lab, operational graph, corpus ingestion, and retrieva
 
 ## Open gates and limitations
 
-- Phase 5 requires explicit user approval and a separate provider/model/cost decision before any hosted-model call.
+- Phase 5's real-model gate is blocked: paid calls are prohibited, `MODEL_PROVIDER` is disabled, and no suitable free local chat runtime/model is installed.
 - The current API enqueues only an explicitly non-AI durability job.
-- The retained 85 percent coverage command currently reports 41.02 percent over all modules; the later core target is not yet met.
+- The retained 85 percent coverage command currently reports 48.17 percent over all modules; the later core target is not yet met.
 - Phase 2 captures predate the Phase 3 corpus and must not be used as final as-of benchmark cases without recapture.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
 - Hybrid is slightly below vector on this development set; no tuning against held-out data is allowed.
@@ -69,4 +72,4 @@ The foundation, telemetry lab, operational graph, corpus ingestion, and retrieva
 
 ## Evidence
 
-See `docs/progress/phase-04-report.md` and `artifacts/evaluation/phase4-dev/` for commands, measurements, limitations, and gate evidence.
+See `docs/progress/phase-05-report.md` for the active phase and `docs/progress/phase-04-report.md` plus `artifacts/evaluation/phase4-dev/` for the latest completed gate.
