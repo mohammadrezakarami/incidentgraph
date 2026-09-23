@@ -109,6 +109,23 @@ async def enqueue_test(settings: Settings) -> None:
     print(accepted.model_dump_json())
 
 
+async def retention(settings: Settings, apply: bool) -> None:
+    database = Database(settings.app_database_dsn.get_secret_value())
+    await database.open()
+    try:
+        preview = await database.event_retention_status(settings.event_retention_days)
+        if apply:
+            preview["deleted_count"] = await database.prune_event_history(
+                settings.event_retention_days
+            )
+            preview["applied"] = True
+        else:
+            preview["applied"] = False
+    finally:
+        await database.close()
+    print(json.dumps(preview, indent=2))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="incidentgraph")
     subcommands = parser.add_subparsers(dest="command", required=True)
@@ -119,6 +136,12 @@ def main() -> None:
     subcommands.add_parser("check-connections")
     subcommands.add_parser("enqueue-test")
     subcommands.add_parser("worker-once")
+    retention_parser = subcommands.add_parser("retention")
+    retention_parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="delete only event rows older than EVENT_RETENTION_DAYS",
+    )
     args = parser.parse_args()
 
     if args.command == "doctor":
@@ -138,3 +161,5 @@ def main() -> None:
         asyncio.run(enqueue_test(settings))
     elif args.command == "worker-once":
         raise SystemExit(0 if asyncio.run(run_worker_once(settings)) else 2)
+    elif args.command == "retention":
+        asyncio.run(retention(settings, args.apply))

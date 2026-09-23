@@ -77,6 +77,67 @@ class Database:
             row = await result.fetchone()
             return bool(row and row["ok"] == 1)
 
+    async def event_retention_status(
+        self, retention_days: int, investigation_id: UUID | None = None
+    ) -> dict[str, Any]:
+        """Preview bounded event-history deletion without mutating stored records."""
+        async with self.pool.connection() as connection:
+            if investigation_id is None:
+                cursor = await connection.execute(
+                    """
+                    SELECT count(*) AS expired_count, min(created_at) AS oldest_expired_at
+                    FROM incidentgraph_app.events
+                    WHERE created_at < now() - (%s * interval '1 day')
+                    """,
+                    (retention_days,),
+                )
+            else:
+                cursor = await connection.execute(
+                    """
+                    SELECT count(*) AS expired_count, min(created_at) AS oldest_expired_at
+                    FROM incidentgraph_app.events
+                    WHERE investigation_id = %s
+                      AND created_at < now() - (%s * interval '1 day')
+                    """,
+                    (investigation_id, retention_days),
+                )
+            row = await cursor.fetchone()
+            return {
+                "retention_days": retention_days,
+                "expired_count": int(row["expired_count"]) if row else 0,
+                "oldest_expired_at": (
+                    row["oldest_expired_at"].isoformat()
+                    if row and row["oldest_expired_at"] is not None
+                    else None
+                ),
+            }
+
+    async def prune_event_history(
+        self, retention_days: int, investigation_id: UUID | None = None
+    ) -> int:
+        """Delete only event rows older than the explicit retention boundary."""
+        async with self.pool.connection() as connection:
+            if investigation_id is None:
+                cursor = await connection.execute(
+                    """
+                    DELETE FROM incidentgraph_app.events
+                    WHERE created_at < now() - (%s * interval '1 day')
+                    RETURNING id
+                    """,
+                    (retention_days,),
+                )
+            else:
+                cursor = await connection.execute(
+                    """
+                    DELETE FROM incidentgraph_app.events
+                    WHERE investigation_id = %s
+                      AND created_at < now() - (%s * interval '1 day')
+                    RETURNING id
+                    """,
+                    (investigation_id, retention_days),
+                )
+            return len(await cursor.fetchall())
+
     async def apply_migration(self, path: Path) -> None:
         statement = await asyncio.to_thread(path.read_text, encoding="utf-8")
         async with self.pool.connection() as connection:
@@ -191,6 +252,7 @@ class Database:
         request: InvestigationCreate,
         authorized_service_ids: Sequence[str] = (),
         corpus_version: str = "",
+        traceparent: str | None = None,
     ) -> InvestigationAccepted:
         investigation_id = uuid4()
         async with self.pool.connection() as connection:
@@ -200,8 +262,9 @@ class Database:
                         """
                         INSERT INTO incidentgraph_app.investigations (
                             id, owner_id, request_id, idempotency_key, question,
-                            target_service, environment, window_start, window_end, mode, status
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'queued')
+                            target_service, environment, window_start, window_end, mode, status,
+                            traceparent
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s)
                         RETURNING id AS investigation_id, status, created_at
                         """,
                         (
@@ -215,6 +278,7 @@ class Database:
                             request.window_start,
                             request.window_end,
                             request.mode.value,
+                            traceparent,
                         ),
                     )
                     row = await cursor.fetchone()
@@ -1239,6 +1303,7 @@ class Database:
                 cursor = await connection.execute(
                     """
                     SELECT investigation.thread_id, investigation.cumulative_usage,
+                           investigation.traceparent,
                            job.task_kind, job.target_report_version,
                            job.input_payload, job.budget
                     FROM incidentgraph_app.jobs job

@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-23
 
-Progress: **Phase 6 is complete; 7/12 gates are complete including Phase 0.**
+Progress: **Phase 8 is complete; 9/12 gates are complete including Phase 0.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -138,6 +138,23 @@ Phase 6 gate result: **PASS**. The gate used deterministic fixtures and the boun
 
 Phase 7 gate result: **PASS**. The gate used no model, GPU, Ollama, paid call, or held-out evaluation. Its browser worker is an explicitly labeled deterministic test fixture that publishes through the real PostgreSQL lease/publication contract.
 
+## Phase 8 — Observability and security hardening
+
+- [x] Persist a server-generated W3C trace parent at investigation creation.
+- [x] Correlate API, worker, model, and registered tool spans across durable execution.
+- [x] Add bounded API/worker/model/tool Prometheus counters and latency histograms.
+- [x] Exclude prompts, raw evidence, model output, tool arguments, and credentials from trace attributes.
+- [x] Add recursive redaction before structured-log and trace serialization.
+- [x] Add optional local JSONL trace rotation, backup count, and time retention.
+- [x] Add non-mutating persisted-event retention preview and explicit apply operation.
+- [x] Test prompt injection, unauthorized scope expansion, dependency outage, and secret sampling.
+- [x] Record a lightweight local health-latency and IncidentGraph-container resource snapshot.
+- [x] Preserve Phase 7 API and Phase 6 durability behavior with real PostgreSQL regressions.
+
+Phase 8 gate result: **PASS**. The gate used deterministic model behavior, real local
+FastAPI/PostgreSQL correlation, and a lightweight resource snapshot. It used no LLM, GPU, load
+generator, external telemetry service, held-out evaluation, or paid call.
+
 ## Later phase gates
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
@@ -146,7 +163,7 @@ Phase 7 gate result: **PASS**. The gate used no model, GPU, Ollama, paid call, o
 - [x] Phase 5: adaptive investigator and grounded reports, including the free real-model gate.
 - [x] Phase 6: durability, review, recovery, cancellation, and follow-ups.
 - [x] Phase 7: complete API and incident console.
-- [ ] Phase 8: observability and security hardening.
+- [x] Phase 8: observability and security hardening.
 - [ ] Phase 9: frozen evaluation; requires a separate approved run budget.
 - [ ] Phase 10: reproducible release and operations.
 - [ ] Phase 11: portfolio handoff and technical defense.

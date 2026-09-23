@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import json
 import re
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
@@ -30,6 +31,7 @@ from incidentgraph.investigator import (
     ToolRuntimeContext,
 )
 from incidentgraph.models import EvidenceItem
+from incidentgraph.observability import record_tool_call, tracer
 from incidentgraph.retrieval import Neo4jRetriever, RetrievalRequest, RetrievalVariant
 
 CAPTURE_ROOT = ROOT / "data" / "captures"
@@ -159,6 +161,26 @@ class CaptureToolbox:
         )
 
     async def execute(self, request: ToolRequest, context: ToolRuntimeContext) -> ToolResult:
+        started = time.perf_counter()
+        with tracer().start_as_current_span(
+            "incidentgraph.tool.call",
+            attributes={
+                "incidentgraph.tool.name": request.tool.value,
+                "incidentgraph.investigation_id": str(context.investigation_id),
+            },
+        ) as span:
+            result = await self._execute(request, context)
+            span.set_attribute("incidentgraph.tool.outcome", result.status)
+            if result.error_code:
+                span.set_attribute("incidentgraph.tool.error_code", result.error_code)
+            record_tool_call(
+                request.tool.value,
+                result.status,
+                time.perf_counter() - started,
+            )
+            return result
+
+    async def _execute(self, request: ToolRequest, context: ToolRuntimeContext) -> ToolResult:
         try:
             value = self._validate_request(request)
             if request.tool == ToolName.RESOLVE_SERVICE:

@@ -4,28 +4,28 @@ Last updated: 2026-09-23
 
 ## Current phase
 
-Phase 0 through Phase 7 are complete and passed. Phase 7 connects the real worker coordinator to the complete FastAPI contract and a React console with authorized history, resumable events, reports, evidence, metrics, dependencies, review, cancellation, and follow-ups. It used no model or paid service.
+Phase 0 through Phase 8 are complete and passed. Phase 8 adds correlated API/worker/model/tool tracing, operational metrics, redaction before logs/traces, bounded retention, adversarial input and outage tests, and a measured local profile. It used no model, GPU, external telemetry service, held-out evaluation, or paid call.
 
-Roadmap position: Phase 7 of 11 delivery phases is complete; including Phase 0, 8 of 12 gates are complete and Phases 8–11 have not started.
+Roadmap position: Phase 8 of 11 delivery phases is complete; including Phase 0, 9 of 12 gates are complete and Phases 9–11 have not started.
 
 ## Last verified command
 
-Executable verification of the current Phase 7 surface:
+Executable verification of the current Phase 8 surface:
 
 ```text
 make lint
 make typecheck
 make test
+make coverage  # tests pass; command exits 2 because 49.45% is below retained 85% threshold
 make migrate
-make test-phase6-integration
-RUN_INTEGRATION=1 .venv/bin/pytest tests/integration/test_phase7_api.py
-npm --prefix frontend run build
+RUN_INTEGRATION=1 .venv/bin/pytest tests/integration/test_phase8_hardening.py -v
+RUN_INTEGRATION=1 .venv/bin/pytest \
+  tests/integration/test_phase7_api.py tests/integration/test_durable_queue.py -v
+.venv/bin/python scripts/phase8_profile.py
 npm --prefix frontend run test:e2e
-make verify-incident-eval
-make investigator-status
 ```
 
-Result: Ruff and strict mypy pass; 58 Python unit tests, 3 Vitest tests, the production frontend build, 1 real API/PostgreSQL contract test, 1 Playwright browser flow, 6 queue/recovery tests, and 4 deterministic checkpoint/coordinator tests pass. The browser flow proves API-backed facts, citation resolution, SSE reconnect, refresh preservation, review meaning, and cross-user denial. The incident held-out split remains sealed and no model workload ran for Phase 7.
+Result: Ruff and strict mypy pass; 62 Python unit tests, 3 Vitest tests, the production frontend build, 1 Playwright flow, 1 real Phase 8 FastAPI/PostgreSQL trace/security test, the Phase 7 API contract, and 6 queue/recovery regressions pass. The Phase 8 test proves one trace ID spans API/worker/model/tool, samples out the test token, rejects unsafe tool scope, fails closed on missing sources, and verifies bounded retention. The incident held-out split remains sealed.
 
 ## Configuration assumptions
 
@@ -43,12 +43,13 @@ Result: Ruff and strict mypy pass; 58 Python unit tests, 3 Vitest tests, the pro
 - Retrieval limits: vector 20, full-text 20, RRF k=60, graph depth 2, graph nodes 50, final chunks 8, final tokens 5,000.
 - One worker and one active LLM investigation.
 - Normal core container target: approximately 6.25 GiB aggregate; optional observability profiles off.
+- Optional local JSONL tracing defaults off. When enabled it writes redacted, rotating files under `data/runtime/app-traces`; no external exporter is configured.
 - No production data, external tracing, public endpoints, remediation, or paid calls.
 
 ## Open issues and honest limitations
 
 1. Unit-only global coverage remains below the retained 85 percent later-core gate.
-2. Phase 8 still needs correlated tracing, security hardening, outage/adversarial tests, retention, and local resource profiling.
+2. Local JSONL tracing is not a centralized or multi-host observability backend; public deployment remains out of scope.
 3. Cooperative cancellation cannot undo a provider request or charge already issued before cancellation is observed.
 4. GitHub CLI authentication is stale, although the private remote exists and normal Git push works.
 5. No paid provider is allowed; the verified real-model path is free and local-compatible.
@@ -60,9 +61,9 @@ Result: Ruff and strict mypy pass; 58 Python unit tests, 3 Vitest tests, the pro
 
 ## Next three tasks
 
-1. Obtain explicit approval to start Phase 8.
-2. Add correlated observability and security-hardening evidence without running a model unless a specific test requires the free Colab path.
-3. Keep the incident held-out split sealed until the separately approved frozen Phase 9 evaluation.
+1. Obtain explicit approval to start Phase 9.
+2. Re-verify both held-out seals and freeze prompts, model settings, scoring code, and the zero-paid-cost run plan before opening results.
+3. Use free Colab for any heavy real-model evaluation and keep local verification to lightweight deterministic checks.
 
 ## Relevant documents
 
@@ -74,6 +75,9 @@ Result: Ruff and strict mypy pass; 58 Python unit tests, 3 Vitest tests, the pro
 - `docs/progress/phase-05-report.md`
 - `docs/progress/phase-06-report.md`
 - `docs/progress/phase-07-report.md`
+- `docs/progress/phase-08-report.md`
+- `docs/operations/OBSERVABILITY.md`
+- `docs/security/SECURITY_TESTS.md`
 - `docs/adr/0001-single-investigator.md`
 - `docs/adr/0002-neo4j-graph-and-vectors.md`
 - `docs/adr/0003-postgresql-durable-execution.md`
@@ -82,4 +86,4 @@ Result: Ruff and strict mypy pass; 58 Python unit tests, 3 Vitest tests, the pro
 
 ## Resume procedure
 
-Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, all phase reports, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not repeat Phases 0–7 or rerun the completed real-model gate without a concrete need. Never make paid calls. Before any heavy local model download/run, explain the resource need and offer the Colab path. Keep the incident held-out split sealed.
+Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, all phase reports, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not repeat Phases 0–8 or rerun the completed real-model gate without a concrete need. Never make paid calls. Before any heavy local model download/run, explain the resource need and use the Colab path. Keep the incident held-out split sealed until the frozen Phase 9 plan is approved.

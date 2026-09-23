@@ -34,6 +34,7 @@ from incidentgraph.models import (
     ReviewStatus,
     UsageAndTiming,
 )
+from incidentgraph.observability import record_model_call, tracer
 from incidentgraph.persistence import Database
 
 WORKFLOW_VERSION = "phase6-workflow-v1"
@@ -647,25 +648,53 @@ async def _model_call[T: BaseModel](
     _check_deadline(state, settings)
     context = _state_context(state)
     counters = _reserve_model_call(state, settings, context)
-    try:
-        result = await asyncio.wait_for(operation(context), timeout=settings.model_timeout_seconds)
-    except TimeoutError as exc:
-        counters.output_tokens += settings.model_max_output_tokens
-        raise ModelCallFailure(
-            "model request timed out; reserved output counted", counters
-        ) from exc
-    except Exception as exc:
-        counters.output_tokens += settings.model_max_output_tokens
-        raise ModelCallFailure(
-            f"model request failed; reserved output counted: {type(exc).__name__}", counters
-        ) from exc
-    if not isinstance(result.value, expected):
-        counters.output_tokens += settings.model_max_output_tokens
-        raise ModelCallFailure(
-            f"model returned {type(result.value).__name__}, expected {expected.__name__}",
-            counters,
-        )
-    return result.value, _settle_model_call(counters, result.usage, settings)
+    operation_name = getattr(operation, "__name__", expected.__name__).removeprefix("_")
+    started = time.perf_counter()
+    outcome = "error"
+    with tracer().start_as_current_span(
+        "incidentgraph.model.call",
+        attributes={"incidentgraph.model.operation": operation_name},
+    ) as span:
+        try:
+            result = await asyncio.wait_for(
+                operation(context), timeout=settings.model_timeout_seconds
+            )
+        except TimeoutError as exc:
+            outcome = "timeout"
+            counters.output_tokens += settings.model_max_output_tokens
+            span.set_attribute("incidentgraph.model.outcome", outcome)
+            record_model_call(operation_name, outcome, time.perf_counter() - started)
+            raise ModelCallFailure(
+                "model request timed out; reserved output counted", counters
+            ) from exc
+        except Exception as exc:
+            counters.output_tokens += settings.model_max_output_tokens
+            span.set_attribute("incidentgraph.model.outcome", outcome)
+            record_model_call(operation_name, outcome, time.perf_counter() - started)
+            raise ModelCallFailure(
+                f"model request failed; reserved output counted: {type(exc).__name__}", counters
+            ) from exc
+        if not isinstance(result.value, expected):
+            counters.output_tokens += settings.model_max_output_tokens
+            span.set_attribute("incidentgraph.model.outcome", outcome)
+            record_model_call(operation_name, outcome, time.perf_counter() - started)
+            raise ModelCallFailure(
+                f"model returned {type(result.value).__name__}, expected {expected.__name__}",
+                counters,
+            )
+        try:
+            settled = _settle_model_call(counters, result.usage, settings)
+        except BudgetExceeded:
+            outcome = "budget_exceeded"
+            span.set_attribute("incidentgraph.model.outcome", outcome)
+            record_model_call(operation_name, outcome, time.perf_counter() - started)
+            raise
+        outcome = "ok"
+        span.set_attribute("incidentgraph.model.outcome", outcome)
+        span.set_attribute("incidentgraph.model.input_tokens", result.usage.input_tokens)
+        span.set_attribute("incidentgraph.model.output_tokens", result.usage.output_tokens)
+        record_model_call(operation_name, outcome, time.perf_counter() - started)
+        return result.value, settled
 
 
 def build_workflow(

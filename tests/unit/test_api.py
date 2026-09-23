@@ -316,6 +316,10 @@ def test_internal_metrics_require_operator_role() -> None:
     assert denied.status_code == 403
     assert allowed.status_code == 200
     assert "python_gc_objects_collected_total" in allowed.text
+    assert "incidentgraph_api_requests_total" in allowed.text
+    assert "incidentgraph_worker_attempts_total" in allowed.text
+    assert "incidentgraph_model_calls_total" in allowed.text
+    assert "incidentgraph_tool_calls_total" in allowed.text
 
 
 def test_sse_resumes_strictly_after_last_event_id() -> None:

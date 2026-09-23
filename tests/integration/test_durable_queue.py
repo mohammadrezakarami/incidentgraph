@@ -37,7 +37,12 @@ pytestmark = pytest.mark.integration
 
 
 async def _migrate(database: Database) -> None:
-    for name in ("001_app.sql", "002_agent.sql", "003_durability.sql"):
+    for name in (
+        "001_app.sql",
+        "002_agent.sql",
+        "003_durability.sql",
+        "004_observability.sql",
+    ):
         await database.apply_migration(Path("ops/migrations") / name)
 
 

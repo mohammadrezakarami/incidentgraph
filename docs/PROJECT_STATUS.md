@@ -18,9 +18,11 @@ Phase 6 — Durable execution, review, cancellation, and follow-ups: **PASS**.
 
 Phase 7 — API and incident console: **PASS**.
 
-Roadmap position: **Phase 7 of 11 delivery phases is complete. Including discovery Phase 0, 8 of 12 gated phases are complete and Phases 8–11 have not started.**
+Phase 8 — Observability and security hardening: **PASS**.
 
-The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, production API assembly, and incident console are implemented and verified. Phase 7 required no model, GPU, held-out evaluation, or paid service; it used deterministic browser fixtures and the real local API/PostgreSQL boundary.
+Roadmap position: **Phase 8 of 11 delivery phases is complete. Including discovery Phase 0, 9 of 12 gated phases are complete and Phases 9–11 have not started.**
+
+The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 8 required no model, GPU, held-out evaluation, external telemetry service, or paid call; it used deterministic security fixtures and real local API/PostgreSQL trace correlation.
 
 ## Verified environment
 
@@ -33,7 +35,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Docker 29.4.1 and Docker Compose v5.1.3 clients are installed.
 - Docker daemon is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned.
 - Digest-pinned PostgreSQL 18.6 and Neo4j 2026.09.0 services are healthy; real connectivity passes.
-- Ruff, strict mypy over 22 source files, 58 Python unit tests, 3 Vitest tests, the production frontend build, 1 real FastAPI/PostgreSQL contract test, 1 Playwright end-to-end flow, 6 Phase 6 queue/recovery integration tests, and 4 deterministic PostgreSQL-checkpoint tests pass; earlier live lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
+- Ruff, strict mypy over 23 source files, 62 Python unit tests, 3 Vitest tests, the production frontend build, the real Phase 8 trace/security integration, the Phase 7 API contract, 6 Phase 6 queue/recovery tests, and prior Playwright/checkpoint gates pass; earlier live lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
 - Safe Compose teardown preserves named-volume data.
 - Three real transaction services, Redis, and Prometheus are healthy.
 - Twelve independent live fault captures and five control captures pass executable verification.
@@ -58,6 +60,10 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - The API now exposes the complete versioned contract with owner/operator enforcement, request IDs, payload and pagination bounds, per-principal local rate limiting, canonical service authorization, consistent errors, report/evidence access, time-aware dependencies, operator-only metrics, and resumable authenticated SSE.
 - The React console displays only API-backed facts and supports LIVE/REPLAY labeling, all lifecycle states, event reconnect, evidence drill-down, metric charts, a lazy-loaded Cytoscape dependency view, review/cancellation/follow-up controls, partial/error states, keyboard focus, responsive layout, and safe text rendering.
 - The Playwright gate creates a real queued investigation through the browser, reconnects from `Last-Event-ID`, publishes through the fenced PostgreSQL worker contract with a clearly labeled deterministic fixture, opens the cited record, accepts review without executing remediation, preserves state across refresh, and proves cross-user access returns 404.
+- Optional local tracing now correlates API, durable worker, model, and registered tool spans through a PostgreSQL-stored W3C parent. Prompts, questions, raw evidence, model output, DSNs, and authorization data are excluded from trace attributes; recursive redaction is applied before export.
+- Operational Prometheus counters/histograms cover API, worker, model, and tool activity with bounded labels. Local JSONL traces rotate by size and retention, while persisted event retention has a non-mutating preview and explicit apply operation.
+- Phase 8 adversarial tests reject injected shell-like fields and unauthorized service expansion, verify fail-closed source outages without raw exception text, and sample correlated traces for the test bearer secret.
+- The lightweight recorded profile completed 25/25 loopback health requests with 0.397 ms median and 0.584 ms p95; the eight IncidentGraph containers used about 1.27 GiB in that snapshot. The artifact is a point-in-time local observation, not an investigation benchmark or production SLO.
 
 ## Approved decisions recorded in ADRs
 
@@ -69,8 +75,8 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Open gates and limitations
 
-- Phase 8 must add end-to-end correlated tracing, deeper redaction/retention/resource controls, adversarial prompt-injection and dependency-outage tests, and measured latency/resource profiles.
-- The retained 85 percent coverage command currently reports 48.67 percent over all modules; the later core target is not yet met.
+- Phase 9 must verify the sealed holdout hashes, freeze prompts/model/scoring/budget, and run the separately approved comparisons without tuning on held-out results.
+- The retained 85 percent coverage command currently reports 49.45 percent over all modules; the later core target is not yet met.
 - Phase 2 captures predate the Phase 3 corpus and must not be used as final as-of benchmark cases without recapture.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
 - Hybrid is slightly below vector on this development set; no tuning against held-out data is allowed.
@@ -85,4 +91,4 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Evidence
 
-See `docs/progress/phase-07-report.md` for the latest completed gate. The Phase 5 real-model evidence remains under `artifacts/evaluation/phase5-real-local/gate-results.json`.
+See `docs/progress/phase-08-report.md` for the latest completed gate. The Phase 8 local profile is under `artifacts/observability/phase8-local-profile.json`; the Phase 5 real-model evidence remains under `artifacts/evaluation/phase5-real-local/gate-results.json`.

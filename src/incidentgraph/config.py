@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from functools import cached_property
+from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, Field, SecretStr, field_validator
@@ -46,6 +47,11 @@ class Settings(BaseSettings):
     sse_heartbeat_seconds: float = Field(default=10, ge=1, le=30)
     sse_max_connection_seconds: int = Field(default=300, ge=30, le=3_600)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    observability_tracing_enabled: bool = False
+    observability_trace_dir: Path = Path("data/runtime/app-traces")
+    observability_trace_max_bytes: int = Field(default=2_000_000, ge=64_000, le=50_000_000)
+    observability_trace_backup_count: int = Field(default=3, ge=1, le=10)
+    observability_trace_retention_days: int = Field(default=7, ge=1, le=30)
 
     model_provider: Literal["disabled", "openai", "local_openai_compatible"] = "disabled"
     model_id: str = ""

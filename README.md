@@ -4,9 +4,9 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 7 are complete. The versioned FastAPI surface and React incident console now expose the durable investigator with authorized history, resumable event streaming, reports, evidence drill-down, metric charts, time-aware dependencies, review, cancellation, and follow-ups. The Phase 5 real-model gate used free Colab compute; Phases 6 and 7 used only deterministic fixtures, PostgreSQL, and one local browser test. No paid model call was made.
+Phase 0 through Phase 8 are complete. The versioned FastAPI surface and React console expose the durable investigator, while the hardened local runtime adds correlated API/worker/model/tool traces, bounded operational metrics, pre-export redaction, retention controls, adversarial tests, and a measured local resource snapshot. The Phase 5 real-model gate used free Colab compute; Phases 6–8 used deterministic fixtures and local services. No paid model call was made.
 
-Roadmap progress: **Phase 7 of 11 delivery phases is complete; 8 of 12 gated phases are complete when discovery Phase 0 is included, and Phases 8–11 have not started.**
+Roadmap progress: **Phase 8 of 11 delivery phases is complete; 9 of 12 gated phases are complete when discovery Phase 0 is included, and Phases 9–11 have not started.**
 
 See:
 
@@ -18,6 +18,7 @@ See:
 - [`docs/progress/phase-05-report.md`](docs/progress/phase-05-report.md)
 - [`docs/progress/phase-06-report.md`](docs/progress/phase-06-report.md)
 - [`docs/progress/phase-07-report.md`](docs/progress/phase-07-report.md)
+- [`docs/progress/phase-08-report.md`](docs/progress/phase-08-report.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)
@@ -79,7 +80,7 @@ Investigation endpoints require a configured bearer token and enforce owner scop
 
 ## Resource and cost boundary
 
-The Phase 1 Compose profile limits the two PostgreSQL containers and Neo4j to 2.75 GiB aggregate configured memory. No model, embedding, dataset, paid API, or GPU workload is used. Heavy capture/evaluation work remains gated in later phases and will be identified before it is run.
+The core and lab Compose services have explicit CPU and memory ceilings; Prometheus also has time and size retention. The optional Ollama profile remains off unless separately requested. No paid API or GPU workload is required for deterministic replay and security checks. Heavy evaluation work remains gated and will be moved to free Colab when appropriate.
 
 ## Phase 2 laboratory
 
@@ -198,3 +199,23 @@ Install the single Playwright browser once if it is not cached:
 ```bash
 cd frontend && npx playwright install chromium
 ```
+
+## Phase 8 observability and security
+
+Application metrics are exposed only to an authenticated operator at `/metrics`. Optional local
+tracing correlates API, durable worker, model, and read-only tool spans through a PostgreSQL-stored
+W3C parent. It is disabled by default and, when enabled, writes redacted rotating JSONL under the
+ignored `data/runtime/app-traces/` directory. No external collector is required.
+
+Run the deterministic hardening gate and preview event retention:
+
+```bash
+RUN_INTEGRATION=1 .venv/bin/pytest tests/integration/test_phase8_hardening.py -v
+make retention-status
+```
+
+The security suite rejects injected shell-like fields and unauthorized service expansion, samples
+traces for secrets, and proves dependency errors fail closed. The lightweight resource snapshot is
+reproducible with `.venv/bin/python scripts/phase8_profile.py`; it is not a capacity benchmark.
+See [`docs/operations/OBSERVABILITY.md`](docs/operations/OBSERVABILITY.md) and
+[`docs/security/SECURITY_TESTS.md`](docs/security/SECURITY_TESTS.md).

@@ -1,6 +1,6 @@
 # IncidentGraph Threat Model
 
-Status: Phase 7 local-release baseline  
+Status: Phase 8 local-release baseline
 Last reviewed: 2026-09-23
 
 ## Scope and trust boundaries
@@ -52,9 +52,11 @@ tokens do not carry an intrinsic expiry claim.
 | Oversized or abusive requests | Pydantic bounds, request-size cap, pagination, per-principal local rate limit, bounded graph/event depth |
 | Browser token leakage | Authorization header only, restrictive CORS, no query token, no persistent token storage, safe text rendering |
 | Stored XSS | React text rendering; no raw HTML or executable Markdown rendering |
-| Secret leakage through telemetry | Structured allow-listed fields and redaction; credentials are never placed in report/evidence/checkpoint payloads |
+| Secret leakage through telemetry | Structured allow-listed fields, recursive pre-export redaction, no prompt/raw-evidence trace attributes, and bounded local trace retention |
 | Unsafe cancellation claim | Cooperative stop only; already-issued provider requests or charges cannot be reversed |
-| Dependency outage | Readiness and consistent retryable errors; no silent fake-model fallback |
+| Dependency outage | Typed fail-closed tool errors without raw exception text; readiness and consistent retryable errors; no silent fake-model fallback |
+| Trace-context forgery | API generates and persists the investigation parent; workers use only the server-stored W3C context for durable jobs |
+| Telemetry exhaustion | Bounded metric labels, route templates, trace rotation/backups/retention, event-retention preview, and explicit apply |
 
 The local in-process rate limiter is a bounded-development control, not a distributed security
 gateway. Neo4j Community credentials and application-side query templates are also residual risks:
@@ -70,7 +72,8 @@ least privilege, and a separate deployment threat review.
   cancellation, follow-ups, and fencing.
 - Playwright covers token-in-header use, refresh/reconnect, citation drill-down, review meaning,
   and a rejected cross-user browser request against the real API.
-- Phase 8 adds prompt-injection, redaction, dependency-outage, retention, and resource-bound tests.
+- Phase 8 adds executable prompt-injection, redaction, correlated-trace, dependency-outage,
+  retention, and resource-bound tests. See `docs/security/SECURITY_TESTS.md`.
 
 Passing these tests shows the named controls worked for the tested cases; it is not proof of
 universal prompt-injection resistance or production-grade multi-tenant security.

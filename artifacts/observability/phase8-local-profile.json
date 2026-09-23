@@ -1,0 +1,80 @@
+{
+  "captured_at": "2026-09-23T21:13:33.032427+00:00",
+  "scope": "lightweight local health endpoint; no model, GPU, or load generator",
+  "url": "http://127.0.0.1:8000/health/live",
+  "sample_count": 25,
+  "failure_count": 0,
+  "latency_ms": {
+    "min": 0.37237499782349914,
+    "median": 0.396707997424528,
+    "p95": 0.5836670025018975,
+    "max": 16.52495800226461
+  },
+  "container_memory_total_bytes": 1360999220,
+  "containers": [
+    {
+      "name": "incidentgraph-prometheus-1",
+      "cpu_percent": "0.45%",
+      "memory_usage": "69.54MiB / 512MiB",
+      "memory_usage_bytes": 72917975,
+      "memory_percent": "13.58%",
+      "pids": "7"
+    },
+    {
+      "name": "incidentgraph-gateway-1",
+      "cpu_percent": "0.29%",
+      "memory_usage": "69.05MiB / 256MiB",
+      "memory_usage_bytes": 72404173,
+      "memory_percent": "26.97%",
+      "pids": "5"
+    },
+    {
+      "name": "incidentgraph-checkout-1",
+      "cpu_percent": "0.73%",
+      "memory_usage": "69.84MiB / 256MiB",
+      "memory_usage_bytes": 73232548,
+      "memory_percent": "27.28%",
+      "pids": "5"
+    },
+    {
+      "name": "incidentgraph-payments-1",
+      "cpu_percent": "0.73%",
+      "memory_usage": "69.91MiB / 256MiB",
+      "memory_usage_bytes": 73305948,
+      "memory_percent": "27.31%",
+      "pids": "5"
+    },
+    {
+      "name": "incidentgraph-redis-1",
+      "cpu_percent": "0.17%",
+      "memory_usage": "12.69MiB / 128MiB",
+      "memory_usage_bytes": 13306429,
+      "memory_percent": "9.91%",
+      "pids": "6"
+    },
+    {
+      "name": "incidentgraph-app-db-1",
+      "cpu_percent": "1.82%",
+      "memory_usage": "36.77MiB / 768MiB",
+      "memory_usage_bytes": 38556140,
+      "memory_percent": "4.79%",
+      "pids": "10"
+    },
+    {
+      "name": "incidentgraph-lab-db-1",
+      "cpu_percent": "0.02%",
+      "memory_usage": "30.85MiB / 512MiB",
+      "memory_usage_bytes": 32348570,
+      "memory_percent": "6.02%",
+      "pids": "11"
+    },
+    {
+      "name": "incidentgraph-neo4j-1",
+      "cpu_percent": "123.23%",
+      "memory_usage": "939.3MiB / 1.5GiB",
+      "memory_usage_bytes": 984927437,
+      "memory_percent": "61.15%",
+      "pids": "93"
+    }
+  ]
+}

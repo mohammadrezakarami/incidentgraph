@@ -42,6 +42,13 @@ from incidentgraph.models import (
     ReviewSubmission,
     ServiceSummary,
 )
+from incidentgraph.observability import (
+    configure_observability,
+    current_traceparent,
+    observe_process_rss,
+    record_api_request,
+    tracer,
+)
 from incidentgraph.persistence import (
     Database,
     DurableConflictError,
@@ -61,6 +68,7 @@ class RepositoryProtocol(Protocol):
         request: InvestigationCreate,
         authorized_service_ids: tuple[str, ...] = (),
         corpus_version: str = "",
+        traceparent: str | None = None,
     ) -> InvestigationAccepted: ...
 
     async def get_investigation(
@@ -147,6 +155,7 @@ def create_app(
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         nonlocal managed_database
         configure_logging(app_settings.log_level)
+        configure_observability(app_settings, "incidentgraph-api")
         if repository is None:
             managed_database = Database(app_settings.app_database_dsn.get_secret_value())
             await managed_database.open()
@@ -177,6 +186,34 @@ def create_app(
         ],
         expose_headers=["Last-Event-ID", "Retry-After", "X-Request-ID"],
     )
+
+    @app.middleware("http")
+    async def observe_request(request: Request, call_next: Any) -> Response:
+        started = time.perf_counter()
+        status_code = 500
+        with tracer().start_as_current_span(
+            "incidentgraph.api.request",
+            attributes={"http.request.method": request.method},
+        ) as span:
+            try:
+                response = cast(Response, await call_next(request))
+                status_code = response.status_code
+                return response
+            finally:
+                route = request.scope.get("route")
+                route_path = getattr(route, "path", "unmatched")
+                span.set_attribute("http.route", route_path)
+                span.set_attribute("http.response.status_code", status_code)
+                request_id = getattr(request.state, "request_id", None)
+                if request_id:
+                    span.set_attribute("incidentgraph.request_id", request_id)
+                record_api_request(
+                    request.method,
+                    route_path,
+                    status_code,
+                    time.perf_counter() - started,
+                )
+                observe_process_rss("api")
 
     def error_payload(
         request: Request, code: str, message: str, retryable: bool
@@ -371,6 +408,7 @@ def create_app(
             request=normalized_body,
             authorized_service_ids=tuple(sorted(principal.service_ids)),
             corpus_version=app_settings.corpus_id,
+            traceparent=current_traceparent(),
         )
 
     @app.get("/api/v1/investigations", response_model=InvestigationPage)
