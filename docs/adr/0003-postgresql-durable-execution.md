@@ -1,6 +1,6 @@
 # ADR-0003: PostgreSQL-Backed Durable Execution
 
-Status: Proposed for Phase 1 approval
+Status: Accepted
 
 Date: 2026-09-22
 

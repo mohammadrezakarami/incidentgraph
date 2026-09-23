@@ -1,6 +1,6 @@
 # ADR-0002: Neo4j for Operational Graph and Document Retrieval Indexes
 
-Status: Proposed for Phase 1 approval
+Status: Accepted
 
 Date: 2026-09-22
 

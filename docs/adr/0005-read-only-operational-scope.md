@@ -1,6 +1,6 @@
 # ADR-0005: Read-Only Operational Scope
 
-Status: Proposed for Phase 1 approval
+Status: Accepted
 
 Date: 2026-09-22
 

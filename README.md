@@ -4,13 +4,16 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0, Phase 1, and Phase 2 are complete. The repository now includes a reproducible foundation plus a working three-service transaction lab, isolated storage, Redis, Prometheus, structured logs, propagated traces, bounded fault controls, and immutable laboratory captures. No AI investigator, retrieval benchmark, or production capability is claimed yet.
+Phase 0 through Phase 3 are complete. The repository now includes the reproducible foundation, working three-service telemetry lab, immutable incident captures, a versioned Neo4j operational graph, and an incrementally ingested provenance-aware corpus with local embeddings. No AI investigator, retrieval comparison, or production capability is claimed yet.
+
+Roadmap progress: **Phase 3 of 11 delivery phases is complete; 4 of 12 gated phases are complete when discovery Phase 0 is included. Eight phases remain.**
 
 See:
 
 - [`docs/progress/phase-00-report.md`](docs/progress/phase-00-report.md)
 - [`docs/progress/phase-01-report.md`](docs/progress/phase-01-report.md)
 - [`docs/progress/phase-02-report.md`](docs/progress/phase-02-report.md)
+- [`docs/progress/phase-03-report.md`](docs/progress/phase-03-report.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)
@@ -96,3 +99,20 @@ Supported fault families are `downstream_latency`, `pool_exhaustion`, `dependenc
 Agent-readable captures are under `data/captures/`. Evaluator-only labels are under `data/evaluator/`, excluded from the Docker build context, and never mounted into a lab runtime container. The committed Phase 2 dataset contains 12 independent fault captures and five control captures. It is laboratory data, not production incident data.
 
 Faults require a separate high-entropy operator token, expire automatically, are capped at 30 seconds, and can only affect the isolated lab. The services do not receive the Docker socket and the future agent will not receive the fault-control token.
+
+## Phase 3 knowledge graph and corpus
+
+Apply the graph schema, load the reviewed topology, and incrementally ingest the corpus:
+
+```bash
+make seed
+make ingest
+make verify-ingestion
+make benchmark-embeddings
+```
+
+The compact corpus contains 37 project-authored documents in `data/corpus/documents.json`, with one provenance record per document in `data/corpus/manifest.jsonl`. It includes service/API documentation, runbooks, configuration notes, link-oriented official reference summaries, reviewed synthetic development incidents, and explicit outdated/untrusted controls. It does not contain evaluator labels or held-out answers.
+
+Neo4j stores three services, three resources, versioned relationships, deployments, reviewed synthetic incidents, documents, chunks, and normalized embeddings. `DEPENDS_ON` points from caller to callee; potential-impact traversal follows the reverse direction. Both the 384-dimensional cosine vector index and the full-text index are verified `ONLINE` before the corpus is marked searchable.
+
+Embeddings use `sentence-transformers/all-MiniLM-L6-v2` at immutable revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`, locally on CPU. The first model snapshot download is approximately 92 MB and is stored under ignored `models/`. The measured 37-chunk benchmark does not require Colab or a GPU.

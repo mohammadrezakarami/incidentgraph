@@ -1,6 +1,8 @@
 # IncidentGraph Tasks
 
-Last updated: 2026-09-22
+Last updated: 2026-09-23
+
+Progress: **Phase 3 of 11 delivery phases is complete; 4/12 gates are complete including Phase 0.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -50,12 +52,28 @@ Phase 1 gate result: **PASS**. Phase 2 was approved on 2026-09-22.
 - [x] Detect and correct the pool occupancy instrumentation error; rerun the full suite.
 - [x] Write the Phase 2 report and update continuity documents.
 
-Phase 2 gate result: **PASS**. Await explicit approval before Phase 3.
+Phase 2 gate result: **PASS**. Phase 3 was approved on 2026-09-23.
+
+## Phase 3 — Knowledge graph and ingestion
+
+- [x] User approval to begin Phase 3.
+- [x] Define versioned Neo4j constraints, indexes, and declarative topology.
+- [x] Validate dependency direction, reverse impact, endpoints, aliases, and temporal validity.
+- [x] Create a curated 37-document corpus with hashes, licenses, versions, trust, and validity.
+- [x] Implement structure-aware 500/75-token chunking with a 600-token hard cap.
+- [x] Pin and locally cache the MiniLM model at an immutable Hub revision.
+- [x] Validate 384-dimensional embedding compatibility and benchmark CPU behavior.
+- [x] Implement incremental document/chunk upserts and archive removed sources.
+- [x] Create and wait for Neo4j full-text and vector indexes.
+- [x] Prove unchanged reruns skip embedding, interrupted partial state resumes safely, and updates replace stale chunks.
+- [x] Write the Phase 3 report and update continuity documents.
+
+Phase 3 gate result: **PASS**. Await explicit approval before Phase 4.
 
 ## Later phase gates
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
-- [ ] Phase 3: graph, curated corpus, ingestion, embeddings, and indexes.
+- [x] Phase 3: graph, curated corpus, ingestion, embeddings, and indexes.
 - [ ] Phase 4: vector/hybrid/graph-enhanced retrieval and development comparison.
 - [ ] Phase 5: adaptive investigator and grounded reports; requires provider/budget approval.
 - [ ] Phase 6: durability, review, recovery, cancellation, and follow-ups.
