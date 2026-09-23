@@ -121,10 +121,20 @@ class ScriptedModel:
     def _tool_request(self, context: str) -> ToolRequest:
         state = json.loads(context)
         start, end = state["window"]
+        diagnostic_round = len(
+            [
+                item
+                for item in state["tool_outcomes"]
+                if item["tool"] not in {"resolve_service", "get_service_context"}
+            ]
+        )
         if self.selected_tool == ToolName.GET_METRICS:
+            metric_template = (
+                "request_latency" if diagnostic_round == 0 else "cpu_time"
+            )
             arguments: dict[str, Any] = MetricsInput(
                 service_id="svc-gateway",
-                template="request_latency",
+                template=metric_template,
                 window_start=start,
                 window_end=end,
                 resolution_seconds=1,
@@ -134,6 +144,11 @@ class ScriptedModel:
                 "service_ids": ["svc-gateway"],
                 "window_start": start,
                 "window_end": end,
+                "event": (
+                    "request.failure"
+                    if diagnostic_round == 0
+                    else "dependency.failure"
+                ),
                 "limit": 20,
             }
         return ToolRequest(
@@ -250,12 +265,12 @@ async def test_adaptive_workflow_can_choose_different_first_observations(
 
     assert result["status"] == "completed"
     assert result["report_valid"] is True
-    assert tools.seen == [ToolName.RESOLVE_SERVICE, selected_tool]
+    assert tools.seen == [ToolName.RESOLVE_SERVICE, selected_tool, selected_tool]
     assert selected_tool.value in result["decision_summaries"][0]
-    assert result["counters"]["model_calls"] == 3
-    assert result["counters"]["tool_calls"] == 2
+    assert result["counters"]["model_calls"] == 5
+    assert result["counters"]["tool_calls"] == 3
     assert result["evidence"][0]["content"] is None
-    assert result["hypothesis_version"] == 1
+    assert result["hypothesis_version"] == 2
     assert result["report_version"] == 1
     assert result["report_reference"].startswith("postgres://incidentgraph_app/reports/")
 
@@ -438,6 +453,8 @@ async def test_token_budget_is_checked_before_model_call() -> None:
 
     result = await workflow.ainvoke(state())
 
-    assert result["status"] == "failed"
+    assert result["status"] == "inconclusive"
+    assert result["report_valid"] is True
+    assert result["termination_reason"] == "deterministic_partial_report"
     assert model.calls == 0
     assert any("token budget" in error for error in result["error_summaries"])

@@ -45,14 +45,14 @@ class Settings(BaseSettings):
     model_max_calls: int = Field(default=10, ge=1, le=20)
     model_token_budget: int = Field(default=20_000, ge=1_000, le=200_000)
     model_max_output_tokens: int = Field(default=1_200, ge=128, le=8_000)
-    model_timeout_seconds: int = Field(default=45, ge=5, le=120)
+    model_timeout_seconds: int = Field(default=45, ge=5, le=300)
     model_cost_ceiling_usd: float = Field(default=0, ge=0, le=100)
     model_input_cost_per_million_usd: float = Field(default=0, ge=0, le=100)
     model_output_cost_per_million_usd: float = Field(default=0, ge=0, le=500)
     investigator_max_tool_calls: int = Field(default=16, ge=1, le=32)
     investigator_max_rounds: int = Field(default=6, ge=1, le=12)
     investigator_tool_timeout_seconds: int = Field(default=10, ge=1, le=30)
-    investigator_deadline_seconds: int = Field(default=180, ge=30, le=600)
+    investigator_deadline_seconds: int = Field(default=180, ge=30, le=1_200)
 
     embedding_model_id: str = "sentence-transformers/all-MiniLM-L6-v2"
     embedding_model_revision: str = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"

@@ -1,7 +1,7 @@
 UV := UV_PYTHON_INSTALL_DIR='$(CURDIR)/.tools/python' UV_CACHE_DIR='$(CURDIR)/.tools/cache' .tools/uv
 COMPOSE := docker compose -f ops/compose.yaml --env-file .env
 
-.PHONY: doctor bootstrap up down migrate seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures test coverage test-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
+.PHONY: doctor bootstrap up down migrate seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures test coverage test-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
 
 doctor:
 	$(UV) run incidentgraph doctor
@@ -50,6 +50,15 @@ investigator-status:
 
 setup-checkpointer:
 	$(UV) run incidentgraph-investigator setup-checkpointer
+
+model-up:
+	$(COMPOSE) --profile model up -d --wait ollama
+
+model-pull: model-up
+	$(COMPOSE) --profile model exec ollama ollama pull qwen3:4b-instruct-2507-q4_K_M
+
+phase5-real-gate: model-up
+	$(UV) run incidentgraph-phase5-gate
 
 smoke:
 	$(UV) run incidentgraph check-connections

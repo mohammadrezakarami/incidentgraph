@@ -32,6 +32,7 @@ incidentgraph-lab-service = "incidentgraph.lab_service:main"
 incidentgraph-ingest = "incidentgraph.ingestion:main"
 incidentgraph-incident-eval = "incidentgraph.incident_evaluation:main"
 incidentgraph-investigator = "incidentgraph.investigator:main"
+incidentgraph-phase5-gate = "incidentgraph.phase5_gate:main"
 incidentgraph-retrieval = "incidentgraph.retrieval:main"
 incidentgraph-worker = "incidentgraph.worker:main"
 
@@ -66,6 +67,7 @@ markers = [
 [tool.ruff]
 target-version = "py312"
 line-length = 100
+extend-exclude = ["phase5_colab.ipynb"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "ASYNC", "S"]

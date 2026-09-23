@@ -82,6 +82,15 @@ def _metric_summary(series: dict[str, Any]) -> dict[str, Any]:
         "last_value": numeric[-1] if numeric else None,
         "minimum": min(numeric) if numeric else None,
         "maximum": max(numeric) if numeric else None,
+        "unit": {
+            "request_latency_p95": "seconds",
+            "request_rate": "requests/second",
+            "dependency_outcomes": "requests/second",
+            "db_pool_in_use": "connections",
+            "db_pool_timeouts": "timeouts/10_seconds",
+            "cache_outcomes": "requests/second",
+            "process_cpu": "cpu_seconds/second",
+        }.get(str(series.get("template_source")), "unknown"),
     }
 
 
