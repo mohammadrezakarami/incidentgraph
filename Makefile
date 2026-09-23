@@ -1,7 +1,7 @@
 UV := UV_PYTHON_INSTALL_DIR='$(CURDIR)/.tools/python' UV_CACHE_DIR='$(CURDIR)/.tools/cache' .tools/uv
 COMPOSE := docker compose -f ops/compose.yaml --env-file .env
 
-.PHONY: doctor bootstrap up down migrate seed ingest verify-ingestion benchmark-embeddings smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures test coverage test-integration test-lab-integration test-graph-integration lint typecheck
+.PHONY: doctor bootstrap up down migrate seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures test coverage test-integration test-lab-integration test-graph-integration test-retrieval-integration lint typecheck
 
 doctor:
 	$(UV) run incidentgraph doctor
@@ -29,6 +29,15 @@ verify-ingestion:
 
 benchmark-embeddings:
 	$(UV) run incidentgraph-ingest benchmark
+
+retrieve:
+	$(UV) run incidentgraph-retrieval search --variant "$(VARIANT)" --query "$(QUERY)" --service "$(SERVICE)" --authorize svc-gateway --authorize svc-checkout --authorize svc-payments
+
+evaluate-retrieval-dev:
+	$(UV) run incidentgraph-retrieval evaluate-dev
+
+verify-retrieval:
+	$(UV) run incidentgraph-retrieval verify
 
 smoke:
 	$(UV) run incidentgraph check-connections
@@ -68,6 +77,9 @@ test-lab-integration:
 
 test-graph-integration:
 	RUN_GRAPH_INTEGRATION=1 $(UV) run pytest -m graph_integration -v
+
+test-retrieval-integration:
+	RUN_RETRIEVAL_INTEGRATION=1 $(UV) run pytest -m retrieval_integration -v
 
 lint:
 	$(UV) run ruff check .

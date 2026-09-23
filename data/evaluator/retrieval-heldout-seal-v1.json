@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "split": "heldout",
+  "question_count": 20,
+  "label_count": 20,
+  "hash_algorithm": "sha256",
+  "payload_contract": "heldout question JSONL lines, newline, ---LABELS---, newline, matching label JSONL lines, newline",
+  "digest": "a77524916562fdd4337e88d0efa295813fe05e0910d1a2bc1c51f9ff2d778c3c",
+  "sealed_at": "2026-09-23T12:00:00Z",
+  "status": "sealed-before-phase4-tuning"
+}

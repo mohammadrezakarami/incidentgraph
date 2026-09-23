@@ -30,7 +30,9 @@ test-results/
 .docker-data/
 data/runtime/
 data/replay/private/
-artifacts/evaluation/
+artifacts/evaluation/*
+!artifacts/evaluation/phase4-dev/
+!artifacts/evaluation/phase4-dev/**
 artifacts/traces/
 logs/
 *.log

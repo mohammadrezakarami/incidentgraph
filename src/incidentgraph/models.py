@@ -101,6 +101,16 @@ class EvidenceItem(BaseModel):
     freshness_status: Literal["fresh", "stale", "unknown"]
     limitations: list[str] = Field(default_factory=list)
     provenance_reference: str
+    window_start: datetime | None = None
+    window_end: datetime | None = None
+    valid_from: datetime | None = None
+    valid_to: datetime | None = None
+    snapshot_id: str | None = None
+    query_template_id: str | None = None
+    safe_parameters: dict[str, Any] = Field(default_factory=dict)
+    content: str | None = None
+    unit: str | None = None
+    aggregation: str | None = None
 
 
 class ErrorResponse(BaseModel):
