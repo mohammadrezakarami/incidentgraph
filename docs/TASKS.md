@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-23
 
-Progress: **Phase 3 of 11 delivery phases is complete; 4/12 gates are complete including Phase 0.**
+Progress: **Phase 4 of 11 delivery phases is complete; 5/12 gates are complete including Phase 0.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -68,13 +68,32 @@ Phase 2 gate result: **PASS**. Phase 3 was approved on 2026-09-23.
 - [x] Prove unchanged reruns skip embedding, interrupted partial state resumes safely, and updates replace stale chunks.
 - [x] Write the Phase 3 report and update continuity documents.
 
-Phase 3 gate result: **PASS**. Await explicit approval before Phase 4.
+Phase 3 gate result: **PASS**. Phase 4 was approved on 2026-09-23.
+
+## Phase 4 — Retrieval baselines and development evaluation
+
+- [x] User approval to begin Phase 4.
+- [x] Define one typed contract for vector, hybrid, and graph-enhanced retrieval.
+- [x] Enforce service authorization, trusted-source, environment, and as-of validity filters.
+- [x] Implement 20-candidate vector and 20-candidate sanitized full-text retrieval.
+- [x] Combine incomparable signals with reciprocal-rank fusion rather than raw-score addition.
+- [x] Bound graph traversal to reviewed `DEPENDS_ON` edges, two hops, 50 nodes, and cycle-free paths.
+- [x] Bound final context to eight deduplicated sources and 5,000 tokens.
+- [x] Emit typed evidence with stable IDs, content hashes, validity, safe parameters, corpus snapshot, and exact graph-path provenance.
+- [x] Create 40 grouped questions split into 20 development and 20 held-out cases.
+- [x] Keep labels evaluator-only and seal the held-out questions/labels before development evaluation.
+- [x] Implement Recall@5, MRR@5, and graded nDCG@5 with per-question artifacts.
+- [x] Prove a downstream-only cache case is missed by direct baselines and recovered by graph retrieval.
+- [x] Run all three variants on the same corpus version, cutoff, candidate limits, and context budget.
+- [x] Write the Phase 4 report and update continuity documents.
+
+Phase 4 gate result: **PASS**. Await explicit approval and provider/budget decision before Phase 5.
 
 ## Later phase gates
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
 - [x] Phase 3: graph, curated corpus, ingestion, embeddings, and indexes.
-- [ ] Phase 4: vector/hybrid/graph-enhanced retrieval and development comparison.
+- [x] Phase 4: vector/hybrid/graph-enhanced retrieval and development comparison.
 - [ ] Phase 5: adaptive investigator and grounded reports; requires provider/budget approval.
 - [ ] Phase 6: durability, review, recovery, cancellation, and follow-ups.
 - [ ] Phase 7: complete API and incident console.

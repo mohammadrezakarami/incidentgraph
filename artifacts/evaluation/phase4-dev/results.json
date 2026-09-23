@@ -1,0 +1,2534 @@
+{
+  "aggregate": {
+    "graph": {
+      "mean_elapsed_ms": 15.7167,
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9567965855534274,
+      "recall_at_5": 0.9083333333333334
+    },
+    "hybrid": {
+      "mean_elapsed_ms": 12.28105,
+      "mrr_at_5": 0.95,
+      "ndcg_at_5": 0.9207757324337831,
+      "recall_at_5": 0.8833333333333334
+    },
+    "vector": {
+      "mean_elapsed_ms": 13.2858,
+      "mrr_at_5": 0.95,
+      "ndcg_at_5": 0.9226539502041659,
+      "recall_at_5": 0.9
+    }
+  },
+  "candidate_limits": {
+    "fulltext": 20,
+    "vector": 20
+  },
+  "context_limits": {
+    "chunks": 8,
+    "tokens": 5000
+  },
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2@1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "git_revision": "95d2de16ec5b93b088710042120c5c463e946de5",
+  "graph_limits": {
+    "allowed_relationships": [
+      "DEPENDS_ON"
+    ],
+    "depth": 2,
+    "node_cap": 50
+  },
+  "graph_required_case_paths": [
+    {
+      "path": {
+        "hops": 2,
+        "node_ids": [
+          "svc-gateway",
+          "svc-checkout",
+          "svc-payments"
+        ],
+        "relationships": [
+          {
+            "callee": "svc-checkout",
+            "caller": "svc-gateway",
+            "source_id": "declared-compose-topology-v1",
+            "topology_version": "incidentgraph-lab-topology-v1",
+            "type": "DEPENDS_ON"
+          },
+          {
+            "callee": "svc-payments",
+            "caller": "svc-checkout",
+            "source_id": "declared-compose-topology-v1",
+            "topology_version": "incidentgraph-lab-topology-v1",
+            "type": "DEPENDS_ON"
+          }
+        ]
+      },
+      "source_id": "runbook-cache"
+    },
+    {
+      "path": {
+        "hops": 0,
+        "node_ids": [
+          "svc-gateway"
+        ],
+        "relationships": []
+      },
+      "source_id": "doc-gateway-overview"
+    },
+    {
+      "path": {
+        "hops": 0,
+        "node_ids": [
+          "svc-gateway"
+        ],
+        "relationships": []
+      },
+      "source_id": "runbook-latency"
+    },
+    {
+      "path": {
+        "hops": 2,
+        "node_ids": [
+          "svc-gateway",
+          "svc-checkout",
+          "svc-payments"
+        ],
+        "relationships": [
+          {
+            "callee": "svc-checkout",
+            "caller": "svc-gateway",
+            "source_id": "declared-compose-topology-v1",
+            "topology_version": "incidentgraph-lab-topology-v1",
+            "type": "DEPENDS_ON"
+          },
+          {
+            "callee": "svc-payments",
+            "caller": "svc-checkout",
+            "source_id": "declared-compose-topology-v1",
+            "topology_version": "incidentgraph-lab-topology-v1",
+            "type": "DEPENDS_ON"
+          }
+        ]
+      },
+      "source_id": "doc-payments-cache-contract"
+    },
+    {
+      "path": {
+        "hops": 2,
+        "node_ids": [
+          "svc-gateway",
+          "svc-checkout",
+          "svc-payments"
+        ],
+        "relationships": [
+          {
+            "callee": "svc-checkout",
+            "caller": "svc-gateway",
+            "source_id": "declared-compose-topology-v1",
+            "topology_version": "incidentgraph-lab-topology-v1",
+            "type": "DEPENDS_ON"
+          },
+          {
+            "callee": "svc-payments",
+            "caller": "svc-checkout",
+            "source_id": "declared-compose-topology-v1",
+            "topology_version": "incidentgraph-lab-topology-v1",
+            "type": "DEPENDS_ON"
+          }
+        ]
+      },
+      "source_id": "doc-payments-overview"
+    }
+  ],
+  "graph_required_case_rq_dev_004": {
+    "graph": true,
+    "hybrid": false,
+    "vector": false
+  },
+  "hardware": {
+    "device": "cpu",
+    "machine": "arm64",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "heldout": {
+    "dev_question_count": 20,
+    "digest": "a77524916562fdd4337e88d0efa295813fe05e0910d1a2bc1c51f9ff2d778c3c",
+    "evaluated": false,
+    "groups_disjoint": true,
+    "label_count": 20,
+    "question_count": 20,
+    "status": "pass"
+  },
+  "model_calls": 0,
+  "model_cost_usd": 0,
+  "question_count": 20,
+  "rows": [
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 14.947,
+      "graph_paths": [],
+      "group_id": "dev-gateway-entry",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-001",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "doc-gateway-overview",
+        "doc-gateway-api",
+        "config-topology",
+        "config-tracing",
+        "config-versions"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 13.317,
+      "graph_paths": [],
+      "group_id": "dev-gateway-entry",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-001",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "doc-gateway-overview",
+        "config-topology",
+        "doc-gateway-api",
+        "runbook-latency",
+        "config-versions"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 13.657,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-gateway-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-topology"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-gateway",
+              "svc-checkout"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-checkout-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-gateway-api"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-latency"
+        }
+      ],
+      "group_id": "dev-gateway-entry",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.944847956559586,
+      "question_id": "rq-dev-001",
+      "recall_at_5": 1.0,
+      "selected_token_count": 781,
+      "top_5_source_ids": [
+        "doc-gateway-overview",
+        "config-topology",
+        "doc-checkout-overview",
+        "doc-gateway-api",
+        "runbook-latency"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 11.076,
+      "graph_paths": [],
+      "group_id": "dev-checkout-storage",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-002",
+      "recall_at_5": 1.0,
+      "selected_token_count": 740,
+      "top_5_source_ids": [
+        "doc-checkout-persistence",
+        "runbook-db-recovery",
+        "doc-checkout-overview",
+        "incident-dev-001",
+        "doc-gateway-api"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 11.611,
+      "graph_paths": [],
+      "group_id": "dev-checkout-storage",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-002",
+      "recall_at_5": 1.0,
+      "selected_token_count": 756,
+      "top_5_source_ids": [
+        "doc-checkout-persistence",
+        "doc-checkout-overview",
+        "runbook-db-recovery",
+        "doc-gateway-api",
+        "runbook-deployment"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 14.344,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-persistence"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-db-recovery"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-checkout",
+              "svc-gateway"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-gateway-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-gateway-api"
+        }
+      ],
+      "group_id": "dev-checkout-storage",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-002",
+      "recall_at_5": 1.0,
+      "selected_token_count": 793,
+      "top_5_source_ids": [
+        "doc-checkout-persistence",
+        "doc-checkout-overview",
+        "runbook-db-recovery",
+        "doc-gateway-overview",
+        "doc-gateway-api"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 24.097,
+      "graph_paths": [],
+      "group_id": "dev-payments-cache",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-003",
+      "recall_at_5": 1.0,
+      "selected_token_count": 734,
+      "top_5_source_ids": [
+        "doc-payments-cache-contract",
+        "runbook-cache",
+        "doc-payments-overview",
+        "incident-dev-003",
+        "runbook-ambiguous"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 11.099,
+      "graph_paths": [],
+      "group_id": "dev-payments-cache",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-003",
+      "recall_at_5": 1.0,
+      "selected_token_count": 712,
+      "top_5_source_ids": [
+        "doc-payments-cache-contract",
+        "runbook-cache",
+        "doc-payments-overview",
+        "incident-dev-003",
+        "config-versions"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 14.522,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-payments-cache-contract"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-cache"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-payments-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "incident-dev-003"
+        },
+        {
+          "path": {
+            "hops": 2,
+            "node_ids": [
+              "svc-payments",
+              "svc-checkout",
+              "svc-gateway"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              },
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-gateway-overview"
+        }
+      ],
+      "group_id": "dev-payments-cache",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-003",
+      "recall_at_5": 1.0,
+      "selected_token_count": 765,
+      "top_5_source_ids": [
+        "doc-payments-cache-contract",
+        "runbook-cache",
+        "doc-payments-overview",
+        "incident-dev-003",
+        "doc-gateway-overview"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 10.025,
+      "graph_paths": [],
+      "group_id": "dev-graph-cache",
+      "mrr_at_5": 0.0,
+      "ndcg_at_5": 0.0,
+      "question_id": "rq-dev-004",
+      "recall_at_5": 0.0,
+      "selected_token_count": 763,
+      "top_5_source_ids": [
+        "runbook-latency",
+        "doc-gateway-overview",
+        "config-versions",
+        "runbook-high-traffic",
+        "doc-gateway-api"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 13.921,
+      "graph_paths": [],
+      "group_id": "dev-graph-cache",
+      "mrr_at_5": 0.0,
+      "ndcg_at_5": 0.0,
+      "question_id": "rq-dev-004",
+      "recall_at_5": 0.0,
+      "selected_token_count": 741,
+      "top_5_source_ids": [
+        "doc-gateway-overview",
+        "runbook-latency",
+        "config-metrics",
+        "runbook-high-traffic",
+        "config-topology"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 44.649,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 2,
+            "node_ids": [
+              "svc-gateway",
+              "svc-checkout",
+              "svc-payments"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              },
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "runbook-cache"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-gateway-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-latency"
+        },
+        {
+          "path": {
+            "hops": 2,
+            "node_ids": [
+              "svc-gateway",
+              "svc-checkout",
+              "svc-payments"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              },
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-payments-cache-contract"
+        },
+        {
+          "path": {
+            "hops": 2,
+            "node_ids": [
+              "svc-gateway",
+              "svc-checkout",
+              "svc-payments"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              },
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-payments-overview"
+        }
+      ],
+      "group_id": "dev-graph-cache",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8772153153380493,
+      "question_id": "rq-dev-004",
+      "recall_at_5": 1.0,
+      "selected_token_count": 792,
+      "top_5_source_ids": [
+        "runbook-cache",
+        "doc-gateway-overview",
+        "runbook-latency",
+        "doc-payments-cache-contract",
+        "doc-payments-overview"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 12.81,
+      "graph_paths": [],
+      "group_id": "dev-pool",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-005",
+      "recall_at_5": 1.0,
+      "selected_token_count": 712,
+      "top_5_source_ids": [
+        "runbook-pool",
+        "incident-dev-001",
+        "doc-checkout-overview",
+        "doc-checkout-persistence",
+        "runbook-ambiguous"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 11.977,
+      "graph_paths": [],
+      "group_id": "dev-pool",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-005",
+      "recall_at_5": 1.0,
+      "selected_token_count": 752,
+      "top_5_source_ids": [
+        "runbook-pool",
+        "doc-checkout-overview",
+        "incident-dev-001",
+        "runbook-db-recovery",
+        "doc-checkout-persistence"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 12.407,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-pool"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "incident-dev-001"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-db-recovery"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-persistence"
+        }
+      ],
+      "group_id": "dev-pool",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-005",
+      "recall_at_5": 1.0,
+      "selected_token_count": 741,
+      "top_5_source_ids": [
+        "runbook-pool",
+        "doc-checkout-overview",
+        "incident-dev-001",
+        "runbook-db-recovery",
+        "doc-checkout-persistence"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.203,
+      "graph_paths": [],
+      "group_id": "dev-payment-errors",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-006",
+      "recall_at_5": 1.0,
+      "selected_token_count": 709,
+      "top_5_source_ids": [
+        "runbook-payment-errors",
+        "runbook-ambiguous",
+        "doc-payments-overview",
+        "incident-dev-002",
+        "runbook-latency"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 13.312,
+      "graph_paths": [],
+      "group_id": "dev-payment-errors",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-006",
+      "recall_at_5": 1.0,
+      "selected_token_count": 705,
+      "top_5_source_ids": [
+        "runbook-payment-errors",
+        "incident-dev-002",
+        "doc-payments-overview",
+        "runbook-cache",
+        "runbook-ambiguous"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 14.812,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-payment-errors"
+        },
+        {
+          "path": {
+            "hops": 2,
+            "node_ids": [
+              "svc-payments",
+              "svc-checkout",
+              "svc-gateway"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              },
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-gateway-overview"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-payments",
+              "svc-checkout"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-gateway-api"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "incident-dev-002"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-cache"
+        }
+      ],
+      "group_id": "dev-payment-errors",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-dev-006",
+      "recall_at_5": 0.5,
+      "selected_token_count": 782,
+      "top_5_source_ids": [
+        "runbook-payment-errors",
+        "doc-gateway-overview",
+        "doc-gateway-api",
+        "incident-dev-002",
+        "runbook-cache"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 20.941,
+      "graph_paths": [],
+      "group_id": "dev-missing-telemetry",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-007",
+      "recall_at_5": 1.0,
+      "selected_token_count": 741,
+      "top_5_source_ids": [
+        "runbook-missing-metrics",
+        "config-logs",
+        "ref-prometheus",
+        "runbook-rollback",
+        "runbook-latency"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 13.407,
+      "graph_paths": [],
+      "group_id": "dev-missing-telemetry",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-007",
+      "recall_at_5": 1.0,
+      "selected_token_count": 711,
+      "top_5_source_ids": [
+        "runbook-missing-metrics",
+        "config-logs",
+        "ref-prometheus",
+        "runbook-rollback",
+        "runbook-payment-errors"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 23.063,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-missing-metrics"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-logs"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-prometheus"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-rollback"
+        },
+        {
+          "path": {
+            "hops": 2,
+            "node_ids": [
+              "svc-gateway",
+              "svc-checkout",
+              "svc-payments"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              },
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-payments-cache-contract"
+        }
+      ],
+      "group_id": "dev-missing-telemetry",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-007",
+      "recall_at_5": 1.0,
+      "selected_token_count": 714,
+      "top_5_source_ids": [
+        "runbook-missing-metrics",
+        "config-logs",
+        "ref-prometheus",
+        "runbook-rollback",
+        "doc-payments-cache-contract"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 13.697,
+      "graph_paths": [],
+      "group_id": "dev-trace-correlation",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-008",
+      "recall_at_5": 1.0,
+      "selected_token_count": 719,
+      "top_5_source_ids": [
+        "runbook-traces",
+        "config-tracing",
+        "ref-otel",
+        "doc-gateway-api",
+        "config-logs"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 12.357,
+      "graph_paths": [],
+      "group_id": "dev-trace-correlation",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9072836011519267,
+      "question_id": "rq-dev-008",
+      "recall_at_5": 0.6666666666666666,
+      "selected_token_count": 728,
+      "top_5_source_ids": [
+        "runbook-traces",
+        "config-tracing",
+        "doc-gateway-api",
+        "doc-checkout-overview",
+        "config-logs"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 37.771,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-traces"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-tracing"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-gateway-api"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-checkout",
+              "svc-gateway"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-gateway-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-overview"
+        }
+      ],
+      "group_id": "dev-trace-correlation",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9072836011519267,
+      "question_id": "rq-dev-008",
+      "recall_at_5": 0.6666666666666666,
+      "selected_token_count": 750,
+      "top_5_source_ids": [
+        "runbook-traces",
+        "config-tracing",
+        "doc-gateway-api",
+        "doc-gateway-overview",
+        "doc-checkout-overview"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 13.423,
+      "graph_paths": [],
+      "group_id": "dev-deployment-regression",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.944847956559586,
+      "question_id": "rq-dev-009",
+      "recall_at_5": 1.0,
+      "selected_token_count": 705,
+      "top_5_source_ids": [
+        "runbook-deployment",
+        "runbook-payment-errors",
+        "runbook-ambiguous",
+        "config-versions",
+        "runbook-rollback"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 12.285,
+      "graph_paths": [],
+      "group_id": "dev-deployment-regression",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-009",
+      "recall_at_5": 1.0,
+      "selected_token_count": 714,
+      "top_5_source_ids": [
+        "runbook-deployment",
+        "runbook-rollback",
+        "config-versions",
+        "runbook-payment-errors",
+        "runbook-ambiguous"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 20.1,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-deployment"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-rollback"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-versions"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-payment-errors"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-overview"
+        }
+      ],
+      "group_id": "dev-deployment-regression",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-dev-009",
+      "recall_at_5": 1.0,
+      "selected_token_count": 746,
+      "top_5_source_ids": [
+        "runbook-deployment",
+        "runbook-rollback",
+        "config-versions",
+        "runbook-payment-errors",
+        "doc-checkout-overview"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 56.329,
+      "graph_paths": [],
+      "group_id": "dev-cpu-contention",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-dev-010",
+      "recall_at_5": 0.5,
+      "selected_token_count": 726,
+      "top_5_source_ids": [
+        "runbook-cpu",
+        "runbook-latency",
+        "runbook-high-traffic",
+        "doc-payments-overview",
+        "runbook-ambiguous"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 22.427,
+      "graph_paths": [],
+      "group_id": "dev-cpu-contention",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-dev-010",
+      "recall_at_5": 0.5,
+      "selected_token_count": 750,
+      "top_5_source_ids": [
+        "runbook-cpu",
+        "doc-payments-overview",
+        "runbook-cache",
+        "runbook-high-traffic",
+        "runbook-traces"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 13.593,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-cpu"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-payments-overview"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-payments",
+              "svc-checkout"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-checkout-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-cache"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-high-traffic"
+        }
+      ],
+      "group_id": "dev-cpu-contention",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-dev-010",
+      "recall_at_5": 0.5,
+      "selected_token_count": 757,
+      "top_5_source_ids": [
+        "runbook-cpu",
+        "doc-payments-overview",
+        "doc-checkout-overview",
+        "runbook-cache",
+        "runbook-high-traffic"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.13,
+      "graph_paths": [],
+      "group_id": "dev-healthy-load",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-dev-011",
+      "recall_at_5": 0.5,
+      "selected_token_count": 700,
+      "top_5_source_ids": [
+        "runbook-high-traffic",
+        "runbook-timeouts",
+        "incident-dev-002",
+        "runbook-latency",
+        "runbook-payment-errors"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 10.857,
+      "graph_paths": [],
+      "group_id": "dev-healthy-load",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-dev-011",
+      "recall_at_5": 0.5,
+      "selected_token_count": 703,
+      "top_5_source_ids": [
+        "runbook-high-traffic",
+        "incident-dev-002",
+        "runbook-timeouts",
+        "runbook-missing-metrics",
+        "config-fault-safety"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 11.486,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-high-traffic"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "incident-dev-002"
+        },
+        {
+          "path": {
+            "hops": 2,
+            "node_ids": [
+              "svc-gateway",
+              "svc-checkout",
+              "svc-payments"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              },
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "runbook-cache"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-timeouts"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-missing-metrics"
+        }
+      ],
+      "group_id": "dev-healthy-load",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-dev-011",
+      "recall_at_5": 0.5,
+      "selected_token_count": 718,
+      "top_5_source_ids": [
+        "runbook-high-traffic",
+        "incident-dev-002",
+        "runbook-cache",
+        "runbook-timeouts",
+        "runbook-missing-metrics"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 7.483,
+      "graph_paths": [],
+      "group_id": "dev-db-recovery",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-012",
+      "recall_at_5": 1.0,
+      "selected_token_count": 707,
+      "top_5_source_ids": [
+        "runbook-db-recovery",
+        "doc-checkout-persistence",
+        "runbook-rollback",
+        "config-fault-safety",
+        "config-logs"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 22.419,
+      "graph_paths": [],
+      "group_id": "dev-db-recovery",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-012",
+      "recall_at_5": 1.0,
+      "selected_token_count": 737,
+      "top_5_source_ids": [
+        "runbook-db-recovery",
+        "doc-checkout-persistence",
+        "runbook-missing-metrics",
+        "runbook-latency",
+        "config-logs"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 10.961,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-db-recovery"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-persistence"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-latency"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-missing-metrics"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-logs"
+        }
+      ],
+      "group_id": "dev-db-recovery",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-012",
+      "recall_at_5": 1.0,
+      "selected_token_count": 767,
+      "top_5_source_ids": [
+        "runbook-db-recovery",
+        "doc-checkout-persistence",
+        "runbook-latency",
+        "runbook-missing-metrics",
+        "config-logs"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 8.754,
+      "graph_paths": [],
+      "group_id": "dev-rollback",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-013",
+      "recall_at_5": 1.0,
+      "selected_token_count": 725,
+      "top_5_source_ids": [
+        "runbook-rollback",
+        "runbook-deployment",
+        "doc-checkout-persistence",
+        "runbook-db-recovery",
+        "config-versions"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.615,
+      "graph_paths": [],
+      "group_id": "dev-rollback",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-013",
+      "recall_at_5": 1.0,
+      "selected_token_count": 719,
+      "top_5_source_ids": [
+        "runbook-rollback",
+        "doc-checkout-persistence",
+        "runbook-latency",
+        "runbook-deployment",
+        "runbook-db-recovery"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 10.131,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-rollback"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-persistence"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-latency"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-deployment"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-db-recovery"
+        }
+      ],
+      "group_id": "dev-rollback",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-013",
+      "recall_at_5": 1.0,
+      "selected_token_count": 741,
+      "top_5_source_ids": [
+        "runbook-rollback",
+        "doc-checkout-persistence",
+        "runbook-latency",
+        "runbook-deployment",
+        "runbook-db-recovery"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 7.812,
+      "graph_paths": [],
+      "group_id": "dev-timeouts",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-014",
+      "recall_at_5": 1.0,
+      "selected_token_count": 733,
+      "top_5_source_ids": [
+        "runbook-timeouts",
+        "runbook-latency",
+        "doc-gateway-overview",
+        "runbook-payment-errors",
+        "incident-dev-002"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.482,
+      "graph_paths": [],
+      "group_id": "dev-timeouts",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-014",
+      "recall_at_5": 1.0,
+      "selected_token_count": 748,
+      "top_5_source_ids": [
+        "runbook-timeouts",
+        "doc-gateway-overview",
+        "runbook-latency",
+        "runbook-payment-errors",
+        "doc-gateway-api"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 10.735,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-timeouts"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-gateway-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-latency"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-payment-errors"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-gateway-api"
+        }
+      ],
+      "group_id": "dev-timeouts",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-014",
+      "recall_at_5": 1.0,
+      "selected_token_count": 757,
+      "top_5_source_ids": [
+        "runbook-timeouts",
+        "doc-gateway-overview",
+        "runbook-latency",
+        "runbook-payment-errors",
+        "doc-gateway-api"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 7.282,
+      "graph_paths": [],
+      "group_id": "dev-ambiguous",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-015",
+      "recall_at_5": 1.0,
+      "selected_token_count": 715,
+      "top_5_source_ids": [
+        "runbook-ambiguous",
+        "config-versions",
+        "incident-dev-002",
+        "runbook-payment-errors",
+        "incident-dev-001"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.47,
+      "graph_paths": [],
+      "group_id": "dev-ambiguous",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-015",
+      "recall_at_5": 1.0,
+      "selected_token_count": 720,
+      "top_5_source_ids": [
+        "runbook-ambiguous",
+        "doc-checkout-overview",
+        "doc-gateway-api",
+        "incident-dev-002",
+        "config-versions"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.965,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-ambiguous"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-checkout",
+              "svc-payments"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-payments",
+                "caller": "svc-checkout",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-payments-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-checkout-overview"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-checkout",
+              "svc-gateway"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-gateway-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "incident-dev-002"
+        }
+      ],
+      "group_id": "dev-ambiguous",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-015",
+      "recall_at_5": 1.0,
+      "selected_token_count": 753,
+      "top_5_source_ids": [
+        "runbook-ambiguous",
+        "doc-payments-overview",
+        "doc-checkout-overview",
+        "doc-gateway-overview",
+        "incident-dev-002"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 7.877,
+      "graph_paths": [],
+      "group_id": "dev-topology",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-016",
+      "recall_at_5": 1.0,
+      "selected_token_count": 752,
+      "top_5_source_ids": [
+        "config-topology",
+        "doc-checkout-overview",
+        "doc-gateway-api",
+        "config-versions",
+        "runbook-deployment"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 11.048,
+      "graph_paths": [],
+      "group_id": "dev-topology",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-016",
+      "recall_at_5": 1.0,
+      "selected_token_count": 739,
+      "top_5_source_ids": [
+        "config-topology",
+        "config-versions",
+        "ref-prometheus",
+        "runbook-deployment",
+        "doc-gateway-api"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 11.712,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-topology"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-checkout",
+              "svc-gateway"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "doc-gateway-overview"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-versions"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-prometheus"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-checkout"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-deployment"
+        }
+      ],
+      "group_id": "dev-topology",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-016",
+      "recall_at_5": 1.0,
+      "selected_token_count": 763,
+      "top_5_source_ids": [
+        "config-topology",
+        "doc-gateway-overview",
+        "config-versions",
+        "ref-prometheus",
+        "runbook-deployment"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 8.369,
+      "graph_paths": [],
+      "group_id": "dev-vector-model",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-017",
+      "recall_at_5": 1.0,
+      "selected_token_count": 761,
+      "top_5_source_ids": [
+        "ref-minilm",
+        "ref-neo4j-vector",
+        "config-metrics",
+        "ref-neo4j-fulltext",
+        "runbook-traces"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.449,
+      "graph_paths": [],
+      "group_id": "dev-vector-model",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-017",
+      "recall_at_5": 1.0,
+      "selected_token_count": 758,
+      "top_5_source_ids": [
+        "ref-minilm",
+        "ref-neo4j-vector",
+        "config-topology",
+        "config-metrics",
+        "ref-prometheus"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 10.668,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-minilm"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-neo4j-vector"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-topology"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-prometheus"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-metrics"
+        }
+      ],
+      "group_id": "dev-vector-model",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-017",
+      "recall_at_5": 1.0,
+      "selected_token_count": 758,
+      "top_5_source_ids": [
+        "ref-minilm",
+        "ref-neo4j-vector",
+        "config-topology",
+        "ref-prometheus",
+        "config-metrics"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 7.746,
+      "graph_paths": [],
+      "group_id": "dev-fulltext-index",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-018",
+      "recall_at_5": 1.0,
+      "selected_token_count": 777,
+      "top_5_source_ids": [
+        "ref-neo4j-fulltext",
+        "ref-neo4j-vector",
+        "ref-minilm",
+        "config-metrics",
+        "config-logs"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.969,
+      "graph_paths": [],
+      "group_id": "dev-fulltext-index",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-018",
+      "recall_at_5": 1.0,
+      "selected_token_count": 779,
+      "top_5_source_ids": [
+        "ref-neo4j-fulltext",
+        "ref-neo4j-vector",
+        "ref-minilm",
+        "runbook-missing-metrics",
+        "config-resources"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 10.31,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-neo4j-fulltext"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-neo4j-vector"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-minilm"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-missing-metrics"
+        },
+        {
+          "path": {
+            "hops": 1,
+            "node_ids": [
+              "svc-gateway",
+              "svc-checkout"
+            ],
+            "relationships": [
+              {
+                "callee": "svc-checkout",
+                "caller": "svc-gateway",
+                "source_id": "declared-compose-topology-v1",
+                "topology_version": "incidentgraph-lab-topology-v1",
+                "type": "DEPENDS_ON"
+              }
+            ]
+          },
+          "source_id": "runbook-db-recovery"
+        }
+      ],
+      "group_id": "dev-fulltext-index",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-018",
+      "recall_at_5": 1.0,
+      "selected_token_count": 743,
+      "top_5_source_ids": [
+        "ref-neo4j-fulltext",
+        "ref-neo4j-vector",
+        "ref-minilm",
+        "runbook-missing-metrics",
+        "runbook-db-recovery"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 7.426,
+      "graph_paths": [],
+      "group_id": "dev-fault-safety",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-019",
+      "recall_at_5": 1.0,
+      "selected_token_count": 659,
+      "top_5_source_ids": [
+        "config-fault-safety",
+        "runbook-rollback",
+        "incident-dev-002",
+        "runbook-db-recovery",
+        "runbook-high-traffic"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 8.999,
+      "graph_paths": [],
+      "group_id": "dev-fault-safety",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-019",
+      "recall_at_5": 1.0,
+      "selected_token_count": 686,
+      "top_5_source_ids": [
+        "config-fault-safety",
+        "runbook-high-traffic",
+        "runbook-rollback",
+        "runbook-db-recovery",
+        "runbook-payment-errors"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.866,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-fault-safety"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-high-traffic"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-rollback"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-db-recovery"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-payments"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-payment-errors"
+        }
+      ],
+      "group_id": "dev-fault-safety",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-019",
+      "recall_at_5": 1.0,
+      "selected_token_count": 692,
+      "top_5_source_ids": [
+        "config-fault-safety",
+        "runbook-high-traffic",
+        "runbook-rollback",
+        "runbook-db-recovery",
+        "runbook-payment-errors"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 7.289,
+      "graph_paths": [],
+      "group_id": "dev-logs",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-020",
+      "recall_at_5": 1.0,
+      "selected_token_count": 752,
+      "top_5_source_ids": [
+        "config-logs",
+        "config-metrics",
+        "ref-otel",
+        "runbook-traces",
+        "ref-minilm"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 8.6,
+      "graph_paths": [],
+      "group_id": "dev-logs",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-020",
+      "recall_at_5": 1.0,
+      "selected_token_count": 750,
+      "top_5_source_ids": [
+        "config-logs",
+        "config-metrics",
+        "runbook-traces",
+        "doc-gateway-api",
+        "ref-prometheus"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 9.582,
+      "graph_paths": [
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-logs"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "config-metrics"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "runbook-traces"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "doc-gateway-api"
+        },
+        {
+          "path": {
+            "hops": 0,
+            "node_ids": [
+              "svc-gateway"
+            ],
+            "relationships": []
+          },
+          "source_id": "ref-prometheus"
+        }
+      ],
+      "group_id": "dev-logs",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-dev-020",
+      "recall_at_5": 1.0,
+      "selected_token_count": 750,
+      "top_5_source_ids": [
+        "config-logs",
+        "config-metrics",
+        "runbook-traces",
+        "doc-gateway-api",
+        "ref-prometheus"
+      ],
+      "variant": "graph"
+    }
+  ],
+  "rrf_k": 60,
+  "schema_version": 1,
+  "split": "dev",
+  "variants": [
+    "vector",
+    "hybrid",
+    "graph"
+  ]
+}

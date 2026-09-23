@@ -4,9 +4,9 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 3 are complete. The repository now includes the reproducible foundation, working three-service telemetry lab, immutable incident captures, a versioned Neo4j operational graph, and an incrementally ingested provenance-aware corpus with local embeddings. No AI investigator, retrieval comparison, or production capability is claimed yet.
+Phase 0 through Phase 4 are complete. The repository now includes the reproducible foundation, working three-service telemetry lab, immutable incident captures, a versioned Neo4j operational graph, incrementally ingested provenance-aware corpus, and bounded vector, hybrid, and graph-enhanced retrieval with executable development evaluation. No AI investigator or production capability is claimed yet.
 
-Roadmap progress: **Phase 3 of 11 delivery phases is complete; 4 of 12 gated phases are complete when discovery Phase 0 is included. Eight phases remain.**
+Roadmap progress: **Phase 4 of 11 delivery phases is complete; 5 of 12 gated phases are complete when discovery Phase 0 is included. Seven phases remain.**
 
 See:
 
@@ -14,6 +14,7 @@ See:
 - [`docs/progress/phase-01-report.md`](docs/progress/phase-01-report.md)
 - [`docs/progress/phase-02-report.md`](docs/progress/phase-02-report.md)
 - [`docs/progress/phase-03-report.md`](docs/progress/phase-03-report.md)
+- [`docs/progress/phase-04-report.md`](docs/progress/phase-04-report.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)
@@ -116,3 +117,30 @@ The compact corpus contains 37 project-authored documents in `data/corpus/docume
 Neo4j stores three services, three resources, versioned relationships, deployments, reviewed synthetic incidents, documents, chunks, and normalized embeddings. `DEPENDS_ON` points from caller to callee; potential-impact traversal follows the reverse direction. Both the 384-dimensional cosine vector index and the full-text index are verified `ONLINE` before the corpus is marked searchable.
 
 Embeddings use `sentence-transformers/all-MiniLM-L6-v2` at immutable revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`, locally on CPU. The first model snapshot download is approximately 92 MB and is stored under ignored `models/`. The measured 37-chunk benchmark does not require Colab or a GPU.
+
+## Phase 4 retrieval
+
+All three retrieval variants use one typed, bounded interface and the same corpus snapshot, embedding revision, cutoff, authorization scope, and final context budget:
+
+- `vector`: Neo4j cosine vector search.
+- `hybrid`: vector and full-text candidate lists combined only by reciprocal-rank fusion.
+- `graph`: hybrid retrieval over an authorization-filtered, time-valid `DEPENDS_ON` neighborhood of at most two hops and 50 nodes.
+
+Try a graph-enhanced query:
+
+```bash
+make retrieve \
+  VARIANT=graph \
+  SERVICE=gateway \
+  QUERY="Gateway latency rose while cache hits fell. Which downstream service should be investigated?"
+```
+
+Verify the sealed evaluation fixture and run only the development split:
+
+```bash
+make verify-retrieval
+make test-retrieval-integration
+make evaluate-retrieval-dev
+```
+
+The 40-question fixture contains 20 development and 20 held-out questions with disjoint groups. Evaluator labels remain under `data/evaluator/`; the held-out payload is SHA-256 sealed and was not evaluated in Phase 4. The committed development artifacts are under `artifacts/evaluation/phase4-dev/`.
