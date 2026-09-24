@@ -33,6 +33,7 @@ incidentgraph-ingest = "incidentgraph.ingestion:main"
 incidentgraph-incident-eval = "incidentgraph.incident_evaluation:main"
 incidentgraph-investigator = "incidentgraph.investigator:main"
 incidentgraph-phase5-gate = "incidentgraph.phase5_gate:main"
+incidentgraph-phase9-eval = "incidentgraph.phase9_evaluation:main"
 incidentgraph-retrieval = "incidentgraph.retrieval:main"
 incidentgraph-worker = "incidentgraph.worker:main"
 

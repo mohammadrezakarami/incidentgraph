@@ -36,6 +36,13 @@ artifacts/evaluation/*
 !artifacts/evaluation/phase5-real-local/
 artifacts/evaluation/phase5-real-local/*
 !artifacts/evaluation/phase5-real-local/gate-results.json
+!artifacts/evaluation/phase9-frozen-v1/
+artifacts/evaluation/phase9-frozen-v1/*
+!artifacts/evaluation/phase9-frozen-v1/README.md
+!artifacts/evaluation/phase9-frozen-v1/aggregate.json
+!artifacts/evaluation/phase9-frozen-v1/per-case.csv
+!artifacts/evaluation/phase9-frozen-v1/summary.md
+!artifacts/evaluation/phase9-frozen-v1/manual-review.jsonl
 artifacts/traces/
 logs/
 *.log
