@@ -137,6 +137,7 @@ def frozen_paths() -> tuple[Path, ...]:
         MANIFEST_PATH,
         ROOT / "data" / "corpus" / "documents.json",
         TOPOLOGY_PATH,
+        ROOT / "pyproject.toml",
         ROOT / "uv.lock",
         ROOT / "src" / "incidentgraph" / "investigator.py",
         ROOT / "src" / "incidentgraph" / "retrieval.py",
