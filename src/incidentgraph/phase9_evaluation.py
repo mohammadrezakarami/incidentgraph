@@ -187,6 +187,7 @@ def freeze_document() -> dict[str, Any]:
             "split": "heldout",
             "questions": 20,
             "runs_per_question": 1,
+            "corpus_snapshot": "incidentgraph-lab-corpus-v1-466b7569b585",
             "context_chunks": 8,
             "context_tokens": 5_000,
         },
@@ -737,7 +738,8 @@ def run_retrieval(output_dir: Path) -> dict[str, Any]:
 
 
 def _normalize_label(value: str) -> str:
-    return "_".join(value.casefold().replace("-", " ").replace("/", " ").split())
+    normalized = "_".join(value.casefold().replace("-", " ").replace("/", " ").split())
+    return normalized.removeprefix("svc_")
 
 
 def _report_citations(report: dict[str, Any] | None) -> list[str]:

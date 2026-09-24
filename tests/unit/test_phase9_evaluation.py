@@ -71,6 +71,7 @@ def test_scoring_requires_component_and_mechanism_in_same_hypothesis() -> None:
     assert score["top3_correct"] is True
     assert score["all_citations_valid"] is True
     assert _normalize_label("Database-Pool / Exhaustion") == "database_pool_exhaustion"
+    assert _normalize_label("svc-payments") == "payments"
 
 
 def test_abstention_false_incident_and_aggregate_denominators() -> None:
