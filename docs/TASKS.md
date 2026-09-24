@@ -1,8 +1,8 @@
 # IncidentGraph Tasks
 
-Last updated: 2026-09-23
+Last updated: 2026-09-24
 
-Progress: **Phase 8 is complete; 9/12 gates are complete including Phase 0.**
+Progress: **Phase 9 is frozen and in progress; 9/12 gates are complete including Phase 0.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -155,6 +155,24 @@ Phase 8 gate result: **PASS**. The gate used deterministic model behavior, real 
 FastAPI/PostgreSQL correlation, and a lightweight resource snapshot. It used no LLM, GPU, load
 generator, external telemetry service, held-out evaluation, or paid call.
 
+## Phase 9 — Frozen evaluation and error analysis
+
+- [x] Verify both pre-existing held-out seals without exposing results.
+- [x] Freeze prompts, workflow, scoring code, datasets, corpus, lockfile, model digest, and targets.
+- [x] Freeze the zero-paid-cost run budget before held-out evaluation.
+- [x] Implement equivalent fixed-workflow and adaptive-agent runners.
+- [x] Implement one-pass vector/hybrid/graph held-out retrieval comparison.
+- [x] Implement three repeats of a fixed 10-case development subset.
+- [x] Implement one affordable held-out run for both workflows over all 30 incident cases.
+- [x] Add per-case artifacts, resumable shards, aggregate reproduction, and failure sampling.
+- [x] Add a free-Colab T4 notebook; keep the heavy run off the laptop.
+- [ ] Run all 12 Colab shards and return the final progress archive.
+- [ ] Complete the rubric over at least 20 sampled reports.
+- [ ] Publish target PASS/FAIL results and representative error analysis.
+
+Phase 9 gate result: **PENDING**. Freeze verification and 65 deterministic unit tests pass. No
+held-out result or heavy model run has been executed locally.
+
 ## Later phase gates
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
@@ -164,7 +182,7 @@ generator, external telemetry service, held-out evaluation, or paid call.
 - [x] Phase 6: durability, review, recovery, cancellation, and follow-ups.
 - [x] Phase 7: complete API and incident console.
 - [x] Phase 8: observability and security hardening.
-- [ ] Phase 9: frozen evaluation; requires a separate approved run budget.
+- [ ] Phase 9: frozen evaluation is in progress; free-Colab execution and manual review remain.
 - [ ] Phase 10: reproducible release and operations.
 - [ ] Phase 11: portfolio handoff and technical defense.
 

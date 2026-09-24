@@ -1,0 +1,140 @@
+{
+  "agent_comparison": {
+    "dev_repeat_case_ids": [
+      "incident-dev-001",
+      "incident-dev-005",
+      "incident-dev-009",
+      "incident-dev-012",
+      "incident-dev-015",
+      "incident-dev-018",
+      "incident-dev-021",
+      "incident-dev-023",
+      "incident-dev-026",
+      "incident-dev-028"
+    ],
+    "dev_repeats": 3,
+    "execution": "free Colab T4, resumable shards; never paid",
+    "fixed_rules": [
+      "target error-rate metric",
+      "target request-latency metric",
+      "captured dependency graph to depth two",
+      "target logs without severity preselection",
+      "approved changes in the immutable window",
+      "graph-enhanced runbook retrieval at the immutable cutoff"
+    ],
+    "heldout_cases": 30,
+    "heldout_repeats": 1,
+    "maximum_agent_jobs": 120,
+    "workflows": [
+      "fixed",
+      "adaptive"
+    ]
+  },
+  "embedding": {
+    "device": "cpu",
+    "dimension": 384,
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+  },
+  "file_sha256": {
+    "config/topology.json": "2b097430b0ad6bdef9604d5602b41d6923c01dcbd8d870c2e37dee0e626e9334",
+    "data/corpus/documents.json": "018028f66570619f4457d57a4a29866a32954ffcd84c2945bcee10226f5ab08b",
+    "data/corpus/manifest.jsonl": "3f530be6e6fd316896cd22df1ac9425f79e341cad66ab5407ea041ddfe3d7d10",
+    "data/evaluation/incident-cases-v1.jsonl": "d55e9ce0f38087f59797f30d4ed0e45d7558dab3790cb37425537bd048affb18",
+    "data/evaluation/retrieval-questions-v1.jsonl": "bf51cc00df9e303c44c59188ac0ffc85186bb0821098fa6538b5d648c88026c5",
+    "data/evaluator/incident-heldout-seal-v1.json": "36f2c8dcd1c80b121f11c3e75abb6ec2663a1956d9fa7e78fc81f6cfbf9418f4",
+    "data/evaluator/incident-labels-v1.jsonl": "7476f72c9e388bfb23e0ce7799b31c9671ea90dadcc7d97f5a4312a74b799810",
+    "data/evaluator/retrieval-heldout-seal-v1.json": "e6c683340b1835d4c95fa5c8f90d1b777b8b34974679ef5ca38cedf92677374e",
+    "data/evaluator/retrieval-labels-v1.jsonl": "c7d7e871d4269f156bb9b10739359ae1dea012ff7329fbe40b0440643cadae49",
+    "pyproject.toml": "3dc43c351d8990d58966e7f7a91c28b5e392af2ecf37b15ec88cb0beb655abf0",
+    "src/incidentgraph/investigator.py": "d18bdd3a4b7f92916565ab3faf0de6b298d6e6be625ed82bdedd6912276a0b4a",
+    "src/incidentgraph/phase9_evaluation.py": "c47b74b8e977ddfa9bc477998edd8cea89681ba08318a3f9572f3cdba729d548",
+    "src/incidentgraph/retrieval.py": "61f43cc29d18cf0756db02bf130cccadbdfb87c3553b28a106d507c7d6772dd1",
+    "uv.lock": "96f2c502fbfcc90df1849345723b8fe19381f42f0091b7ff9e28a5afa05bee77"
+  },
+  "freeze_id": "phase9-frozen-v1",
+  "frozen_at": "2026-09-24T00:00:00Z",
+  "git_revision": "260323fdcdcf5540dfcccfc09710ff478df42ff6",
+  "known_pre_run_limitation": {
+    "capture_cutoff_latest": "2026-09-22T21:48:44.837164+00:00",
+    "code": "INCIDENT_CAPTURE_PREDATES_FINAL_CORPUS",
+    "corpus_majority_valid_from": "2026-09-23T00:00:00Z",
+    "effect": "most runbooks are correctly ineligible for incident-case retrieval; seals and timestamps will not be rewritten after the fact"
+  },
+  "model": {
+    "active_deadline_seconds": 900,
+    "expected_digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "max_calls_per_case": 10,
+    "max_output_tokens": 600,
+    "monetary_cost_ceiling_usd": 0,
+    "provider": "local_openai_compatible",
+    "requested_id": "qwen3:4b-instruct-2507-q4_K_M",
+    "temperature": 0,
+    "timeout_seconds": 240,
+    "token_budget_per_case": 30000
+  },
+  "paid_calls_authorized": false,
+  "prompts": {
+    "prompt_version": "phase5-prompts-v1",
+    "system_policy_sha256": "593e9affbe8b9fae432b8265eb42f05f01cbdcb259942d6c03e10ba3d65dea02",
+    "tool_catalog_sha256": "a42be56f2cc0d2e2aa0be69ab4b9c7e367225be0f508c53d071708f58941e04e",
+    "workflow_version": "phase6-workflow-v1"
+  },
+  "retrieval": {
+    "context_chunks": 8,
+    "context_tokens": 5000,
+    "corpus_snapshot": "incidentgraph-lab-corpus-v1-466b7569b585",
+    "questions": 20,
+    "runs_per_question": 1,
+    "split": "heldout",
+    "variants": [
+      "vector",
+      "hybrid",
+      "graph"
+    ]
+  },
+  "run_plan_version": "phase9-zero-paid-colab-v1",
+  "schema_version": 1,
+  "scoring": {
+    "appropriate_abstention": "inconclusive outcome with at least one limitation",
+    "citation_validity": "each cited UUID resolves to evidence collected in that run",
+    "component_and_mechanism_match": "casefolded exact label after separator normalization",
+    "false_incident": "probable_cause outcome on a healthy case",
+    "supported_claims": "manual rubric over deterministic sample of at least 20 reports",
+    "top1": "rank-one hypothesis matches an accepted component and mechanism",
+    "top3": "any of at most three hypotheses matches both labels",
+    "uncertainty_unit": "independent capture group, not paraphrase or repeat",
+    "version": "phase9-scoring-v1"
+  },
+  "sealed_inputs": {
+    "incident": {
+      "dev_cases": 30,
+      "digest": "1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67",
+      "heldout_cases": 30,
+      "heldout_evaluated": false,
+      "status": "pass",
+      "total_cases": 60
+    },
+    "retrieval": {
+      "dev_question_count": 20,
+      "digest": "a77524916562fdd4337e88d0efa295813fe05e0910d1a2bc1c51f9ff2d778c3c",
+      "groups_disjoint": true,
+      "label_count": 20,
+      "question_count": 20,
+      "status": "pass"
+    }
+  },
+  "state": "frozen-before-heldout-evaluation",
+  "targets": {
+    "appropriate_abstention_minimum": "4/5",
+    "citation_validity": 1.0,
+    "coverage": 0.85,
+    "diagnosis_top1": 0.75,
+    "diagnosis_top3": 0.9,
+    "false_incident_maximum": "1/5",
+    "policy_violations": 0,
+    "retrieval_recall_at_5": 0.8,
+    "supported_claim_rate": 0.95,
+    "warm_p95_active_seconds": 90
+  }
+}

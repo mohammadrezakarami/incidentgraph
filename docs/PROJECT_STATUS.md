@@ -1,6 +1,6 @@
 # IncidentGraph Project Status
 
-Last updated: 2026-09-23
+Last updated: 2026-09-24
 
 ## Current phase
 
@@ -20,7 +20,9 @@ Phase 7 — API and incident console: **PASS**.
 
 Phase 8 — Observability and security hardening: **PASS**.
 
-Roadmap position: **Phase 8 of 11 delivery phases is complete. Including discovery Phase 0, 9 of 12 gated phases are complete and Phases 9–11 have not started.**
+Phase 9 — Frozen evaluation and error analysis: **IN PROGRESS — FROZEN, COLAB RUN PENDING**.
+
+Roadmap position: **Phase 8 of 11 delivery phases is complete. Including discovery Phase 0, 9 of 12 gated phases are complete; Phase 9 is frozen but not yet passed, and Phases 10–11 have not started.**
 
 The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 8 required no model, GPU, held-out evaluation, external telemetry service, or paid call; it used deterministic security fixtures and real local API/PostgreSQL trace correlation.
 
@@ -75,9 +77,9 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Open gates and limitations
 
-- Phase 9 must verify the sealed holdout hashes, freeze prompts/model/scoring/budget, and run the separately approved comparisons without tuning on held-out results.
+- Phase 9 seals, prompts, model digest, scoring code, corpus, and zero-cost budget are frozen and verify. The 12 resumable free-Colab shards, held-out aggregates, and 20-report manual rubric remain pending.
 - The retained 85 percent coverage command currently reports 49.45 percent over all modules; the later core target is not yet met.
-- Phase 2 captures predate the Phase 3 corpus and must not be used as final as-of benchmark cases without recapture.
+- Phase 2 captures predate most Phase 3 corpus validity windows. The frozen Phase 9 run records this limitation and will not rewrite timestamps or seals; a later dataset version requires newly captured and newly sealed cases.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
 - Hybrid is slightly below vector on this development set; no tuning against held-out data is allowed.
 - Paid provider access remains intentionally unapproved; the completed Phase 5 evidence uses only the free local-compatible Colab path.
@@ -91,4 +93,4 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Evidence
 
-See `docs/progress/phase-08-report.md` for the latest completed gate. The Phase 8 local profile is under `artifacts/observability/phase8-local-profile.json`; the Phase 5 real-model evidence remains under `artifacts/evaluation/phase5-real-local/gate-results.json`.
+See `docs/progress/phase-09-report.md` for current frozen-evaluation progress and `docs/progress/phase-08-report.md` for the latest completed gate. The Phase 9 heavy run has no result artifact yet.

@@ -219,3 +219,26 @@ traces for secrets, and proves dependency errors fail closed. The lightweight re
 reproducible with `.venv/bin/python scripts/phase8_profile.py`; it is not a capacity benchmark.
 See [`docs/operations/OBSERVABILITY.md`](docs/operations/OBSERVABILITY.md) and
 [`docs/security/SECURITY_TESTS.md`](docs/security/SECURITY_TESTS.md).
+
+## Phase 9 frozen evaluation
+
+The prompts, workflow, evaluator, datasets, seals, corpus snapshot, dependency lock, exact local
+Qwen digest, scoring rules, targets, and zero-paid-cost budget are frozen in
+[`config/phase9-freeze-v1.json`](config/phase9-freeze-v1.json). Verify them without running a model:
+
+```bash
+make verify-phase9-freeze
+```
+
+The heavy 120-job agent comparison is intentionally not a local Make workload. Use
+[`phase9_colab.ipynb`](phase9_colab.ipynb) with the matching
+`incidentgraph-phase9-colab.bundle` on a free T4. It runs 12 resumable shards of 10 jobs, carries
+progress between sessions as `phase9-progress.zip`, and never configures a paid provider. The
+comparison includes fixed versus adaptive workflows, three repeats of the frozen 10-case
+development subset, one run over all 30 held-out cases, and the 20-question three-variant held-out
+retrieval benchmark.
+
+Phase 9 is not complete until the final archive is returned, aggregates are reproduced, and the
+written evidence-support rubric is completed for at least 20 sampled reports. The pre-recorded
+capture/corpus time mismatch remains an explicit limitation; timestamps and seals are not rewritten
+after the fact.
