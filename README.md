@@ -4,9 +4,9 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 8 are complete. The versioned FastAPI surface and React console expose the durable investigator, while the hardened local runtime adds correlated API/worker/model/tool traces, bounded operational metrics, pre-export redaction, retention controls, adversarial tests, and a measured local resource snapshot. The Phase 5 real-model gate used free Colab compute; Phases 6–8 used deterministic fixtures and local services. No paid model call was made.
+Phase 0 through Phase 8 are complete and passed. Phase 9 execution and error analysis are complete, with an honest **FAIL** gate result against the frozen quality targets. The versioned FastAPI surface and React console expose the durable investigator, while the hardened local runtime adds correlated API/worker/model/tool traces, bounded operational metrics, pre-export redaction, retention controls, adversarial tests, and a measured local resource snapshot. The Phase 5 and Phase 9 real-model evaluations used free Colab compute; no paid model call was made.
 
-Roadmap progress: **Phase 8 of 11 delivery phases is complete; 9 of 12 gated phases are complete when discovery Phase 0 is included, and Phases 9–11 have not started.**
+Roadmap progress: **10 of 12 gated phases have been decided: Phases 0–8 passed, Phase 9 failed its frozen quality gate, and Phases 10–11 have not started.**
 
 See:
 
@@ -19,6 +19,7 @@ See:
 - [`docs/progress/phase-06-report.md`](docs/progress/phase-06-report.md)
 - [`docs/progress/phase-07-report.md`](docs/progress/phase-07-report.md)
 - [`docs/progress/phase-08-report.md`](docs/progress/phase-08-report.md)
+- [`docs/progress/phase-09-report.md`](docs/progress/phase-09-report.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)
@@ -238,7 +239,10 @@ comparison includes fixed versus adaptive workflows, three repeats of the frozen
 development subset, one run over all 30 held-out cases, and the 20-question three-variant held-out
 retrieval benchmark.
 
-Phase 9 is not complete until the final archive is returned, aggregates are reproduced, and the
-written evidence-support rubric is completed for at least 20 sampled reports. The pre-recorded
-capture/corpus time mismatch remains an explicit limitation; timestamps and seals are not rewritten
-after the fact.
+The returned zero-cost run completed all 120 agent jobs. Its aggregate and per-case hashes reproduced
+exactly, and the written claim-support review covers 20 actual reports. The frozen gate failed:
+graph Recall@5 passed at 0.925, but adaptive diagnosis Top 1 and Top 3 were both 0/20, citation
+validity was 77/78, warm p95 was 280.463 seconds, three blocked policy-violation attempts were
+recorded, coverage remained below target, and supported factual claims were 32/57 (56.1%). See the
+committed artifacts under `artifacts/evaluation/phase9-frozen-v1/`. The semantic review is explicitly
+AI-assisted and is not represented as independent human validation.

@@ -1,25 +1,26 @@
 # IncidentGraph Handoff
 
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
 ## Current phase
 
-Phase 0 through Phase 8 are complete and passed. Phase 9 is frozen and in progress: its exact datasets, seals, code, prompts, model digest, corpus, scoring, targets, and zero-cost budget verify, while the heavy free-Colab run and manual review remain pending.
+Phase 0 through Phase 8 are complete and passed. Phase 9 execution and error analysis are complete, and its frozen quality gate is **FAIL**. The returned zero-cost artifacts are committed without changing the frozen datasets, seals, code, prompts, model digest, scoring, or targets.
 
-Roadmap position: Phase 8 of 11 delivery phases is complete; including Phase 0, 9 of 12 gates are complete. Phase 9 is not yet passed, and Phases 10–11 have not started.
+Roadmap position: 10 of 12 gates are decided: nine PASS, Phase 9 FAIL, and Phases 10–11 not started.
 
 ## Last verified command
 
-Executable verification of the current Phase 9 preparation surface:
+Executable verification of the Phase 9 frozen surface and returned result:
 
 ```text
 make lint
 make typecheck
 .venv/bin/pytest -m "not integration" -q
 make verify-phase9-freeze
+.venv/bin/python -m incidentgraph.phase9_evaluation finalize --output-dir <copy-of-returned-output>
 ```
 
-Result: Ruff and strict mypy pass; 65 Python unit tests pass with 18 integrations deselected. All 13 frozen files, the incident seal, and the retrieval seal match. No held-out result, local model run, GPU workload, or paid call was made during preparation.
+Result: Ruff and strict mypy pass; the frozen unit suite passes; all frozen files and both held-out seals match. The returned 120-job aggregate and per-case files reproduce byte-for-byte. Heavy model work ran only on free Colab; estimated paid cost is USD 0.
 
 ## Configuration assumptions
 
@@ -47,17 +48,18 @@ Result: Ruff and strict mypy pass; 65 Python unit tests pass with 18 integration
 3. Cooperative cancellation cannot undo a provider request or charge already issued before cancellation is observed.
 4. GitHub CLI authentication is stale, although the private remote exists and normal Git push works.
 5. No paid provider is allowed; the verified real-model path is free and local-compatible.
-6. Phase 2 captures predate most curated-corpus validity windows. Phase 9 records this before running and will not rewrite the sealed dataset; a future post-corpus capture set must receive a new version and seal.
+6. Phase 2 captures predate most curated-corpus validity windows. Phase 9 retained this pre-declared limitation; a future post-corpus capture set must receive a new version and seal.
 7. The 37-document corpus and development sets are project-authored laboratory material; results are not held-out or production claims.
 8. Both Phase 5 real-model reports were safely inconclusive after bounded structured-output failures. This passes the safety/integration gate but is not a diagnosis-quality claim.
 9. Direct hybrid is slightly below vector on the development split; the current result is retained rather than tuned against held-out data.
 10. The existing untracked `.env` predates Phase 7 service scoping. Add an explicit non-empty `service_ids` list to each configured principal before using the interactive console; missing scope fails closed and `make doctor` reports it without exposing secrets.
+11. Phase 9 failed diagnosis, citation-validity, policy-violation, latency, claim-support, and coverage targets. The written semantic rubric is AI-assisted, not independent human validation.
 
 ## Next three tasks
 
-1. Upload `incidentgraph-phase9-colab.bundle` to `phase9_colab.ipynb` and run shards 0–11 on a free T4, carrying `phase9-progress.zip` between sessions.
-2. Return the final archive, reproduce aggregates, and complete the required 20-report support rubric.
-3. Publish honest PASS/FAIL target results and error analysis; do not start Phase 10 until the Phase 9 gate is decided.
+1. Decide whether to retain the failed Phase 9 result as the portfolio result or authorize a separately versioned iteration.
+2. If iterating, create post-corpus captures, cap fixed-workflow context, improve canonical tool-schema use, and freeze a new dataset/model/run configuration before evaluation.
+3. Do not start Phase 10 until that decision is explicit; never overwrite or relabel the frozen Phase 9 result.
 
 ## Relevant documents
 
@@ -81,4 +83,4 @@ Result: Ruff and strict mypy pass; 65 Python unit tests pass with 18 integration
 
 ## Resume procedure
 
-Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, all phase reports, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not repeat Phases 0–8 or rerun the completed real-model gate without a concrete need. Never make paid calls. Do not alter any file hashed by `config/phase9-freeze-v1.json`; run the heavy workload only through the resumable free-Colab path.
+Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, all phase reports, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not repeat Phases 0–9 or rerun the completed real-model evaluations without a concrete need. Never make paid calls. Do not alter the frozen Phase 9 result or any file hashed by `config/phase9-freeze-v1.json`; any new evaluation must use a new version and seal.

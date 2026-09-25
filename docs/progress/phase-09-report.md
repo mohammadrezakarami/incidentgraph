@@ -1,88 +1,126 @@
 # Phase 9 Progress Report — Frozen Evaluation and Error Analysis
 
-Date: 2026-09-24
+Date: 2026-09-25
 
-Status: **IN PROGRESS — FROZEN, HEAVY RUN PENDING**
+Status: **COMPLETE — QUALITY GATE FAIL**
 
-Roadmap position: Phase 9 of 11 delivery phases has started. Including discovery Phase 0,
-**9 of 12 gates are complete**; the Phase 9 gate is not yet passed.
+Roadmap position: 10 of 12 gated phases are decided. Phases 0–8 passed, Phase 9 completed its
+frozen evaluation but failed the agreed quality targets, and Phases 10–11 have not started.
 
-## 1. Result so far
+## 1. Decision
 
-The evaluation implementation, run plan, prompts, settings, scoring rules, datasets, corpus,
-dependency lock, and zero-paid-cost budget are now frozen in
-`config/phase9-freeze-v1.json`. Both pre-existing held-out seals verify unchanged:
+The zero-paid-cost free-Colab run completed all 12 shards and all 120 planned agent jobs. The
+20-question retrieval comparison also completed. Re-running finalization from the per-job records
+reproduced `aggregate.json` and `per-case.csv` byte-for-byte:
 
-- Retrieval: `a77524916562fdd4337e88d0efa295813fe05e0910d1a2bc1c51f9ff2d778c3c`.
-- Incident: `1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67`.
+- Returned archive SHA-256: `34b1413c93e92733381b52c1de4a03f28ede626d0e4d09e2fc358ab8ceafbc06`.
+- Reproduced pre-review aggregate SHA-256: `cdf77609bf2712484d21947cadbc95f92f93eced3a64260d49313349e66ff342`.
+- Reproduced per-case SHA-256: `bfcf14b5b105964c3b67b009ae11fb9c757aeedb22cbc01b408a95e72e137653`.
 
-No held-out retrieval or real-model agent result has been run locally. The expensive work is
-deliberately deferred to the resumable free-Colab notebook. No paid service is configured or
-authorized.
+The Phase 9 gate is **FAIL**. The result is retained as measured; no prompt, model, dataset, seal,
+scoring rule, or target was changed after held-out evaluation.
 
-## 2. Frozen comparison
+## 2. Frozen target results
 
-- Retrieval: 20 held-out questions, one deterministic pass each through vector, hybrid, and
-  graph-enhanced retrieval with the same indexed corpus, embedding revision, cutoff, authorization,
-  candidate limits, and final context budget.
-- Agent: documented fixed observation rules versus the adaptive LangGraph investigator. Both use
-  the same immutable captures, read-only tool implementation, graph retriever, Qwen generator,
-  authorization, and per-case ceilings.
-- Variability: three runs of both workflows on the same frozen 10-case development subset.
-- Held-out: one affordable run of both workflows over all 30 incident cases.
-- Total: 120 resumable agent jobs plus 60 retrieval rows.
+| Target | Frozen threshold | Result | Status |
+|---|---:|---:|---|
+| Graph retrieval Recall@5 | >= 0.80 | 0.925 | PASS |
+| Adaptive diagnosis Top 1 | >= 0.75 | 0/20 (0.000) | FAIL |
+| Adaptive diagnosis Top 3 | >= 0.90 | 0/20 (0.000) | FAIL |
+| Appropriate abstention | >= 4/5 | 5/5 | PASS |
+| False incidents | <= 1/5 | 0/5 | PASS |
+| Citation validity | 100% | 77/78 (98.72%) | FAIL |
+| Policy violations | 0 | 3 blocked attempts | FAIL |
+| Warm p95 active duration | < 90 s | 280.463 s | FAIL |
+| Supported factual claims | >= 95% | 32/57 (56.1%) | FAIL |
+| Core coverage | >= 85% | 49.45% retained result | FAIL |
 
-The fixed workflow always requests target error rate, target latency, captured dependencies,
-target logs, approved changes, and graph-enhanced runbooks before using the same report generator.
-Actual model calls, tool calls, tokens, duration, and zero monetary cost are recorded per case.
+Estimated monetary cost was USD 0. The policy violations were denied unauthorized-service attempts;
+the run does not show unauthorized execution. The frozen scorer nevertheless counts the attempts,
+so the target correctly remains failed.
 
-## 3. Implemented artifacts
+## 3. Baseline comparison
 
-- `src/incidentgraph/phase9_evaluation.py`: freeze verification, fixed and adaptive runners,
-  resumable sharding, held-out retrieval comparison, deterministic scoring, aggregation, error
-  sampling, manual-review template, CSV/JSON/Markdown output, and CLI.
-- `tests/unit/test_phase9_evaluation.py`: run-plan cardinality, exact component/mechanism scoring,
-  citation resolution, abstention, false-incident, and denominator tests.
-- `config/phase9-freeze-v1.json`: exact hashes, seals, model digest, prompt hashes, corpus snapshot,
-  budgets, targets, and the known pre-run temporal limitation.
-- `phase9_colab.ipynb`: free T4 setup, ephemeral Neo4j, frozen corpus ingestion, exact Ollama/model
-  identity check, 12 resumable shards of 10 jobs, progress-zip import/export, and finalization.
-- `artifacts/evaluation/phase9-frozen-v1/README.md`: artifact contract and pending state.
-- `make verify-phase9-freeze`, `make evaluate-test`, and `make report`: the local test target refuses
-  to start the heavy model run and points to Colab.
+| Workflow | Top 1 | Top 3 | Abstention | False incidents | Task completion | Citation validity | p95 active |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| fixed | 0/20 | 0/20 | 0/5 | 0/5 | 0/30 | 0/0 | 1.423 s |
+| adaptive | 0/20 | 0/20 | 5/5 | 0/5 | 28/30 | 77/78 | 280.463 s |
 
-## 4. Verification before freeze
+The fixed workflow failed before report generation in all 30 held-out cases because its roughly
+22k–24k-token prompt exceeded the frozen model's 4,096-token context. Its short p95 therefore
+reflects fast failure, not good performance. The adaptive workflow produced 30 inconclusive outcomes
+and completed 28 tasks, but never returned an accepted component-and-mechanism diagnosis on the 20
+identifiable cases.
 
-The deterministic local checks passed before the final freeze:
+The held-out retrieval comparison remained useful:
 
-```text
-.venv/bin/ruff check .
-.venv/bin/mypy
-.venv/bin/pytest -m "not integration" -q
-.venv/bin/python -m incidentgraph.phase9_evaluation verify-freeze
-```
+| Variant | Recall@5 | MRR@5 | nDCG@5 | Mean elapsed |
+|---|---:|---:|---:|---:|
+| vector | 0.8833 | 0.9500 | 0.9152 | 174.017 ms |
+| hybrid | 0.9083 | 0.9250 | 0.9075 | 134.469 ms |
+| graph | 0.9250 | 0.9250 | 0.9167 | 195.363 ms |
 
-Observed result: Ruff pass, strict mypy pass over 24 modules, 65 unit tests pass with 18 integration
-tests deselected, and all 13 frozen files plus both held-out seals match.
+## 4. Written claim-support review
 
-## 5. Honest blocker and limitation
+The generated 20-row template contained 10 fixed-workflow rows with `report: null`; those rows
+cannot count as reviewed reports. They are retained in `manual-review.jsonl`, and adaptive held-out
+cases 11–20 were added deterministically. The completed file therefore contains 30 rubric rows:
+20 actual reports and 10 retained no-report baseline failures.
 
-The latest sealed incident cutoff is `2026-09-22T21:48:44.837164+00:00`, while most final corpus
-records are valid from `2026-09-23T00:00:00Z`. Therefore most runbooks are correctly ineligible for
-the incident cases. Rewriting the capture timestamps, corpus validity, labels, or seals after the
-fact would create leakage and is prohibited. Both agent workflows retain equivalent access, but
-this frozen comparison cannot establish the intended final telemetry-plus-corpus pairing.
+The rubric counts unique atomic externally verifiable claims in observed symptoms, observed or
+potential impact, and hypothesis mechanism/explanation fields. Summary restatements are deduplicated;
+recommendations, schema metadata, and explicit epistemic limitations are excluded. A claim passes
+only when cited eligible run evidence directly entails it. In particular, topology adjacency is not
+causality, a success series is not an error series, and qualitative elevation requires a cited
+baseline or threshold.
 
-This limitation is recorded before opening held-out results and will remain in the final report.
-A future iteration may create and seal a new evaluation version from post-corpus captures, but it
-cannot replace or silently repair this run.
+Result: **32/57 supported atomic claims (56.1%), FAIL against 95%**.
 
-## 6. Remaining Phase 9 work
+This is a written, claim-by-claim Codex semantic review. It is explicitly AI-assisted and is not
+represented as independent human validation. The exact counts, unsupported claims, reviewer label,
+selection, and method are stored in `manual-review.jsonl` and `manual-review-summary.json`.
 
-1. Run all 12 free-Colab shards and return the final `phase9-progress.zip`.
-2. Reproduce automated aggregates from the 120 per-case records.
-3. Complete the written support rubric over at least 20 deterministically sampled held-out reports.
-4. Investigate representative failures and publish every target as PASS, FAIL, or PENDING with its
-   numerator, denominator, provenance category, and limitations.
+## 5. Representative failure analysis
 
-Until these steps finish, Phase 9 remains in progress and Phase 10 must not be marked started.
+1. **Fixed context overflow:** the fixed workflow assembled far more context than the 4,096-token
+   model window, so it produced no reports and no meaningful baseline task completion.
+2. **Tool-call schema mismatch:** adaptive runs repeatedly proposed invalid argument names or omitted
+   required bounded-window fields. The policy layer rejected these calls safely, but useful evidence
+   was lost.
+3. **Authorization-name mismatch:** the model sometimes used aliases such as `checkout` or `payments`
+   where canonical authorized IDs were required. These attempts were blocked and counted as policy
+   violations.
+4. **Timeout and model-capacity fallback:** multiple adaptive runs exhausted model-call budgets,
+   timed out, or returned invalid structured output, producing deterministic partial reports.
+5. **Metric semantics:** some reports described an `outcome=success` dependency series as an error
+   rate. Citation IDs resolved, but the cited record did not support the claim, demonstrating why
+   citation validity and factual support are separate targets.
+6. **Unsupported causality:** several reports treated a dependency edge plus one metric series as a
+   causal chain or user-facing impact. The evidence supported adjacency or observation, not cause.
+7. **Temporal mismatch:** most runbooks were ineligible because the sealed incident captures predate
+   the final corpus validity windows. This limitation was documented before the run and was not
+   repaired after opening held-out results.
+
+## 6. What passed
+
+- Both held-out seals and all frozen-file hashes remained unchanged.
+- Every planned job and retrieval row completed at zero estimated monetary cost.
+- Per-case records reproduce the published automated aggregates exactly.
+- Graph retrieval exceeded the frozen Recall@5 target.
+- The adaptive workflow abstained on all five insufficient-evidence cases.
+- Neither workflow asserted a false incident on the five healthy cases.
+- Authorization and bounded-tool enforcement failed closed; no unauthorized execution occurred.
+
+## 7. Next iteration proposal
+
+Do not rewrite this frozen result. A new version should be separately sealed and should:
+
+1. create post-corpus incident captures so eligible runbooks exist at each observation cutoff;
+2. cap and summarize fixed-workflow context below the selected model's verified context window;
+3. expose canonical tool schemas more effectively and validate model-generated calls before retry;
+4. distinguish success, error, latency, and rate series in model-facing summaries;
+5. reserve enough free-runtime budget for the model while enforcing a p95-compatible deadline; and
+6. obtain an independent human audit of the claim rubric before making a human-validation claim.
+
+Phase 10 is not started. Proceeding requires an explicit decision whether to accept this failed
+quality gate as the portfolio result or authorize a separately versioned Phase 9 iteration.

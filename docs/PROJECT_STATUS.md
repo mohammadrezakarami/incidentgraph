@@ -1,6 +1,6 @@
 # IncidentGraph Project Status
 
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
 ## Current phase
 
@@ -20,11 +20,11 @@ Phase 7 — API and incident console: **PASS**.
 
 Phase 8 — Observability and security hardening: **PASS**.
 
-Phase 9 — Frozen evaluation and error analysis: **IN PROGRESS — FROZEN, COLAB RUN PENDING**.
+Phase 9 — Frozen evaluation and error analysis: **COMPLETE — QUALITY GATE FAIL**.
 
-Roadmap position: **Phase 8 of 11 delivery phases is complete. Including discovery Phase 0, 9 of 12 gated phases are complete; Phase 9 is frozen but not yet passed, and Phases 10–11 have not started.**
+Roadmap position: **10 of 12 gated phases are decided: Phases 0–8 passed, Phase 9 failed its frozen quality gate, and Phases 10–11 have not started.**
 
-The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 8 required no model, GPU, held-out evaluation, external telemetry service, or paid call; it used deterministic security fixtures and real local API/PostgreSQL trace correlation.
+The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 9 then completed the frozen zero-cost Colab evaluation and published the failed quality result without changing the frozen inputs or targets.
 
 ## Verified environment
 
@@ -47,12 +47,12 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Full-text and 384-dimensional cosine vector indexes are `ONLINE` and incremental reruns skip unchanged content.
 - The pinned MiniLM CPU benchmark encoded 37 chunks in 0.14048 seconds (263.383 chunks/second) on the inspected Mac.
 - Vector, reciprocal-rank hybrid, and graph-enhanced hybrid retrieval share one bounded contract: 20 candidates per signal, graph depth at most 2, graph node cap 50, final context at most 8 chunks and 5,000 tokens.
-- The sealed 20-question development comparison scored graph retrieval at Recall@5 0.908, MRR@5 1.000, and nDCG@5 0.957; the 20-question held-out split was not evaluated.
+- The sealed 20-question development comparison scored graph retrieval at Recall@5 0.908, MRR@5 1.000, and nDCG@5 0.957. The later frozen Phase 9 held-out comparison scored graph Recall@5 0.925.
 - The required downstream-only case is executable: direct vector and direct hybrid miss the payment-cache evidence, while graph retrieval introduces it over `gateway -> checkout -> payments` with exact relationship provenance.
 - No relevant provider/API-key environment variable names were detected.
 - The Phase 5 workflow has all 12 required nodes, strict structured boundaries, eight read-only tools, deterministic budgets, grounded report validation, and PostgreSQL checkpoints.
 - Full evidence and final reports are stored immutably in PostgreSQL; checkpoint state retains bounded summaries and evidence references rather than raw telemetry.
-- The incident evaluation manifest contains 60 cases split 30/30 with the required class balance. The held-out seal is `1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67` and has not been evaluated.
+- The incident evaluation manifest contains 60 cases split 30/30 with the required class balance. The held-out seal is `1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67`; the frozen held-out run is now complete.
 - The Phase 5 free real-model artifact passed all eight checks for two development cases with Ollama 0.34.3 and `qwen3:4b-instruct-2507-q4_K_M` at digest `0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0`.
 - Both real-model cases safely returned citation-valid `inconclusive` reports after bounded model-output failures; no cause was invented, PostgreSQL checkpoints completed, and estimated cost remained USD 0.
 - Queue attempts are fenced by owner, token, expiration, generation, and target report version. Publication is atomic and idempotent, and stale attempts cannot publish.
@@ -66,6 +66,9 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Operational Prometheus counters/histograms cover API, worker, model, and tool activity with bounded labels. Local JSONL traces rotate by size and retention, while persisted event retention has a non-mutating preview and explicit apply operation.
 - Phase 8 adversarial tests reject injected shell-like fields and unauthorized service expansion, verify fail-closed source outages without raw exception text, and sample correlated traces for the test bearer secret.
 - The lightweight recorded profile completed 25/25 loopback health requests with 0.397 ms median and 0.584 ms p95; the eight IncidentGraph containers used about 1.27 GiB in that snapshot. The artifact is a point-in-time local observation, not an investigation benchmark or production SLO.
+- The Phase 9 free-Colab run completed 120/120 agent jobs and 20 held-out retrieval questions at USD 0 estimated cost. Re-finalization reproduced the returned aggregate and per-case hashes exactly.
+- Held-out graph retrieval reached Recall@5 0.925. Adaptive reports reached 5/5 appropriate abstentions and 0/5 false incidents, but diagnosis Top 1 and Top 3 were both 0/20, citation validity was 77/78, task completion was 28/30, and warm p95 was 280.463 seconds.
+- The written claim-support rubric reviewed 20 actual reports and found 32/57 (56.1%) supported atomic claims. It is labeled AI-assisted and is not claimed as independent human validation.
 
 ## Approved decisions recorded in ADRs
 
@@ -77,7 +80,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Open gates and limitations
 
-- Phase 9 seals, prompts, model digest, scoring code, corpus, and zero-cost budget are frozen and verify. The 12 resumable free-Colab shards, held-out aggregates, and 20-report manual rubric remain pending.
+- Phase 9 is complete with a **FAIL** gate result. Only retrieval recall, appropriate abstention, and false-incident targets passed; diagnosis, citation validity, policy violations, latency, factual support, and coverage failed.
 - The retained 85 percent coverage command currently reports 49.45 percent over all modules; the later core target is not yet met.
 - Phase 2 captures predate most Phase 3 corpus validity windows. The frozen Phase 9 run records this limitation and will not rewrite timestamps or seals; a later dataset version requires newly captured and newly sealed cases.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
@@ -93,4 +96,4 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Evidence
 
-See `docs/progress/phase-09-report.md` for current frozen-evaluation progress and `docs/progress/phase-08-report.md` for the latest completed gate. The Phase 9 heavy run has no result artifact yet.
+See `docs/progress/phase-09-report.md` for the final frozen-evaluation decision and `artifacts/evaluation/phase9-frozen-v1/` for the complete returned run, reproduced aggregates, and written rubric.

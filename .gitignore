@@ -43,9 +43,13 @@ artifacts/evaluation/phase9-frozen-v1/*
 !artifacts/evaluation/phase9-frozen-v1/per-case.csv
 !artifacts/evaluation/phase9-frozen-v1/summary.md
 !artifacts/evaluation/phase9-frozen-v1/manual-review.jsonl
+!artifacts/evaluation/phase9-frozen-v1/manual-review-summary.json
+!artifacts/evaluation/phase9-frozen-v1/retrieval-heldout.json
+!artifacts/evaluation/phase9-frozen-v1/agent-part-*.jsonl
 artifacts/traces/
 logs/
 *.log
+phase9-progress.zip
 
 # Models and large generated files
 models/

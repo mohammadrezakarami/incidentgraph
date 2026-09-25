@@ -1,8 +1,8 @@
 # IncidentGraph Tasks
 
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
-Progress: **Phase 9 is frozen and in progress; 9/12 gates are complete including Phase 0.**
+Progress: **10/12 gates are decided including Phase 0: nine PASS, Phase 9 FAIL, and Phases 10–11 not started.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -166,12 +166,16 @@ generator, external telemetry service, held-out evaluation, or paid call.
 - [x] Implement one affordable held-out run for both workflows over all 30 incident cases.
 - [x] Add per-case artifacts, resumable shards, aggregate reproduction, and failure sampling.
 - [x] Add a free-Colab T4 notebook; keep the heavy run off the laptop.
-- [ ] Run all 12 Colab shards and return the final progress archive.
-- [ ] Complete the rubric over at least 20 sampled reports.
-- [ ] Publish target PASS/FAIL results and representative error analysis.
+- [x] Run all 12 Colab shards and return the final progress archive.
+- [x] Complete the written rubric over 20 actual reports, labeled AI-assisted rather than independent human validation.
+- [x] Publish target PASS/FAIL results and representative error analysis.
 
-Phase 9 gate result: **PENDING**. Freeze verification and 65 deterministic unit tests pass. No
-held-out result or heavy model run has been executed locally.
+Phase 9 gate result: **FAIL — EVALUATION COMPLETE**. The free-Colab run completed 120/120 jobs at
+USD 0 estimated cost and the aggregates reproduced byte-for-byte. Retrieval Recall@5,
+appropriate abstention, and false-incident targets passed. Diagnosis Top 1/Top 3, citation validity,
+policy violations, warm p95, supported-claim rate, and coverage failed. The claim-support review
+measured 32/57 (56.1%) supported atomic claims against the frozen 95% target. Phase 10 remains
+unstarted pending a user decision on a newly versioned iteration.
 
 ## Later phase gates
 
@@ -182,7 +186,7 @@ held-out result or heavy model run has been executed locally.
 - [x] Phase 6: durability, review, recovery, cancellation, and follow-ups.
 - [x] Phase 7: complete API and incident console.
 - [x] Phase 8: observability and security hardening.
-- [ ] Phase 9: frozen evaluation is in progress; free-Colab execution and manual review remain.
+- [x] Phase 9: frozen evaluation and error analysis complete; quality gate **FAIL**.
 - [ ] Phase 10: reproducible release and operations.
 - [ ] Phase 11: portfolio handoff and technical defense.
 

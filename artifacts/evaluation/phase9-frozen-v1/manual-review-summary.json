@@ -1,0 +1,31 @@
+{
+  "actual_reports_reviewed": 20,
+  "factual_claim_count": 57,
+  "generated_template_null_reports": 10,
+  "generated_template_rows": 20,
+  "independent_human_validation": false,
+  "method": "Count unique atomic externally verifiable claims in observed symptoms, observed or potential impact, and ranked-hypothesis mechanism/explanation fields. Deduplicate restatements in summaries. Exclude recommendations, schema metadata, and explicit epistemic limitations. A claim passes only when cited eligible run evidence directly entails it; topology adjacency is not causality, a success series is not an error series, and qualitative elevation requires a cited baseline or threshold.",
+  "passed": false,
+  "reproduced_aggregate_sha256": "cdf77609bf2712484d21947cadbc95f92f93eced3a64260d49313349e66ff342",
+  "reproduced_per_case_sha256": "bfcf14b5b105964c3b67b009ae11fb9c757aeedb22cbc01b408a95e72e137653",
+  "reviewed_at": "2026-09-25T00:00:00Z",
+  "reviewer": "Codex manual semantic review (AI-assisted; not independent human validation)",
+  "rubric_rows": 30,
+  "schema_version": 1,
+  "source_archive_sha256": "34b1413c93e92733381b52c1de4a03f28ede626d0e4d09e2fc358ab8ceafbc06",
+  "supplemental_selection": [
+    "heldout-r1-adaptive-incident-heldout-011",
+    "heldout-r1-adaptive-incident-heldout-012",
+    "heldout-r1-adaptive-incident-heldout-013",
+    "heldout-r1-adaptive-incident-heldout-014",
+    "heldout-r1-adaptive-incident-heldout-015",
+    "heldout-r1-adaptive-incident-heldout-016",
+    "heldout-r1-adaptive-incident-heldout-017",
+    "heldout-r1-adaptive-incident-heldout-018",
+    "heldout-r1-adaptive-incident-heldout-019",
+    "heldout-r1-adaptive-incident-heldout-020"
+  ],
+  "supported_claim_rate": 0.5614035087719298,
+  "supported_factual_claim_count": 32,
+  "target": 0.95
+}

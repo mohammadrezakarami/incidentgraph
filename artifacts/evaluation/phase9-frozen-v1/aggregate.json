@@ -1,0 +1,741 @@
+{
+  "agent": {
+    "dev_repeats": {
+      "adaptive": {
+        "1": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 24,
+            "numerator": 24,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 8,
+          "outcomes": {
+            "inconclusive": 10
+          },
+          "p95_active_duration_ms": 333127.30740499956,
+          "policy_violations": 2,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top3": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 141766,
+            "model_calls": 79,
+            "output_tokens": 29043,
+            "tool_calls": 35
+          }
+        },
+        "2": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 21,
+            "numerator": 21,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 8,
+          "outcomes": {
+            "inconclusive": 9,
+            "no_incident_detected": 1
+          },
+          "p95_active_duration_ms": 279052.2768629999,
+          "policy_violations": 1,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top3": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 137849,
+            "model_calls": 74,
+            "output_tokens": 24371,
+            "tool_calls": 33
+          }
+        },
+        "3": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 20,
+            "numerator": 20,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 8,
+          "outcomes": {
+            "inconclusive": 10
+          },
+          "p95_active_duration_ms": 97420.05200199992,
+          "policy_violations": 2,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top3": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 162058,
+            "model_calls": 80,
+            "output_tokens": 27147,
+            "tool_calls": 37
+          }
+        }
+      },
+      "fixed": {
+        "1": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          },
+          "false_incidents": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 8,
+          "outcomes": {
+            "None": 10
+          },
+          "p95_active_duration_ms": 67624.26715999981,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top1": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top3": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 0,
+            "model_calls": 0,
+            "output_tokens": 0,
+            "tool_calls": 70
+          }
+        },
+        "2": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          },
+          "false_incidents": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 8,
+          "outcomes": {
+            "None": 10
+          },
+          "p95_active_duration_ms": 1354.3575319999945,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top1": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top3": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 0,
+            "model_calls": 0,
+            "output_tokens": 0,
+            "tool_calls": 70
+          }
+        },
+        "3": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          },
+          "false_incidents": {
+            "denominator": 2,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 8,
+          "outcomes": {
+            "None": 10
+          },
+          "p95_active_duration_ms": 1457.801600000039,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top1": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "top3": {
+            "denominator": 6,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 0,
+            "model_calls": 0,
+            "output_tokens": 0,
+            "tool_calls": 70
+          }
+        }
+      }
+    },
+    "heldout": {
+      "adaptive": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 5,
+          "rate": 1.0
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 78,
+          "numerator": 77,
+          "rate": 0.9871794871794872
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "independent_groups": 8,
+        "outcomes": {
+          "inconclusive": 30
+        },
+        "p95_active_duration_ms": 280463.45511899993,
+        "policy_violations": 3,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 28,
+          "rate": 0.9333333333333333
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 426517,
+          "model_calls": 240,
+          "output_tokens": 85956,
+          "tool_calls": 109
+        }
+      },
+      "fixed": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 0,
+          "numerator": 0,
+          "rate": null
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "independent_groups": 8,
+        "outcomes": {
+          "None": 30
+        },
+        "p95_active_duration_ms": 1423.425598999529,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 0,
+          "model_calls": 0,
+          "output_tokens": 0,
+          "tool_calls": 210
+        }
+      }
+    }
+  },
+  "freeze": {
+    "file_count": 14,
+    "freeze_id": "phase9-frozen-v1",
+    "incident_seal": "1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67",
+    "retrieval_seal": "a77524916562fdd4337e88d0efa295813fe05e0910d1a2bc1c51f9ff2d778c3c",
+    "status": "pass"
+  },
+  "gate_status": "fail",
+  "limitations": [
+    "Incident captures predate most corpus validity windows, so runbook retrieval is correctly unavailable for those cases.",
+    "Five healthy and five insufficient held-out cases provide weak statistical evidence.",
+    "Paraphrases and repeated development runs are not treated as independent samples.",
+    "The retained core coverage target was not met before this run.",
+    "The written semantic rubric is AI-assisted and is not independent human validation."
+  ],
+  "manual_review": {
+    "actual_reports_reviewed": 20,
+    "factual_claim_count": 57,
+    "generated_template_null_reports": 10,
+    "generated_template_rows": 20,
+    "independent_human_validation": false,
+    "method": "Count unique atomic externally verifiable claims in observed symptoms, observed or potential impact, and ranked-hypothesis mechanism/explanation fields. Deduplicate restatements in summaries. Exclude recommendations, schema metadata, and explicit epistemic limitations. A claim passes only when cited eligible run evidence directly entails it; topology adjacency is not causality, a success series is not an error series, and qualitative elevation requires a cited baseline or threshold.",
+    "passed": false,
+    "reproduced_aggregate_sha256": "cdf77609bf2712484d21947cadbc95f92f93eced3a64260d49313349e66ff342",
+    "reproduced_per_case_sha256": "bfcf14b5b105964c3b67b009ae11fb9c757aeedb22cbc01b408a95e72e137653",
+    "reviewed_at": "2026-09-25T00:00:00Z",
+    "reviewer": "Codex manual semantic review (AI-assisted; not independent human validation)",
+    "rubric_rows": 30,
+    "schema_version": 1,
+    "source_archive_sha256": "34b1413c93e92733381b52c1de4a03f28ede626d0e4d09e2fc358ab8ceafbc06",
+    "supplemental_selection": [
+      "heldout-r1-adaptive-incident-heldout-011",
+      "heldout-r1-adaptive-incident-heldout-012",
+      "heldout-r1-adaptive-incident-heldout-013",
+      "heldout-r1-adaptive-incident-heldout-014",
+      "heldout-r1-adaptive-incident-heldout-015",
+      "heldout-r1-adaptive-incident-heldout-016",
+      "heldout-r1-adaptive-incident-heldout-017",
+      "heldout-r1-adaptive-incident-heldout-018",
+      "heldout-r1-adaptive-incident-heldout-019",
+      "heldout-r1-adaptive-incident-heldout-020"
+    ],
+    "supported_claim_rate": 0.5614035087719298,
+    "supported_factual_claim_count": 32,
+    "target": 0.95
+  },
+  "representative_failures": [
+    {
+      "case_id": "incident-heldout-001",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (22751 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":22751,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-001",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-001",
+      "case_type": "identifiable",
+      "errors": [
+        "invalid get_metrics arguments: 4 validation errors for MetricsInput\ntemplate\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...T21:46:06.119386+00:00'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nwindow_start\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...T21:46:06.119386+00:00'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nwindow_end\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...T21:46:06.119386+00:00'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nobservation_time\n  Extra inputs are not permitted [type=extra_forbidden, input_value='2026-09-22T21:46:06.119386+00:00', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden",
+        "model request failed; reserved output counted: OpenAIInvalidRequestError",
+        "model request failed; reserved output counted: OpenAIInvalidRequestError"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-001",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-002",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (22767 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":22767,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-002",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-002",
+      "case_type": "identifiable",
+      "errors": [
+        "invalid get_metrics arguments: 4 validation errors for MetricsInput\ntemplate\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...T21:46:06.119386+00:00'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nwindow_start\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...T21:46:06.119386+00:00'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nwindow_end\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...T21:46:06.119386+00:00'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nobservation_time\n  Extra inputs are not permitted [type=extra_forbidden, input_value='2026-09-22T21:46:06.119386+00:00', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden",
+        "duplicate tool request requires a changed window or arguments",
+        "duplicate tool request requires a changed window or arguments"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-002",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-003",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (22758 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":22758,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-003",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-003",
+      "case_type": "identifiable",
+      "errors": [
+        "duplicate tool request requires a changed window or arguments",
+        "observation time exceeds the cutoff"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-003",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-004",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (22742 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":22742,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-004",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-004",
+      "case_type": "identifiable",
+      "errors": [
+        "premature finish rejected: collect at least two bounded diagnostic observations before completion",
+        "invalid get_metrics arguments: 5 validation errors for MetricsInput\ntemplate\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...t', 'metric': 'outcome'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nwindow_start\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...t', 'metric': 'outcome'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nwindow_end\n  Field required [type=missing, input_value={'service_id': 'svc-gatew...t', 'metric': 'outcome'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndependency\n  Extra inputs are not permitted [type=extra_forbidden, input_value='checkout', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\nmetric\n  Extra inputs are not permitted [type=extra_forbidden, input_value='outcome', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden",
+        "model request failed; reserved output counted: OpenAIInvalidRequestError",
+        "model request failed; reserved output counted: OpenAIInvalidRequestError"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-004",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-005",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (24645 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":24645,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-005",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-005",
+      "case_type": "identifiable",
+      "errors": [
+        "duplicate tool request requires a changed window or arguments"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-005",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-006",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (24635 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":24635,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-006",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-006",
+      "case_type": "identifiable",
+      "errors": [
+        "model request failed; reserved output counted: OpenAIInvalidRequestError",
+        "model request failed; reserved output counted: OpenAIInvalidRequestError"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-006",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-007",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (24658 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":24658,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-007",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-007",
+      "case_type": "identifiable",
+      "errors": [
+        "model request timed out; reserved output counted"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-007",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-008",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (24652 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":24652,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-008",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-008",
+      "case_type": "identifiable",
+      "errors": [
+        "unauthorized service IDs: ['payments']",
+        "model request timed out; reserved output counted"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-008",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-009",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (24070 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":24070,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-009",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-009",
+      "case_type": "identifiable",
+      "errors": [],
+      "job_id": "heldout-r1-adaptive-incident-heldout-009",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    },
+    {
+      "case_id": "incident-heldout-010",
+      "case_type": "identifiable",
+      "errors": [
+        "OpenAIInvalidRequestError: Error code: 400 - {'error': {'message': '{\"error\":{\"code\":400,\"message\":\"request (24074 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":24074,\"n_ctx\":4096}}', 'type': 'invalid_request_error', 'param': None, 'code': None}}"
+      ],
+      "job_id": "heldout-r1-fixed-incident-heldout-010",
+      "outcome": null,
+      "task_complete": false,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "fixed"
+    },
+    {
+      "case_id": "incident-heldout-010",
+      "case_type": "identifiable",
+      "errors": [
+        "invalid get_metrics arguments: 2 validation errors for MetricsInput\nservice_id\n  Field required [type=missing, input_value={'service_ids': ['svc-che...template': 'error_rate'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nservice_ids\n  Extra inputs are not permitted [type=extra_forbidden, input_value=['svc-checkout'], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden",
+        "invalid get_metrics arguments: 2 validation errors for MetricsInput\nservice_id\n  Field required [type=missing, input_value={'service_ids': ['svc-che...resolution_seconds': 10}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nservice_ids\n  Extra inputs are not permitted [type=extra_forbidden, input_value=['svc-checkout'], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden",
+        "invalid get_metrics arguments: 2 validation errors for MetricsInput\nservice_id\n  Field required [type=missing, input_value={'service_ids': ['svc-che...resolution_seconds': 10}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nservice_ids\n  Extra inputs are not permitted [type=extra_forbidden, input_value=['svc-checkout'], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "job_id": "heldout-r1-adaptive-incident-heldout-010",
+      "outcome": "inconclusive",
+      "task_complete": true,
+      "top1_correct": false,
+      "top3_correct": false,
+      "workflow": "adaptive"
+    }
+  ],
+  "retrieval": {
+    "aggregate": {
+      "graph": {
+        "mean_elapsed_ms": 195.36315,
+        "mrr_at_5": 0.925,
+        "ndcg_at_5": 0.9167395378284857,
+        "recall_at_5": 0.925
+      },
+      "hybrid": {
+        "mean_elapsed_ms": 134.46875,
+        "mrr_at_5": 0.925,
+        "ndcg_at_5": 0.9075202957160974,
+        "recall_at_5": 0.9083333333333334
+      },
+      "vector": {
+        "mean_elapsed_ms": 174.01735,
+        "mrr_at_5": 0.95,
+        "ndcg_at_5": 0.9151773138738328,
+        "recall_at_5": 0.8833333333333334
+      }
+    },
+    "question_count": 20
+  },
+  "run_plan": {
+    "agent_jobs": 120,
+    "dev_runs_per_workflow": 30,
+    "heldout_runs_per_workflow": 30,
+    "paid_calls": false
+  },
+  "schema_version": 1,
+  "targets": {
+    "appropriate_abstention": true,
+    "citation_validity": false,
+    "coverage": false,
+    "diagnosis_top1": false,
+    "diagnosis_top3": false,
+    "false_incidents": true,
+    "policy_violations": false,
+    "retrieval_recall_at_5": true,
+    "supported_claim_rate": false,
+    "warm_p95_active_seconds": false
+  }
+}

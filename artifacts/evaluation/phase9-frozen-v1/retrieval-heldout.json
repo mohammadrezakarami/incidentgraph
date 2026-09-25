@@ -1,0 +1,1127 @@
+{
+  "aggregate": {
+    "graph": {
+      "mean_elapsed_ms": 195.36315,
+      "mrr_at_5": 0.925,
+      "ndcg_at_5": 0.9167395378284857,
+      "recall_at_5": 0.925
+    },
+    "hybrid": {
+      "mean_elapsed_ms": 134.46875,
+      "mrr_at_5": 0.925,
+      "ndcg_at_5": 0.9075202957160974,
+      "recall_at_5": 0.9083333333333334
+    },
+    "vector": {
+      "mean_elapsed_ms": 174.01735,
+      "mrr_at_5": 0.95,
+      "ndcg_at_5": 0.9151773138738328,
+      "recall_at_5": 0.8833333333333334
+    }
+  },
+  "freeze": {
+    "file_count": 14,
+    "freeze_id": "phase9-frozen-v1",
+    "incident_seal": "1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67",
+    "retrieval_seal": "a77524916562fdd4337e88d0efa295813fe05e0910d1a2bc1c51f9ff2d778c3c",
+    "status": "pass"
+  },
+  "git_revision": "1f436208fd91bb31707fdbeaf924c6bfbdfeae8b",
+  "hardware": {
+    "machine": "x86_64",
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.39"
+  },
+  "heldout_seal_after": {
+    "dev_question_count": 20,
+    "digest": "a77524916562fdd4337e88d0efa295813fe05e0910d1a2bc1c51f9ff2d778c3c",
+    "groups_disjoint": true,
+    "label_count": 20,
+    "question_count": 20,
+    "status": "pass"
+  },
+  "question_count": 20,
+  "rows": [
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 2062.049,
+      "group_id": "hold-gateway-boundary",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-001",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "doc-gateway-overview",
+        "doc-gateway-api",
+        "runbook-payment-errors",
+        "runbook-latency",
+        "config-tracing"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 993.141,
+      "group_id": "hold-gateway-boundary",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-001",
+      "recall_at_5": 1.0,
+      "selected_token_count": 702,
+      "top_5_source_ids": [
+        "doc-gateway-overview",
+        "doc-gateway-api",
+        "runbook-payment-errors",
+        "config-topology",
+        "runbook-rollback"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 2070.142,
+      "group_id": "hold-gateway-boundary",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-001",
+      "recall_at_5": 1.0,
+      "selected_token_count": 744,
+      "top_5_source_ids": [
+        "doc-gateway-overview",
+        "doc-gateway-api",
+        "runbook-payment-errors",
+        "doc-payments-overview",
+        "config-topology"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 202.028,
+      "group_id": "hold-checkout-mechanism",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9832184408687481,
+      "question_id": "rq-hold-002",
+      "recall_at_5": 1.0,
+      "selected_token_count": 749,
+      "top_5_source_ids": [
+        "doc-checkout-overview",
+        "runbook-pool",
+        "incident-dev-001",
+        "runbook-latency",
+        "runbook-ambiguous"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 189.332,
+      "group_id": "hold-checkout-mechanism",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-002",
+      "recall_at_5": 1.0,
+      "selected_token_count": 738,
+      "top_5_source_ids": [
+        "doc-checkout-overview",
+        "runbook-pool",
+        "runbook-latency",
+        "runbook-high-traffic",
+        "incident-dev-001"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 137.858,
+      "group_id": "hold-checkout-mechanism",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-002",
+      "recall_at_5": 1.0,
+      "selected_token_count": 738,
+      "top_5_source_ids": [
+        "doc-checkout-overview",
+        "runbook-pool",
+        "runbook-latency",
+        "runbook-high-traffic",
+        "incident-dev-001"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 88.215,
+      "group_id": "hold-cache-cold-start",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-003",
+      "recall_at_5": 1.0,
+      "selected_token_count": 719,
+      "top_5_source_ids": [
+        "runbook-cache",
+        "doc-payments-cache-contract",
+        "incident-dev-003",
+        "runbook-high-traffic",
+        "runbook-cpu"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 113.783,
+      "group_id": "hold-cache-cold-start",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-003",
+      "recall_at_5": 1.0,
+      "selected_token_count": 685,
+      "top_5_source_ids": [
+        "runbook-cache",
+        "doc-payments-cache-contract",
+        "incident-dev-003",
+        "runbook-high-traffic",
+        "config-versions"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 131.003,
+      "group_id": "hold-cache-cold-start",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-003",
+      "recall_at_5": 1.0,
+      "selected_token_count": 696,
+      "top_5_source_ids": [
+        "runbook-cache",
+        "doc-payments-cache-contract",
+        "incident-dev-003",
+        "incident-dev-001",
+        "runbook-high-traffic"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 82.041,
+      "group_id": "hold-provider-boundary",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-004",
+      "recall_at_5": 1.0,
+      "selected_token_count": 724,
+      "top_5_source_ids": [
+        "doc-payments-overview",
+        "incident-dev-002",
+        "config-versions",
+        "runbook-ambiguous",
+        "runbook-payment-errors"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 115.138,
+      "group_id": "hold-provider-boundary",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-004",
+      "recall_at_5": 1.0,
+      "selected_token_count": 726,
+      "top_5_source_ids": [
+        "doc-payments-overview",
+        "incident-dev-002",
+        "runbook-payment-errors",
+        "config-topology",
+        "config-versions"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 92.962,
+      "group_id": "hold-provider-boundary",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-004",
+      "recall_at_5": 1.0,
+      "selected_token_count": 735,
+      "top_5_source_ids": [
+        "doc-payments-overview",
+        "incident-dev-002",
+        "runbook-payment-errors",
+        "doc-gateway-overview",
+        "config-topology"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 79.037,
+      "group_id": "hold-pool-gauge",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-005",
+      "recall_at_5": 1.0,
+      "selected_token_count": 753,
+      "top_5_source_ids": [
+        "runbook-pool",
+        "doc-checkout-overview",
+        "incident-dev-001",
+        "runbook-timeouts",
+        "runbook-latency"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 105.629,
+      "group_id": "hold-pool-gauge",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-005",
+      "recall_at_5": 1.0,
+      "selected_token_count": 750,
+      "top_5_source_ids": [
+        "runbook-pool",
+        "doc-checkout-overview",
+        "doc-gateway-api",
+        "config-topology",
+        "runbook-timeouts"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 115.357,
+      "group_id": "hold-pool-gauge",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-005",
+      "recall_at_5": 1.0,
+      "selected_token_count": 755,
+      "top_5_source_ids": [
+        "runbook-pool",
+        "doc-checkout-overview",
+        "doc-gateway-overview",
+        "doc-gateway-api",
+        "config-topology"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 92.905,
+      "group_id": "hold-change-causality",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-hold-006",
+      "recall_at_5": 1.0,
+      "selected_token_count": 703,
+      "top_5_source_ids": [
+        "runbook-deployment",
+        "runbook-payment-errors",
+        "config-versions",
+        "runbook-rollback",
+        "config-fault-safety"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 92.543,
+      "group_id": "hold-change-causality",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-006",
+      "recall_at_5": 1.0,
+      "selected_token_count": 716,
+      "top_5_source_ids": [
+        "runbook-deployment",
+        "config-versions",
+        "runbook-payment-errors",
+        "runbook-rollback",
+        "runbook-high-traffic"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 110.61,
+      "group_id": "hold-change-causality",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-006",
+      "recall_at_5": 1.0,
+      "selected_token_count": 722,
+      "top_5_source_ids": [
+        "runbook-deployment",
+        "config-versions",
+        "runbook-payment-errors",
+        "runbook-rollback",
+        "doc-gateway-overview"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 72.083,
+      "group_id": "hold-resource-scope",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-hold-007",
+      "recall_at_5": 0.5,
+      "selected_token_count": 726,
+      "top_5_source_ids": [
+        "runbook-cpu",
+        "runbook-ambiguous",
+        "doc-payments-overview",
+        "runbook-payment-errors",
+        "config-tracing"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 86.837,
+      "group_id": "hold-resource-scope",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-hold-007",
+      "recall_at_5": 1.0,
+      "selected_token_count": 733,
+      "top_5_source_ids": [
+        "runbook-cpu",
+        "doc-payments-overview",
+        "config-resources",
+        "runbook-ambiguous",
+        "doc-payments-cache-contract"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 87.551,
+      "group_id": "hold-resource-scope",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9327783893101107,
+      "question_id": "rq-hold-007",
+      "recall_at_5": 1.0,
+      "selected_token_count": 748,
+      "top_5_source_ids": [
+        "runbook-cpu",
+        "doc-payments-overview",
+        "doc-checkout-overview",
+        "runbook-ambiguous",
+        "config-resources"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 60.66,
+      "group_id": "hold-empty-series",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-008",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "runbook-missing-metrics",
+        "config-metrics",
+        "runbook-traces",
+        "ref-prometheus",
+        "config-resources"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 81.948,
+      "group_id": "hold-empty-series",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-008",
+      "recall_at_5": 1.0,
+      "selected_token_count": 743,
+      "top_5_source_ids": [
+        "runbook-missing-metrics",
+        "config-metrics",
+        "runbook-traces",
+        "doc-payments-cache-contract",
+        "ref-prometheus"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 81.957,
+      "group_id": "hold-empty-series",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-008",
+      "recall_at_5": 1.0,
+      "selected_token_count": 740,
+      "top_5_source_ids": [
+        "runbook-missing-metrics",
+        "config-metrics",
+        "runbook-traces",
+        "doc-payments-cache-contract",
+        "ref-prometheus"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 68.712,
+      "group_id": "hold-trace-population",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-009",
+      "recall_at_5": 1.0,
+      "selected_token_count": 718,
+      "top_5_source_ids": [
+        "runbook-traces",
+        "ref-otel",
+        "config-tracing",
+        "runbook-missing-metrics",
+        "config-logs"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 86.779,
+      "group_id": "hold-trace-population",
+      "mrr_at_5": 0.5,
+      "ndcg_at_5": 0.6309297535714574,
+      "question_id": "rq-hold-009",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "ref-otel",
+        "runbook-traces",
+        "runbook-missing-metrics",
+        "doc-gateway-api",
+        "config-tracing"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 87.792,
+      "group_id": "hold-trace-population",
+      "mrr_at_5": 0.5,
+      "ndcg_at_5": 0.6309297535714574,
+      "question_id": "rq-hold-009",
+      "recall_at_5": 1.0,
+      "selected_token_count": 726,
+      "top_5_source_ids": [
+        "ref-otel",
+        "runbook-traces",
+        "runbook-missing-metrics",
+        "doc-gateway-api",
+        "doc-payments-cache-contract"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 61.958,
+      "group_id": "hold-traffic-normalization",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-010",
+      "recall_at_5": 1.0,
+      "selected_token_count": 733,
+      "top_5_source_ids": [
+        "runbook-high-traffic",
+        "config-metrics",
+        "doc-gateway-api",
+        "config-resources",
+        "runbook-traces"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 78.814,
+      "group_id": "hold-traffic-normalization",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.9639404333166532,
+      "question_id": "rq-hold-010",
+      "recall_at_5": 1.0,
+      "selected_token_count": 740,
+      "top_5_source_ids": [
+        "runbook-high-traffic",
+        "doc-gateway-api",
+        "config-metrics",
+        "runbook-traces",
+        "doc-gateway-overview"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 74.756,
+      "group_id": "hold-traffic-normalization",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.944847956559586,
+      "question_id": "rq-hold-010",
+      "recall_at_5": 1.0,
+      "selected_token_count": 771,
+      "top_5_source_ids": [
+        "runbook-high-traffic",
+        "runbook-cache",
+        "doc-gateway-api",
+        "config-metrics",
+        "runbook-traces"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 61.55,
+      "group_id": "hold-timeout-policy",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-011",
+      "recall_at_5": 1.0,
+      "selected_token_count": 712,
+      "top_5_source_ids": [
+        "runbook-timeouts",
+        "incident-dev-001",
+        "runbook-pool",
+        "runbook-payment-errors",
+        "incident-dev-002"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 88.687,
+      "group_id": "hold-timeout-policy",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-011",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "runbook-timeouts",
+        "runbook-payment-errors",
+        "runbook-pool",
+        "incident-dev-002",
+        "doc-gateway-api"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 130.694,
+      "group_id": "hold-timeout-policy",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-011",
+      "recall_at_5": 1.0,
+      "selected_token_count": 763,
+      "top_5_source_ids": [
+        "runbook-timeouts",
+        "runbook-payment-errors",
+        "runbook-pool",
+        "incident-dev-002",
+        "doc-gateway-overview"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 57.469,
+      "group_id": "hold-volume-safety",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-012",
+      "recall_at_5": 1.0,
+      "selected_token_count": 692,
+      "top_5_source_ids": [
+        "runbook-db-recovery",
+        "incident-dev-003",
+        "config-logs",
+        "doc-payments-cache-contract",
+        "runbook-missing-metrics"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 71.841,
+      "group_id": "hold-volume-safety",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-012",
+      "recall_at_5": 1.0,
+      "selected_token_count": 721,
+      "top_5_source_ids": [
+        "runbook-db-recovery",
+        "incident-dev-003",
+        "doc-payments-cache-contract",
+        "runbook-cache",
+        "ref-neo4j-fulltext"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 117.979,
+      "group_id": "hold-volume-safety",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-012",
+      "recall_at_5": 1.0,
+      "selected_token_count": 745,
+      "top_5_source_ids": [
+        "runbook-db-recovery",
+        "doc-checkout-persistence",
+        "incident-dev-003",
+        "runbook-cache",
+        "doc-payments-cache-contract"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 68.532,
+      "group_id": "hold-review-authority",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-013",
+      "recall_at_5": 1.0,
+      "selected_token_count": 686,
+      "top_5_source_ids": [
+        "runbook-rollback",
+        "runbook-ambiguous",
+        "runbook-deployment",
+        "config-versions",
+        "runbook-db-recovery"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 78.661,
+      "group_id": "hold-review-authority",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-013",
+      "recall_at_5": 1.0,
+      "selected_token_count": 713,
+      "top_5_source_ids": [
+        "runbook-rollback",
+        "runbook-deployment",
+        "config-versions",
+        "runbook-latency",
+        "runbook-missing-metrics"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 93.783,
+      "group_id": "hold-review-authority",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-013",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "runbook-rollback",
+        "runbook-deployment",
+        "config-versions",
+        "runbook-latency",
+        "runbook-missing-metrics"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 60.079,
+      "group_id": "hold-abstention",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-014",
+      "recall_at_5": 1.0,
+      "selected_token_count": 673,
+      "top_5_source_ids": [
+        "runbook-ambiguous",
+        "runbook-timeouts",
+        "config-fault-safety",
+        "config-topology",
+        "incident-dev-002"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 77.115,
+      "group_id": "hold-abstention",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-014",
+      "recall_at_5": 1.0,
+      "selected_token_count": 702,
+      "top_5_source_ids": [
+        "runbook-ambiguous",
+        "runbook-cache",
+        "doc-payments-cache-contract",
+        "runbook-missing-metrics",
+        "runbook-rollback"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 86.895,
+      "group_id": "hold-abstention",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-014",
+      "recall_at_5": 1.0,
+      "selected_token_count": 737,
+      "top_5_source_ids": [
+        "runbook-ambiguous",
+        "runbook-pool",
+        "runbook-deployment",
+        "runbook-cache",
+        "doc-payments-cache-contract"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 52.316,
+      "group_id": "hold-reverse-impact",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-015",
+      "recall_at_5": 1.0,
+      "selected_token_count": 716,
+      "top_5_source_ids": [
+        "config-topology",
+        "runbook-latency",
+        "doc-payments-overview",
+        "runbook-ambiguous",
+        "config-versions"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 63.301,
+      "group_id": "hold-reverse-impact",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-015",
+      "recall_at_5": 1.0,
+      "selected_token_count": 761,
+      "top_5_source_ids": [
+        "config-topology",
+        "doc-payments-overview",
+        "runbook-latency",
+        "runbook-ambiguous",
+        "config-versions"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 76.365,
+      "group_id": "hold-reverse-impact",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-015",
+      "recall_at_5": 1.0,
+      "selected_token_count": 737,
+      "top_5_source_ids": [
+        "config-topology",
+        "doc-payments-overview",
+        "runbook-latency",
+        "runbook-ambiguous",
+        "config-versions"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 54.139,
+      "group_id": "hold-version-cutoff",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-016",
+      "recall_at_5": 1.0,
+      "selected_token_count": 676,
+      "top_5_source_ids": [
+        "config-versions",
+        "runbook-rollback",
+        "runbook-payment-errors",
+        "runbook-timeouts",
+        "incident-dev-002"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 76.385,
+      "group_id": "hold-version-cutoff",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-016",
+      "recall_at_5": 1.0,
+      "selected_token_count": 722,
+      "top_5_source_ids": [
+        "config-versions",
+        "runbook-rollback",
+        "config-tracing",
+        "runbook-payment-errors",
+        "doc-gateway-overview"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 78.671,
+      "group_id": "hold-version-cutoff",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-016",
+      "recall_at_5": 1.0,
+      "selected_token_count": 700,
+      "top_5_source_ids": [
+        "config-versions",
+        "runbook-deployment",
+        "runbook-rollback",
+        "incident-dev-003",
+        "config-tracing"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 67.349,
+      "group_id": "hold-prometheus-window",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-hold-017",
+      "recall_at_5": 0.5,
+      "selected_token_count": 711,
+      "top_5_source_ids": [
+        "ref-prometheus",
+        "config-logs",
+        "runbook-missing-metrics",
+        "config-resources",
+        "config-tracing"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 71.931,
+      "group_id": "hold-prometheus-window",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-hold-017",
+      "recall_at_5": 0.5,
+      "selected_token_count": 701,
+      "top_5_source_ids": [
+        "ref-prometheus",
+        "runbook-missing-metrics",
+        "config-logs",
+        "config-tracing",
+        "config-resources"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 74.475,
+      "group_id": "hold-prometheus-window",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.8262346571285599,
+      "question_id": "rq-hold-017",
+      "recall_at_5": 0.5,
+      "selected_token_count": 707,
+      "top_5_source_ids": [
+        "ref-prometheus",
+        "runbook-missing-metrics",
+        "config-logs",
+        "doc-checkout-persistence",
+        "config-tracing"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 61.841,
+      "group_id": "hold-old-topology",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-018",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "config-topology",
+        "doc-gateway-overview",
+        "config-versions",
+        "runbook-latency",
+        "incident-dev-002"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 65.9,
+      "group_id": "hold-old-topology",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-018",
+      "recall_at_5": 1.0,
+      "selected_token_count": 729,
+      "top_5_source_ids": [
+        "config-topology",
+        "doc-gateway-overview",
+        "incident-dev-002",
+        "config-tracing",
+        "config-versions"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 92.713,
+      "group_id": "hold-old-topology",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-018",
+      "recall_at_5": 1.0,
+      "selected_token_count": 714,
+      "top_5_source_ids": [
+        "config-topology",
+        "doc-gateway-overview",
+        "doc-payments-overview",
+        "incident-dev-002",
+        "incident-dev-001"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 63.988,
+      "group_id": "hold-precedent",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.7039180890341347,
+      "question_id": "rq-hold-019",
+      "recall_at_5": 0.6666666666666666,
+      "selected_token_count": 706,
+      "top_5_source_ids": [
+        "incident-dev-002",
+        "runbook-rollback",
+        "incident-dev-001",
+        "runbook-deployment",
+        "doc-checkout-persistence"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 88.576,
+      "group_id": "hold-precedent",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 0.7653606369886217,
+      "question_id": "rq-hold-019",
+      "recall_at_5": 0.6666666666666666,
+      "selected_token_count": 706,
+      "top_5_source_ids": [
+        "incident-dev-002",
+        "incident-dev-001",
+        "runbook-rollback",
+        "doc-checkout-persistence",
+        "runbook-ambiguous"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 86.899,
+      "group_id": "hold-precedent",
+      "mrr_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "question_id": "rq-hold-019",
+      "recall_at_5": 1.0,
+      "selected_token_count": 689,
+      "top_5_source_ids": [
+        "incident-dev-002",
+        "incident-dev-001",
+        "incident-dev-003",
+        "runbook-rollback",
+        "runbook-ambiguous"
+      ],
+      "variant": "graph"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 63.396,
+      "group_id": "hold-untrusted-note",
+      "mrr_at_5": 0.0,
+      "ndcg_at_5": 0.0,
+      "question_id": "rq-hold-020",
+      "recall_at_5": 0.0,
+      "selected_token_count": 664,
+      "top_5_source_ids": [
+        "runbook-rollback",
+        "incident-dev-002",
+        "runbook-db-recovery",
+        "incident-dev-003",
+        "runbook-payment-errors"
+      ],
+      "variant": "vector"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 63.034,
+      "group_id": "hold-untrusted-note",
+      "mrr_at_5": 0.0,
+      "ndcg_at_5": 0.0,
+      "question_id": "rq-hold-020",
+      "recall_at_5": 0.0,
+      "selected_token_count": 706,
+      "top_5_source_ids": [
+        "incident-dev-002",
+        "runbook-payment-errors",
+        "runbook-missing-metrics",
+        "runbook-cache",
+        "incident-dev-003"
+      ],
+      "variant": "hybrid"
+    },
+    {
+      "corpus_version": "incidentgraph-lab-corpus-v1-466b7569b585",
+      "elapsed_ms": 78.801,
+      "group_id": "hold-untrusted-note",
+      "mrr_at_5": 0.0,
+      "ndcg_at_5": 0.0,
+      "question_id": "rq-hold-020",
+      "recall_at_5": 0.0,
+      "selected_token_count": 744,
+      "top_5_source_ids": [
+        "doc-gateway-overview",
+        "incident-dev-002",
+        "runbook-payment-errors",
+        "doc-checkout-persistence",
+        "incident-dev-003"
+      ],
+      "variant": "graph"
+    }
+  ],
+  "schema_version": 1,
+  "split": "heldout"
+}
