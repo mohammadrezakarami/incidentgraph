@@ -124,3 +124,30 @@ Do not rewrite this frozen result. A new version should be separately sealed and
 
 Phase 10 is not started. Proceeding requires an explicit decision whether to accept this failed
 quality gate as the portfolio result or authorize a separately versioned Phase 9 iteration.
+
+## 8. Separately versioned corrective iteration (v2)
+
+The user authorized a corrective Phase 9 iteration on 2026-09-25. The frozen v1 artifacts above
+remain unchanged. The v2 implementation is currently **READY FOR FREE-COLAB REGRESSION**, not passed:
+
+- model context is compact, non-duplicated, and capped at 12,000 characters; all 16 existing
+  independent capture groups were checked locally and the largest constructed context was 7,778
+  characters;
+- trusted code now constructs canonical authorized service IDs, immutable timestamps, and strict
+  tool arguments, so the local model selects bounded observation bundles rather than emitting raw
+  tool calls;
+- error-rate context includes only `outcome=error` series, while latency, pool, cache, and CPU units
+  are stated explicitly;
+- the diagnosis schema uses a documented finite ontology, and an uncitable proposed cause becomes
+  an honest inconclusive report instead of an invalid citation;
+- fixed and adaptive workflows share the same read-only tools and a maximum of 14 tool calls; the
+  adaptive path remains a LangGraph workflow and uses at most three local-model calls;
+- the monetary ceiling remains USD 0, and the 120-job workload is restricted to the free-Colab
+  notebook `phase9_v2_colab.ipynb`.
+
+The old held-out set is now marked consumed and may only be used as a development regression. Even
+if every v2 regression check passes, the Phase 9 quality gate remains pending until a new post-corpus
+capture set is created and sealed before opening its labels, followed by the required independent
+human review of at least 20 reports. Whole-project non-integration coverage currently measures
+47.40%, so the original 85% coverage target also remains an explicit failure rather than being
+removed or redefined in v2.

@@ -246,3 +246,12 @@ validity was 77/78, warm p95 was 280.463 seconds, three blocked policy-violation
 recorded, coverage remained below target, and supported factual claims were 32/57 (56.1%). See the
 committed artifacts under `artifacts/evaluation/phase9-frozen-v1/`. The semantic review is explicitly
 AI-assisted and is not represented as independent human validation.
+
+The original v1 result remains immutable. A separately frozen corrective regression is available in
+[`config/phase9-v2-regression-freeze.json`](config/phase9-v2-regression-freeze.json) and
+[`phase9_v2_colab.ipynb`](phase9_v2_colab.ipynb). It fixes the context overflow, constructs canonical
+tool arguments in trusted code, presents explicit metric semantics, bounds the adaptive LangGraph to
+named observation bundles, and rejects unsupported citations. Verify it with
+`make verify-phase9-v2-freeze`. Its 120-job model run remains free-Colab-only and is explicitly a
+regression over the now-consumed v1 cases—not a replacement held-out claim. A fresh post-corpus
+capture suite and a 20-report human rubric are still required before Phase 9 can be marked passed.

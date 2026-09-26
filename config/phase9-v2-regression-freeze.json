@@ -1,0 +1,46 @@
+{
+  "evaluation_interpretation": {
+    "independent_heldout_claim_allowed": false,
+    "next_gate": "create and seal post-corpus captures before final generalization claim",
+    "purpose": "development regression over the consumed Phase 9 v1 dataset"
+  },
+  "file_sha256": {
+    "config/phase9-freeze-v1.json": "dd8fb4dd3fbfcf0c67b60a525bc172a4d4b6d86a787b8a7adf3bdc4db87fb06d",
+    "data/evaluation/incident-cases-v1.jsonl": "d55e9ce0f38087f59797f30d4ed0e45d7558dab3790cb37425537bd048affb18",
+    "data/evaluator/incident-labels-v1.jsonl": "7476f72c9e388bfb23e0ce7799b31c9671ea90dadcc7d97f5a4312a74b799810",
+    "src/incidentgraph/phase9_v2_evaluation.py": "dce4abfd71734d794165c6cf82d051ad00c19713496b1d034853f6a22227019d",
+    "uv.lock": "96f2c502fbfcc90df1849345723b8fe19381f42f0091b7ff9e28a5afa05bee77"
+  },
+  "freeze_id": "phase9-v2-consumed-regression",
+  "frozen_at": "2026-09-25T09:49:50.171101+00:00",
+  "git_revision": "67fc16f55ddf8661d50d810343c303be304eacf3",
+  "model": {
+    "active_deadline_seconds": 180,
+    "maximum_calls_per_case": 3,
+    "maximum_prompt_characters": 12000,
+    "maximum_tool_calls_per_case": 14,
+    "monetary_cost_ceiling_usd": 0,
+    "provider": "local_openai_compatible",
+    "requested_id": "qwen3:4b-instruct-2507-q4_K_M",
+    "timeout_seconds_per_call": 75
+  },
+  "paid_calls_authorized": false,
+  "parent_freeze": {
+    "file_count": 14,
+    "freeze_id": "phase9-frozen-v1",
+    "incident_seal": "1dbac7ea0da7702ad13c387743c2c5c795e45f3d81c78d857a98095cf25d8b67",
+    "retrieval_seal": "a77524916562fdd4337e88d0efa295813fe05e0910d1a2bc1c51f9ff2d778c3c",
+    "status": "pass"
+  },
+  "repairs": [
+    "compact non-duplicated model context bounded below the 4096-token runtime",
+    "trusted code constructs canonical tool arguments and immutable timestamps",
+    "error-rate summaries exclude success series and retain explicit units",
+    "strict diagnosis ontology prevents unscorable free-form mechanism aliases",
+    "invalid citations downgrade probable cause to an honest inconclusive report",
+    "adaptive LangGraph selects bounded bundles instead of generating raw tool arguments"
+  ],
+  "run_plan_version": "phase9-v2-free-colab-regression-v1",
+  "schema_version": 1,
+  "state": "consumed-holdout-regression-not-independent-validation"
+}
