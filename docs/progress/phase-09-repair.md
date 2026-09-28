@@ -1,5 +1,36 @@
 # Phase 9 repair in progress — 2026-09-28
 
+## Returned first probe and repair-2
+
+The first real-model probe returned 0/10 and 20 attempts. Archive SHA-256:
+`3bba0f3683f6a9d3a4399f8217c10b6524811ab614734fecef7de47884eb4075`.
+The actual responses are retained in `tests/fixtures/phase9-repair-responses.json`.
+Ten attempts failed cross-field validation, nine exceeded the three-source citation limit,
+and one has no recorded model response and an empty exception message. The last error cannot
+be classified retrospectively. All 19 recorded responses chose inconclusive. Several recognized
+the active fault in prose, but that is not a correct diagnosis and is not rescored as success.
+
+Repair-2 fixes the demonstrated contract defects:
+
+- The model chooses one `decision` enum, at most three `evidence_refs`, and a short `rationale`.
+  Code expands that choice into coherent outcome/component/mechanism/limitation fields. It never
+  upgrades an inconclusive model choice to a probable cause.
+- The response schema and report both permit at most three evidence sources. Previously the
+  schema allowed six fact references while a hidden validator required <=3 source IDs.
+- CPU facts now name the service from the actual `job` label. Only abnormal payments CPU backs
+  the payments CPU candidate; checkout and gateway CPU are not required support.
+- Deployment support now includes the approved change and abnormal dependency error, excluding
+  zero-error series. Candidate rules expose the existing deployment error threshold of 1.0 rps,
+  distinct from the generic dependency-error threshold of 1.5 rps. Thresholds were not changed.
+- Exceptions now retain their type even when their message is empty. The first request allows
+  additional cold-load time. Summaries separate valid reports from correct diagnoses and count
+  validation failures, instead of presenting every failure as only `correct: 0`.
+
+Thirty-two repair tests pass, including archived-response regression checks and successful and
+failing mocked transport paths. Mocked 10/10 is a plumbing check, not model performance.
+Repair-2 still requires a real-model probe; the fresh evaluation, product integration, global
+coverage target and human review remain open. Do not claim that Phase 9 quality is repaired yet.
+
 Phase 9 evaluation execution completed, but the user's requested quality repair is still open.
 Do not equate a completed FAIL report with a working diagnostic agent or proceed to Phase 10.
 

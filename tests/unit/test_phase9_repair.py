@@ -18,6 +18,7 @@ from incidentgraph.phase9_repair import (
     MODEL,
     MODEL_DIGEST,
     ROOT,
+    CompactSelection,
     Selection,
     build_observation_workflow,
     development_records,
@@ -239,3 +240,122 @@ async def test_probe_keeps_raw_failures_and_caps_retries(tmp_path: Path, monkeyp
     assert result["correct"] == 0
     records = json.loads((tmp_path / "records.json").read_text())
     assert all(len(r["attempts"]) == 2 and "error" in r["attempts"][0] for r in records)
+
+
+def test_returned_probe_is_preserved_as_failure_evidence() -> None:
+    fixture = json.loads((ROOT / "tests/fixtures/phase9-repair-responses.json").read_text())
+    assert fixture["failure_counts"] == {
+        "no_response": 1,
+        "schema_coherence": 10,
+        "citation_limit": 9,
+    }
+    responses = [
+        a["response"]["message"]["content"] for a in fixture["responses"] if "response" in a
+    ]
+    # Never reinterpret an old inconclusive outcome as a successful probable cause.
+    assert len(responses) == 19
+    assert all(json.loads(text)["outcome"] == "inconclusive" for text in responses)
+
+
+@pytest.mark.parametrize(
+    "decision",
+    [
+        "downstream_latency",
+        "database_pool_exhaustion",
+        "dependency_errors",
+        "cache_degradation",
+        "deployment_regression",
+        "cpu_contention",
+        "healthy",
+        "healthy_high_traffic",
+        "insufficient_observation",
+    ],
+)
+def test_transport_cannot_express_the_returned_cross_field_contradictions(decision: str) -> None:
+    from incidentgraph.phase9_v2_evaluation import DiagnosisDecision
+
+    raw = CompactSelection(
+        decision=decision, evidence_refs=["F1"], rationale="A short bounded rationale."
+    )
+    expanded = raw.expanded()
+    DiagnosisDecision.model_validate(
+        {
+            **expanded.model_dump(exclude={"supporting_refs"}),
+            "supporting_evidence_ids": [],
+        }
+    )
+    if decision == "insufficient_observation":
+        assert expanded.outcome == "inconclusive"
+        assert expanded.component == "none" and expanded.limitation
+
+
+def test_transport_citation_limit_matches_report_source_limit() -> None:
+    with pytest.raises(ValueError):
+        CompactSelection(
+            decision="healthy",
+            evidence_refs=["F1", "F2", "F3", "F4"],
+            rationale="Too many sources.",
+        )
+
+
+def test_cpu_candidate_references_only_abnormal_payments_cpu(dev: dict[str, Any]) -> None:
+    p = packet(dev["016"])
+    refs = p["candidate_fact_refs"]["cpu_contention"]
+    assert len(refs) == 1
+    fact = next(f for f in p["facts"] if f["ref"] == refs[0])
+    assert fact["labels"]["job"] == "payments"
+    assert fact["service"] == "svc-payments"
+    assert all(
+        f["service"] == "svc-" + f["labels"]["job"]
+        for f in p["facts"]
+        if f["source"] == "process_cpu"
+    )
+
+
+def test_checkout_deployment_does_not_require_zero_payments_errors_as_support(
+    dev: dict[str, Any],
+) -> None:
+    p = packet(dev["013"])
+    refs = p["candidate_fact_refs"]["deployment_regression"]
+    cited = [f for f in p["facts"] if f["ref"] in refs]
+    assert len(cited) == 2
+    assert all(f.get("maximum", f.get("count")) >= 1 for f in cited)
+
+
+async def test_valid_transport_reaches_reports_and_scoring(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    real_client = httpx.AsyncClient
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/api/tags":
+            return httpx.Response(200, json={"models": [{"name": MODEL, "digest": MODEL_DIGEST}]})
+        body = json.loads(request.content)
+        assert set(body["format"]["properties"]) == {"decision", "evidence_refs", "rationale"}
+        p = json.loads(body["messages"][1]["content"])
+        signals = p["signal_summary"]
+        if signals["telemetry_gaps"] or signals["ambiguous"]:
+            choice, refs = "insufficient_observation", []
+        elif signals["active_signals"]:
+            choice = signals["active_signals"][0]
+            refs = p["candidate_fact_refs"][choice]
+        else:
+            choice, refs = "healthy", ["F1", "F2"]
+        payload = {
+            "decision": choice,
+            "evidence_refs": refs,
+            "rationale": "Synthetic test response.",
+        }
+        return httpx.Response(
+            200, json={"message": {"content": json.dumps(payload)}, "done_reason": "stop"}
+        )
+
+    monkeypatch.setattr(
+        httpx, "AsyncClient", lambda **kw: real_client(**kw, transport=httpx.MockTransport(respond))
+    )
+    result = await probe(tmp_path)
+    # Deterministic transport test, not evidence of real-model accuracy.
+    assert result["valid_reports"] == 10
+    assert result["validation_failures"] == 0
+    assert result["model_calls"] == 10
+    assert result["correct"] == 10
