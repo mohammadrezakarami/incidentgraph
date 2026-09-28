@@ -185,3 +185,21 @@ not a new model score or independent held-out result. The capture writer was als
 `incomplete_telemetry` scenario physically omits direct payments metrics, logs, and traces and
 records that evidence gap in the sealed manifest. No heavy model or Docker run was performed for
 this repair.
+
+### v3 fresh evaluation surface — 2026-09-28
+
+The v3 iteration captured 22 live post-corpus laboratory windows: two independently executed runs
+for each of the six fault families and five control scenarios. One pool capture with an empty log
+file was rejected and preserved outside the eligible dataset; only its replacement entered the
+seal. The eligible set passes hash-manifest, measured-effect, recovery, trace-continuity, telemetry,
+and evaluator-separation checks.
+
+The new 60-case fixture preserves the required 30/30 balance of 20 identifiable, five healthy, and
+five insufficient cases per split. Development and held-out use disjoint sets of 11 capture groups;
+variants that share one capture remain explicitly non-independent. The held-out digest is
+`bca9a7735948a5946271ec6329c4fefda476959757feb673d5739a1b3293a8cc` and was sealed before any v3
+model evaluation. A development-only signal preflight passed all 11 development capture groups.
+
+The real-model run remains zero-paid-cost, free-Colab-only, resumable across 12 shards, and frozen
+before opening the new held-out scores. No v3 quality metric is reported until the 120-job archive is
+returned and reproduced. The immutable v1 and consumed-data v2 results remain unchanged.

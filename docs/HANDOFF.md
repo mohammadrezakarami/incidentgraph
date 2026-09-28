@@ -1,26 +1,32 @@
 # IncidentGraph Handoff
 
-Last updated: 2026-09-25
+Last updated: 2026-09-28
 
 ## Current phase
 
-Phase 0 through Phase 8 are complete and passed. Phase 9 execution and error analysis are complete, and its frozen quality gate is **FAIL**. The returned zero-cost artifacts are committed without changing the frozen datasets, seals, code, prompts, model digest, scoring, or targets.
+Phase 0 through Phase 8 are complete and passed. The immutable Phase 9 v1 execution is complete and
+its frozen quality gate is **FAIL**. A separately versioned v3 iteration now has fresh post-corpus
+captures, a new held-out seal, frozen code/data/model settings, and a resumable free-Colab run plan.
+The v3 model run has not started, so no v3 held-out quality result is claimed yet.
 
-Roadmap position: 10 of 12 gates are decided: nine PASS, Phase 9 FAIL, and Phases 10–11 not started.
+Roadmap position: Phases 0–8 PASS; Phase 9 v1 FAIL is retained; Phase 9 v3 is awaiting Colab;
+Phases 10–11 are not started.
 
 ## Last verified command
 
-Executable verification of the Phase 9 frozen surface and returned result:
+Executable verification of the Phase 9 v3 sealed pre-run surface:
 
 ```text
 make lint
 make typecheck
 .venv/bin/pytest -m "not integration" -q
-make verify-phase9-freeze
-.venv/bin/python -m incidentgraph.phase9_evaluation finalize --output-dir <copy-of-returned-output>
+.venv/bin/python -m incidentgraph.phase9_v3_dataset verify
+make verify-phase9-v3-freeze
 ```
 
-Result: Ruff and strict mypy pass; the frozen unit suite passes; all frozen files and both held-out seals match. The returned 120-job aggregate and per-case files reproduce byte-for-byte. Heavy model work ran only on free Colab; estimated paid cost is USD 0.
+Result: Ruff and strict mypy pass; 83 unit tests pass; all 22 fresh captures pass executable
+verification; the 60-case v3 fixture and 37-file evaluation freeze verify. The heavy v3 model run is
+reserved for free Colab and estimated paid cost remains USD 0.
 
 ## Configuration assumptions
 
@@ -48,18 +54,22 @@ Result: Ruff and strict mypy pass; the frozen unit suite passes; all frozen file
 3. Cooperative cancellation cannot undo a provider request or charge already issued before cancellation is observed.
 4. GitHub CLI authentication is stale, although the private remote exists and normal Git push works.
 5. No paid provider is allowed; the verified real-model path is free and local-compatible.
-6. Phase 2 captures predate most curated-corpus validity windows. Phase 9 retained this pre-declared limitation; a future post-corpus capture set must receive a new version and seal.
+6. Phase 2 captures predate most curated-corpus validity windows in v1. The v3 dataset resolves this
+   with a new post-corpus capture set and seal rather than altering v1.
 7. The 37-document corpus and development sets are project-authored laboratory material; results are not held-out or production claims.
 8. Both Phase 5 real-model reports were safely inconclusive after bounded structured-output failures. This passes the safety/integration gate but is not a diagnosis-quality claim.
 9. Direct hybrid is slightly below vector on the development split; the current result is retained rather than tuned against held-out data.
 10. The existing untracked `.env` predates Phase 7 service scoping. Add an explicit non-empty `service_ids` list to each configured principal before using the interactive console; missing scope fails closed and `make doctor` reports it without exposing secrets.
-11. Phase 9 failed diagnosis, citation-validity, policy-violation, latency, claim-support, and coverage targets. The written semantic rubric is AI-assisted, not independent human validation.
+11. Phase 9 v1 failed diagnosis, citation-validity, policy-violation, latency, claim-support, and
+    coverage targets. The v3 result remains unknown until its Colab archive is returned.
 
 ## Next three tasks
 
-1. Decide whether to retain the failed Phase 9 result as the portfolio result or authorize a separately versioned iteration.
-2. If iterating, create post-corpus captures, cap fixed-workflow context, improve canonical tool-schema use, and freeze a new dataset/model/run configuration before evaluation.
-3. Do not start Phase 10 until that decision is explicit; never overwrite or relabel the frozen Phase 9 result.
+1. Run `phase9_v3_colab.ipynb` against `incidentgraph-phase9-v3-colab.bundle` on a free T4 and return
+   the latest `phase9-v3-progress.zip` until 120/120 jobs complete.
+2. Reproduce the returned aggregate locally and complete the written support rubric over at least 20
+   reports without tuning against the opened v3 held-out answers.
+3. Publish the final Phase 9 v3 report and only then decide whether Phase 10 may begin.
 
 ## Relevant documents
 
@@ -83,4 +93,8 @@ Result: Ruff and strict mypy pass; the frozen unit suite passes; all frozen file
 
 ## Resume procedure
 
-Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, all phase reports, and all accepted ADRs. Compare the actual directory and Git state with this handoff. Do not repeat Phases 0–9 or rerun the completed real-model evaluations without a concrete need. Never make paid calls. Do not alter the frozen Phase 9 result or any file hashed by `config/phase9-freeze-v1.json`; any new evaluation must use a new version and seal.
+Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, the Phase 9 report, and the accepted ADRs.
+Compare the actual directory and Git state with this handoff. Resume from the returned v3 progress
+archive; do not recreate the dataset or rerun completed shards. Never make paid calls. Do not alter
+any file hashed by `config/phase9-freeze-v1.json`, `config/phase9-v2-regression-freeze.json`, or
+`config/phase9-v3-fresh-freeze.json`.

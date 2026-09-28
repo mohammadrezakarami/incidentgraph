@@ -1,6 +1,6 @@
 # IncidentGraph Project Status
 
-Last updated: 2026-09-25
+Last updated: 2026-09-28
 
 ## Current phase
 
@@ -20,9 +20,10 @@ Phase 7 — API and incident console: **PASS**.
 
 Phase 8 — Observability and security hardening: **PASS**.
 
-Phase 9 — Frozen evaluation and error analysis: **COMPLETE — QUALITY GATE FAIL**.
+Phase 9 — Frozen evaluation and error analysis: **VERSIONED v3 ITERATION IN PROGRESS**.
 
-Roadmap position: **10 of 12 gated phases are decided: Phases 0–8 passed, Phase 9 failed its frozen quality gate, and Phases 10–11 have not started.**
+Roadmap position: **Phases 0–8 passed; the immutable Phase 9 v1 gate failed, and a separately
+sealed fresh v3 evaluation is awaiting its zero-cost Colab model run. Phases 10–11 have not started.**
 
 The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 9 then completed the frozen zero-cost Colab evaluation and published the failed quality result without changing the frozen inputs or targets.
 
@@ -69,6 +70,14 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - The Phase 9 free-Colab run completed 120/120 agent jobs and 20 held-out retrieval questions at USD 0 estimated cost. Re-finalization reproduced the returned aggregate and per-case hashes exactly.
 - Held-out graph retrieval reached Recall@5 0.925. Adaptive reports reached 5/5 appropriate abstentions and 0/5 false incidents, but diagnosis Top 1 and Top 3 were both 0/20, citation validity was 77/78, task completion was 28/30, and warm p95 was 280.463 seconds.
 - The written claim-support rubric reviewed 20 actual reports and found 32/57 (56.1%) supported atomic claims. It is labeled AI-assisted and is not claimed as independent human validation.
+- The separately versioned v3 surface contains 22 fresh post-corpus live captures: two independent
+  runs for every six fault families and every five control scenarios. Hashes, fault effects,
+  recovery, trace continuity, evaluator separation, and telemetry contracts all pass.
+- The v3 incident fixture contains 60 newly sealed cases with the required 30/30 split and class
+  balance. Development and held-out use disjoint sets of 11 capture groups; its held-out digest is
+  `bca9a7735948a5946271ec6329c4fefda476959757feb673d5739a1b3293a8cc`.
+- The v3 development-only preflight matched the expected bounded signal/healthy/ambiguity contract
+  for all 11 development capture groups. The held-out split has not been scored locally.
 
 ## Approved decisions recorded in ADRs
 
@@ -80,9 +89,11 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Open gates and limitations
 
-- Phase 9 is complete with a **FAIL** gate result. Only retrieval recall, appropriate abstention, and false-incident targets passed; diagnosis, citation validity, policy violations, latency, factual support, and coverage failed.
+- Phase 9 v1 remains complete with a **FAIL** gate result. The separately frozen v3 iteration still
+  requires the 120-job free-Colab run and a written review of at least 20 returned reports.
 - The retained 85 percent coverage command currently reports 49.45 percent over all modules; the later core target is not yet met.
-- Phase 2 captures predate most Phase 3 corpus validity windows. The frozen Phase 9 run records this limitation and will not rewrite timestamps or seals; a later dataset version requires newly captured and newly sealed cases.
+- Phase 2 captures still predate most Phase 3 corpus validity windows in the immutable v1 result;
+  v3 uses newly captured and separately sealed post-corpus cases instead of rewriting history.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
 - Hybrid is slightly below vector on this development set; no tuning against held-out data is allowed.
 - Paid provider access remains intentionally unapproved; the completed Phase 5 evidence uses only the free local-compatible Colab path.

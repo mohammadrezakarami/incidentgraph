@@ -1,8 +1,8 @@
 # IncidentGraph Tasks
 
-Last updated: 2026-09-25
+Last updated: 2026-09-28
 
-Progress: **10/12 gates are decided including Phase 0: nine PASS, Phase 9 FAIL, and Phases 10–11 not started.**
+Progress: **Phases 0–8 PASS; immutable Phase 9 v1 FAIL; separately sealed Phase 9 v3 iteration is awaiting its free-Colab run.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -176,6 +176,20 @@ appropriate abstention, and false-incident targets passed. Diagnosis Top 1/Top 3
 policy violations, warm p95, supported-claim rate, and coverage failed. The claim-support review
 measured 32/57 (56.1%) supported atomic claims against the frozen 95% target. Phase 10 remains
 unstarted pending a user decision on a newly versioned iteration.
+
+### Phase 9 v3 — Fresh post-corpus iteration
+
+- [x] Preserve the v1 and v2 results without changing their frozen files or claims.
+- [x] Correct harmless structured-output normalization and unit-aware lab signal summaries.
+- [x] Make incomplete telemetry physically absent from agent-readable captures.
+- [x] Capture and verify 22 new post-corpus live scenarios with two runs per scenario.
+- [x] Build a 60-case split with disjoint development and held-out capture groups.
+- [x] Seal the fresh held-out digest before real-model evaluation.
+- [x] Freeze the v3 model, code, data, captures, thresholds, and zero-paid-cost budget.
+- [x] Prepare a resumable 12-shard free-Colab notebook and verified Git bundle.
+- [ ] Complete all 120 v3 model jobs in free Colab.
+- [ ] Reproduce aggregates and complete the written support rubric over at least 20 reports.
+- [ ] Publish the final Phase 9 v3 PASS/FAIL report without changing targets.
 
 ## Later phase gates
 
