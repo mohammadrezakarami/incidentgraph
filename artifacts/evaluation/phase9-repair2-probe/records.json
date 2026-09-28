@@ -1,0 +1,2765 @@
+[
+  {
+    "case_id": "incident-v3-dev-001",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-001",
+    "context_chars": 3306,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "62142bb2-299e-5f19-be7f-f8f929140a09"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.2425,
+          "unit": "seconds",
+          "evidence_id": "f179cb5a-d58f-5c05-b9cb-d0d8c7956725"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "57e79725-958e-54a2-9101-923037350c7b"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.2425,
+          "unit": "seconds",
+          "evidence_id": "c67f6067-a086-52c2-b43c-834296106afd"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "payments",
+            "route": "/pay"
+          },
+          "maximum": 0.24250000000000002,
+          "unit": "seconds",
+          "evidence_id": "7ec9a87a-5c1c-5c3d-a309-c2a39c841d96"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 1.0,
+          "unit": "connections",
+          "evidence_id": "47eb69bf-491e-53cd-91b6-edcfd46de568"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "47eb69bf-491e-53cd-91b6-edcfd46de568"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 6.003001500750374,
+          "unit": "requests/second",
+          "evidence_id": "9677508e-b8b9-5bf7-b074-5d268cd8cd01"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 1.5003750937734435,
+          "unit": "requests/second",
+          "evidence_id": "9677508e-b8b9-5bf7-b074-5d268cd8cd01"
+        },
+        {
+          "ref": "F10",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.049975012493736086,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "e36e1540-5d4c-53ea-863b-5967ec32f2f1"
+        },
+        {
+          "ref": "F11",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.037481259370337576,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "e36e1540-5d4c-53ea-863b-5967ec32f2f1"
+        },
+        {
+          "ref": "F12",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.03251625812906339,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "e36e1540-5d4c-53ea-863b-5967ec32f2f1"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 0.0,
+          "request_latency_seconds": 0.24250000000000002,
+          "payments_request_latency_seconds": 0.24250000000000002,
+          "checkout_pool_connections": 1.0,
+          "checkout_pool_timeouts": 0.0,
+          "cache_hit_rps": 6.003001500750374,
+          "cache_miss_rps": 1.5003750937734435,
+          "payments_cpu_seconds_per_second": 0.03251625812906339,
+          "approved_change_count": 0.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [
+          "downstream_latency"
+        ],
+        "ambiguous": false,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": []
+      },
+      "candidate_fact_refs": {
+        "downstream_latency": [
+          "F5"
+        ]
+      },
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:04.330328004Z",
+          "message": {
+            "role": "assistant",
+            "content": "{ \"decision\": \"downstream_latency\", \"evidence_refs\": [\"F5\"], \"rationale\": \"F5 shows payments request latency at 0.2425 seconds, exceeding the threshold of 0.15 seconds, and no other signals (like pool exhaustion or cache degradation) are active, supporting a downstream latency issue as the primary fault.\" }"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 88426441935,
+          "load_duration": 47807218107,
+          "prompt_eval_count": 1203,
+          "prompt_eval_cached_count": 0,
+          "prompt_eval_duration": 39285290000,
+          "eval_count": 78,
+          "eval_duration": 1304240000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "54068763258e051de63c5d7042457b642753d5aa1bfde310dce6b0a4b18f1abf",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "c4f9673a-ddaf-4478-9e98-6bbbcdd14fa7",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928084630-7614e12cd3",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:46:30.512884Z",
+        "end": "2026-09-28T08:46:38.648707Z"
+      },
+      "observation_cutoff": "2026-09-28T08:46:38.648707Z",
+      "outcome": "probable_cause",
+      "summary": "Bounded evidence supports downstream_latency affecting svc-payments.",
+      "observed_symptoms": [
+        {
+          "description": "request_latency_p95 {\"route\": \"/pay\", \"service\": \"payments\"}: captured maximum 0.2425 seconds.",
+          "evidence_ids": [
+            "7ec9a87a-5c1c-5c3d-a309-c2a39c841d96"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [
+        {
+          "rank": 1,
+          "mechanism": "downstream_latency",
+          "suspected_component": "svc-payments",
+          "evidence_strength": "medium",
+          "supporting_evidence_ids": [
+            "7ec9a87a-5c1c-5c3d-a309-c2a39c841d96"
+          ],
+          "contradicting_evidence_ids": [],
+          "explanation_summary": "F5 shows payments request latency at 0.2425 seconds, exceeding the threshold of 0.15 seconds, and no other signals (like pool exhaustion or cache degradation) are active, supporting a downstream latency issue as the primary fault.",
+          "additional_evidence_needed": []
+        }
+      ],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/c4f9673a-ddaf-4478-9e98-6bbbcdd14fa7"
+    },
+    "correct": true
+  },
+  {
+    "case_id": "incident-v3-dev-004",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-004",
+    "context_chars": 2886,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 6.0,
+          "unit": "requests/second",
+          "evidence_id": "65f7f593-4d6f-520c-aa2c-a821bfa10a62"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "5f73e8b7-ac51-5542-84c3-105745014b68"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 4.0,
+          "unit": "connections",
+          "evidence_id": "5deb2044-65ae-576b-a67c-f0b90d93b8c5"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 39.96891306761407,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "5deb2044-65ae-576b-a67c-f0b90d93b8c5"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "6fea6ca8-8ddb-5276-9d4c-263b5eabfd96"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "6fea6ca8-8ddb-5276-9d4c-263b5eabfd96"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.030015007503753008,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "08de8eb7-7127-598e-b964-e585c194b211"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.04249999999998977,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "08de8eb7-7127-598e-b964-e585c194b211"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.0050075112668957955,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "08de8eb7-7127-598e-b964-e585c194b211"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 6.0,
+          "request_latency_seconds": 0.0,
+          "payments_request_latency_seconds": 0.0,
+          "checkout_pool_connections": 4.0,
+          "checkout_pool_timeouts": 39.96891306761407,
+          "cache_hit_rps": 0.0,
+          "cache_miss_rps": 0.0,
+          "payments_cpu_seconds_per_second": 0.0050075112668957955,
+          "approved_change_count": 0.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [
+          "database_pool_exhaustion"
+        ],
+        "ambiguous": false,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": [
+          "svc-checkout:request_latency:no_finite_samples",
+          "svc-gateway:request_latency:no_finite_samples"
+        ]
+      },
+      "candidate_fact_refs": {
+        "database_pool_exhaustion": [
+          "F3",
+          "F4"
+        ]
+      },
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:06.374627779Z",
+          "message": {
+            "role": "assistant",
+            "content": "{ \"decision\": \"database_pool_exhaustion\",\"evidence_refs\": [\"F3\",\"F4\"],\"rationale\": \"F3 shows checkout pool connections at 4.0, exceeding the 3.5 threshold, and F4 shows 39.97 timeouts per 10 seconds, exceeding the 1.0 threshold, both supporting the database pool exhaustion mechanism.\" }"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 2037912324,
+          "load_duration": 2153955,
+          "prompt_eval_count": 1028,
+          "prompt_eval_cached_count": 248,
+          "prompt_eval_duration": 440168000,
+          "eval_count": 83,
+          "eval_duration": 1422111000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "7f03a429239af077510a98301886443f88694cd2190acc269272d0a85df87305",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "a9d02d6b-2cfb-446a-b737-924ceab85409",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928084736-f3176173b7",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:47:36.757012Z",
+        "end": "2026-09-28T08:47:44.850230Z"
+      },
+      "observation_cutoff": "2026-09-28T08:47:44.850230Z",
+      "outcome": "probable_cause",
+      "summary": "Bounded evidence supports database_pool_exhaustion affecting svc-checkout.",
+      "observed_symptoms": [
+        {
+          "description": "db_pool_in_use {\"job\": \"checkout\", \"service\": \"checkout\"}: captured maximum 4 connections.",
+          "evidence_ids": [
+            "5deb2044-65ae-576b-a67c-f0b90d93b8c5"
+          ]
+        },
+        {
+          "description": "db_pool_timeouts {\"service\": \"checkout\"}: captured maximum 39.9689 timeouts/10_seconds.",
+          "evidence_ids": [
+            "5deb2044-65ae-576b-a67c-f0b90d93b8c5"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [
+        {
+          "rank": 1,
+          "mechanism": "database_pool_exhaustion",
+          "suspected_component": "svc-checkout",
+          "evidence_strength": "medium",
+          "supporting_evidence_ids": [
+            "5deb2044-65ae-576b-a67c-f0b90d93b8c5"
+          ],
+          "contradicting_evidence_ids": [],
+          "explanation_summary": "F3 shows checkout pool connections at 4.0, exceeding the 3.5 threshold, and F4 shows 39.97 timeouts per 10 seconds, exceeding the 1.0 threshold, both supporting the database pool exhaustion mechanism.",
+          "additional_evidence_needed": []
+        }
+      ],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/a9d02d6b-2cfb-446a-b737-924ceab85409"
+    },
+    "correct": true
+  },
+  {
+    "case_id": "incident-v3-dev-007",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-007",
+    "context_chars": 3326,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 3.0,
+          "unit": "requests/second",
+          "evidence_id": "c1e4bb10-3de5-55a3-ae55-6cc3bfd0652a"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.024142857142857143,
+          "unit": "seconds",
+          "evidence_id": "b7a9d62b-0ade-5bf1-972e-0b83f837cf9a"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 3.001500750375187,
+          "unit": "requests/second",
+          "evidence_id": "8d563ce3-42ce-5959-b126-846c45075319"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.024,
+          "unit": "seconds",
+          "evidence_id": "7205d524-5a96-5807-9702-00ad90cd5b0b"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "payments",
+            "route": "/pay"
+          },
+          "maximum": 0.00475,
+          "unit": "seconds",
+          "evidence_id": "f08e89b3-4471-5283-a568-e656aef32213"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "connections",
+          "evidence_id": "4105fb7a-bb81-5e66-ac7f-6c92f4b68172"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 30.003333703744858,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "4105fb7a-bb81-5e66-ac7f-6c92f4b68172"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 3.252439329497123,
+          "unit": "requests/second",
+          "evidence_id": "afaad570-505a-566c-b5d1-bab977b5ba20"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "afaad570-505a-566c-b5d1-bab977b5ba20"
+        },
+        {
+          "ref": "F10",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.0399900024993672,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "02890e67-631f-5494-a734-353aacf571f9"
+        },
+        {
+          "ref": "F11",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.03750000000002274,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "02890e67-631f-5494-a734-353aacf571f9"
+        },
+        {
+          "ref": "F12",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.022516887665728836,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "02890e67-631f-5494-a734-353aacf571f9"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 3.001500750375187,
+          "request_latency_seconds": 0.024142857142857143,
+          "payments_request_latency_seconds": 0.00475,
+          "checkout_pool_connections": 0.0,
+          "checkout_pool_timeouts": 30.003333703744858,
+          "cache_hit_rps": 3.252439329497123,
+          "cache_miss_rps": 0.0,
+          "payments_cpu_seconds_per_second": 0.022516887665728836,
+          "approved_change_count": 0.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [
+          "dependency_errors"
+        ],
+        "ambiguous": false,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": []
+      },
+      "candidate_fact_refs": {
+        "dependency_errors": [
+          "F1",
+          "F3"
+        ]
+      },
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:09.026767422Z",
+          "message": {
+            "role": "assistant",
+            "content": "{\n  \"decision\": \"insufficient_observation\",\n  \"evidence_refs\": [\"F1\", \"F3\", \"F7\"],\n  \"rationale\": \"Dependency errors are observed (F1, F3) and exceed the threshold (1.5 rps), but checkout pool connections are zero (F6), timeouts are high (F7), and no cache miss data is present (F9), making it impossible to confirm whether cache or pool/\u200b\" }"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 2645702803,
+          "load_duration": 1938172,
+          "prompt_eval_count": 1221,
+          "prompt_eval_cached_count": 248,
+          "prompt_eval_duration": 539228000,
+          "eval_count": 99,
+          "eval_duration": 1949577000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "0bd8f3e5c01afc4a16b15e309ecd77ee9aaccf0033475099613dca0d1de98735",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "efd9c26a-93d3-4a8a-ae2a-32853f3093a4",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928084749-bf46b32506",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:47:49.043919Z",
+        "end": "2026-09-28T08:47:56.892302Z"
+      },
+      "observation_cutoff": "2026-09-28T08:47:56.892302Z",
+      "outcome": "inconclusive",
+      "summary": "The model did not establish a single supported cause in this run.",
+      "observed_symptoms": [
+        {
+          "description": "dependency_outcomes {\"dependency\": \"checkout\", \"outcome\": \"error\", \"service\": \"gateway\"}: captured maximum 3 requests/second.",
+          "evidence_ids": [
+            "c1e4bb10-3de5-55a3-ae55-6cc3bfd0652a"
+          ]
+        },
+        {
+          "description": "dependency_outcomes {\"dependency\": \"payments\", \"outcome\": \"error\", \"service\": \"checkout\"}: captured maximum 3.0015 requests/second.",
+          "evidence_ids": [
+            "8d563ce3-42ce-5959-b126-846c45075319"
+          ]
+        },
+        {
+          "description": "db_pool_in_use {\"job\": \"checkout\", \"service\": \"checkout\"}: captured maximum 0 connections.",
+          "evidence_ids": [
+            "4105fb7a-bb81-5e66-ac7f-6c92f4b68172"
+          ]
+        },
+        {
+          "description": "db_pool_timeouts {\"service\": \"checkout\"}: captured maximum 30.0033 timeouts/10_seconds.",
+          "evidence_ids": [
+            "4105fb7a-bb81-5e66-ac7f-6c92f4b68172"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [
+        "Dependency errors are observed (F1, F3) and exceed the threshold (1.5 rps), but checkout pool connections are zero (F6), timeouts are high (F7), and no cache miss data is present (F9), making it impossible to confirm whether cache or pool/\u200b"
+      ],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/efd9c26a-93d3-4a8a-ae2a-32853f3093a4"
+    },
+    "correct": false
+  },
+  {
+    "case_id": "incident-v3-dev-010",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-010",
+    "context_chars": 3284,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "3bc7ab3f-8d89-5d13-97e8-72f5d6bae586"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.097,
+          "unit": "seconds",
+          "evidence_id": "89e89d7f-bf50-5b33-86b3-dd6c246e1b51"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "3056e470-e73c-5222-b8bd-7712a2b7130d"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.09538461538461539,
+          "unit": "seconds",
+          "evidence_id": "b874513a-0c37-5f88-ab16-bf47b3b5f444"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "payments",
+            "route": "/pay"
+          },
+          "maximum": 0.04875,
+          "unit": "seconds",
+          "evidence_id": "cb90289a-c221-5d3f-b465-93fc8ce2e96e"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "connections",
+          "evidence_id": "503f8cb8-7f59-505a-90df-35cde89907dc"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "503f8cb8-7f59-505a-90df-35cde89907dc"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 1.5007503751875935,
+          "unit": "requests/second",
+          "evidence_id": "f9fb4e56-767f-5046-97d4-9430df452720"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 6.001500375093774,
+          "unit": "requests/second",
+          "evidence_id": "f9fb4e56-767f-5046-97d4-9430df452720"
+        },
+        {
+          "ref": "F10",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.04510147832622149,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "6233a6a3-90e6-5a23-b5f9-ede8e0a2de6e"
+        },
+        {
+          "ref": "F11",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.040010002500617196,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "6233a6a3-90e6-5a23-b5f9-ede8e0a2de6e"
+        },
+        {
+          "ref": "F12",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.027493126718295412,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "6233a6a3-90e6-5a23-b5f9-ede8e0a2de6e"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 0.0,
+          "request_latency_seconds": 0.097,
+          "payments_request_latency_seconds": 0.04875,
+          "checkout_pool_connections": 0.0,
+          "checkout_pool_timeouts": 0.0,
+          "cache_hit_rps": 1.5007503751875935,
+          "cache_miss_rps": 6.001500375093774,
+          "payments_cpu_seconds_per_second": 0.027493126718295412,
+          "approved_change_count": 0.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [
+          "cache_degradation"
+        ],
+        "ambiguous": false,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": []
+      },
+      "candidate_fact_refs": {
+        "cache_degradation": [
+          "F8",
+          "F9"
+        ]
+      },
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:11.4386488Z",
+          "message": {
+            "role": "assistant",
+            "content": "{\n  \"decision\": \"cache_degradation\",\n  \"evidence_refs\": [\"F8\", \"F9\"],\n  \"rationale\": \"The cache miss rate is 6.00 requests/s, which exceeds the threshold of 2.0 requests/s, and the miss-to-hit ratio (6.00 / 1.50 = 4.0) significantly exceeds the 1.2 threshold, confirming cache degradation.\"\n}"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 2402352634,
+          "load_duration": 1820061,
+          "prompt_eval_count": 1181,
+          "prompt_eval_cached_count": 248,
+          "prompt_eval_duration": 564193000,
+          "eval_count": 93,
+          "eval_duration": 1622742000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "4b95e046b576c17de958f501339b7bf730be011b77d6256f98d3bd5421f432e3",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "8758920e-5fd0-4de6-afe0-71451bdd8290",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928085356-0c53d96d4a",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:53:56.949089Z",
+        "end": "2026-09-28T08:54:04.832087Z"
+      },
+      "observation_cutoff": "2026-09-28T08:54:04.832087Z",
+      "outcome": "probable_cause",
+      "summary": "Bounded evidence supports cache_degradation affecting svc-payments.",
+      "observed_symptoms": [
+        {
+          "description": "cache_outcomes {\"result\": \"hit\", \"service\": \"payments\"}: captured maximum 1.50075 requests/second.",
+          "evidence_ids": [
+            "f9fb4e56-767f-5046-97d4-9430df452720"
+          ]
+        },
+        {
+          "description": "cache_outcomes {\"result\": \"miss\", \"service\": \"payments\"}: captured maximum 6.0015 requests/second.",
+          "evidence_ids": [
+            "f9fb4e56-767f-5046-97d4-9430df452720"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [
+        {
+          "rank": 1,
+          "mechanism": "cache_degradation",
+          "suspected_component": "svc-payments",
+          "evidence_strength": "medium",
+          "supporting_evidence_ids": [
+            "f9fb4e56-767f-5046-97d4-9430df452720"
+          ],
+          "contradicting_evidence_ids": [],
+          "explanation_summary": "The cache miss rate is 6.00 requests/s, which exceeds the threshold of 2.0 requests/s, and the miss-to-hit ratio (6.00 / 1.50 = 4.0) significantly exceeds the 1.2 threshold, confirming cache degradation.",
+          "additional_evidence_needed": []
+        }
+      ],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/8758920e-5fd0-4de6-afe0-71451bdd8290"
+    },
+    "correct": true
+  },
+  {
+    "case_id": "incident-v3-dev-013",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-013",
+    "context_chars": 3356,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 1.25,
+          "unit": "requests/second",
+          "evidence_id": "dd7c4889-fa7c-51b3-8e05-4e631c2f7f14"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.24092105263157892,
+          "unit": "seconds",
+          "evidence_id": "e2340c1c-db86-5568-bc65-27fb10425bb4"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "529d48a5-b79a-5418-b4ca-b7142f387a0c"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.235,
+          "unit": "seconds",
+          "evidence_id": "151d5a8c-7b33-5eec-b993-ffb3ec66d08f"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "payments",
+            "route": "/pay"
+          },
+          "maximum": 0.004750000000000001,
+          "unit": "seconds",
+          "evidence_id": "a136aa8e-e804-59dd-9b3c-281ca4aa4a01"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "connections",
+          "evidence_id": "c2c642d7-c98a-50c5-8a8e-12aca1867bcd"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "c2c642d7-c98a-50c5-8a8e-12aca1867bcd"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 5.002501250625312,
+          "unit": "requests/second",
+          "evidence_id": "a929a367-82ff-5152-8290-502ee428d933"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "a929a367-82ff-5152-8290-502ee428d933"
+        },
+        {
+          "ref": "F10",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.0400300225168797,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "6fffce2a-587a-5234-a453-0fe7a63a0ed1"
+        },
+        {
+          "ref": "F11",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.032500000000027285,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "6fffce2a-587a-5234-a453-0fe7a63a0ed1"
+        },
+        {
+          "ref": "F12",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.017508754377201105,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "6fffce2a-587a-5234-a453-0fe7a63a0ed1"
+        },
+        {
+          "ref": "F13",
+          "source": "approved_changes",
+          "count": 1,
+          "evidence_id": "bd7613cf-f1c3-590d-98c3-d661a4f43834"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 1.25,
+          "request_latency_seconds": 0.24092105263157892,
+          "payments_request_latency_seconds": 0.004750000000000001,
+          "checkout_pool_connections": 0.0,
+          "checkout_pool_timeouts": 0.0,
+          "cache_hit_rps": 5.002501250625312,
+          "cache_miss_rps": 0.0,
+          "payments_cpu_seconds_per_second": 0.017508754377201105,
+          "approved_change_count": 1.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [
+          "deployment_regression"
+        ],
+        "ambiguous": false,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": []
+      },
+      "candidate_fact_refs": {
+        "deployment_regression": [
+          "F13",
+          "F1"
+        ]
+      },
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:13.880461829Z",
+          "message": {
+            "role": "assistant",
+            "content": "{\n  \"decision\": \"deployment_regression\",\n  \"evidence_refs\": [\"F13\", \"F1\"],\n  \"rationale\": \"A deployment regression is signaled by an approved change and dependency errors, both of which are present: one approved change (F13) and dependency errors at 1.25 requests/second (F1), which exceeds the threshold of 1.0 requests/s for a 'd\" }"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 2432740323,
+          "load_duration": 2393295,
+          "prompt_eval_count": 1206,
+          "prompt_eval_cached_count": 248,
+          "prompt_eval_duration": 549711000,
+          "eval_count": 91,
+          "eval_duration": 1640212000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "d2b207ac713ad09ee30bc53134f9725b83d417217b56d8385e4d3fde70e1f4cc",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "9e4b4d82-9985-40a6-b4a7-17e221dfe0a9",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928085421-4266feaccf",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:54:21.124556Z",
+        "end": "2026-09-28T08:54:29.059339Z"
+      },
+      "observation_cutoff": "2026-09-28T08:54:29.059339Z",
+      "outcome": "probable_cause",
+      "summary": "Bounded evidence supports deployment_regression affecting svc-checkout.",
+      "observed_symptoms": [
+        {
+          "description": "dependency_outcomes {\"dependency\": \"checkout\", \"outcome\": \"error\", \"service\": \"gateway\"}: captured maximum 1.25 requests/second.",
+          "evidence_ids": [
+            "dd7c4889-fa7c-51b3-8e05-4e631c2f7f14"
+          ]
+        },
+        {
+          "description": "Captured approved changes: 1.",
+          "evidence_ids": [
+            "bd7613cf-f1c3-590d-98c3-d661a4f43834"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [
+        {
+          "rank": 1,
+          "mechanism": "deployment_regression",
+          "suspected_component": "svc-checkout",
+          "evidence_strength": "medium",
+          "supporting_evidence_ids": [
+            "bd7613cf-f1c3-590d-98c3-d661a4f43834",
+            "dd7c4889-fa7c-51b3-8e05-4e631c2f7f14"
+          ],
+          "contradicting_evidence_ids": [],
+          "explanation_summary": "A deployment regression is signaled by an approved change and dependency errors, both of which are present: one approved change (F13) and dependency errors at 1.25 requests/second (F1), which exceeds the threshold of 1.0 requests/s for a 'd",
+          "additional_evidence_needed": []
+        }
+      ],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/9e4b4d82-9985-40a6-b4a7-17e221dfe0a9"
+    },
+    "correct": true
+  },
+  {
+    "case_id": "incident-v3-dev-016",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-016",
+    "context_chars": 3266,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "84ce593a-a069-5d64-b507-0f69a29f3f29"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.2275,
+          "unit": "seconds",
+          "evidence_id": "3fd87504-a435-55c8-a448-0b4091cefe77"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "8a86acb3-058d-5011-9be5-1fb8264347d9"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.22749999999999998,
+          "unit": "seconds",
+          "evidence_id": "4aaefe67-a40a-59fc-9343-9728210bcefe"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "payments",
+            "route": "/pay"
+          },
+          "maximum": 0.10749999999999987,
+          "unit": "seconds",
+          "evidence_id": "4c7610ba-8ce4-5555-9bb8-fff33410f038"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "connections",
+          "evidence_id": "2570355d-486e-53f2-b6cb-20062955ffb6"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "2570355d-486e-53f2-b6cb-20062955ffb6"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 6.001500375093774,
+          "unit": "requests/second",
+          "evidence_id": "e164d583-ed4b-5fe4-8286-6b7b2a1ba95a"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "e164d583-ed4b-5fe4-8286-6b7b2a1ba95a"
+        },
+        {
+          "ref": "F10",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.01999500124966939,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "8e850030-eefb-599f-9c14-1c26359f13ff"
+        },
+        {
+          "ref": "F11",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.020000000000010232,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "8e850030-eefb-599f-9c14-1c26359f13ff"
+        },
+        {
+          "ref": "F12",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.5176294073518505,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "8e850030-eefb-599f-9c14-1c26359f13ff"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 0.0,
+          "request_latency_seconds": 0.2275,
+          "payments_request_latency_seconds": 0.10749999999999987,
+          "checkout_pool_connections": 0.0,
+          "checkout_pool_timeouts": 0.0,
+          "cache_hit_rps": 6.001500375093774,
+          "cache_miss_rps": 0.0,
+          "payments_cpu_seconds_per_second": 0.5176294073518505,
+          "approved_change_count": 0.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [
+          "cpu_contention"
+        ],
+        "ambiguous": false,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": []
+      },
+      "candidate_fact_refs": {
+        "cpu_contention": [
+          "F12"
+        ]
+      },
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:15.732724159Z",
+          "message": {
+            "role": "assistant",
+            "content": "{\n  \"decision\": \"cpu_contention\",\n  \"evidence_refs\": [\"F12\"],\n  \"rationale\": \"The payments service CPU usage exceeds the threshold of 0.30 CPU-seconds/second (F12), meeting the condition for cpu_contention as defined in candidate_rules.\"\n}"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 1845540285,
+          "load_duration": 1464786,
+          "prompt_eval_count": 1171,
+          "prompt_eval_cached_count": 248,
+          "prompt_eval_duration": 548673000,
+          "eval_count": 66,
+          "eval_duration": 1116804000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "7a792429d1f4dd38e008ab2853c3d3c84df67b037fde48c8836abee07db87c48",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "35df0847-7090-4126-bcfe-104ac5d7f92f",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928085445-37eb0428dc",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:54:45.384793Z",
+        "end": "2026-09-28T08:54:53.318918Z"
+      },
+      "observation_cutoff": "2026-09-28T08:54:53.318918Z",
+      "outcome": "probable_cause",
+      "summary": "Bounded evidence supports cpu_contention affecting svc-payments.",
+      "observed_symptoms": [
+        {
+          "description": "process_cpu {\"job\": \"checkout\"}: captured maximum 0.019995 cpu_seconds/second.",
+          "evidence_ids": [
+            "8e850030-eefb-599f-9c14-1c26359f13ff"
+          ]
+        },
+        {
+          "description": "process_cpu {\"job\": \"gateway\"}: captured maximum 0.02 cpu_seconds/second.",
+          "evidence_ids": [
+            "8e850030-eefb-599f-9c14-1c26359f13ff"
+          ]
+        },
+        {
+          "description": "process_cpu {\"job\": \"payments\"}: captured maximum 0.517629 cpu_seconds/second.",
+          "evidence_ids": [
+            "8e850030-eefb-599f-9c14-1c26359f13ff"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [
+        {
+          "rank": 1,
+          "mechanism": "cpu_contention",
+          "suspected_component": "svc-payments",
+          "evidence_strength": "medium",
+          "supporting_evidence_ids": [
+            "8e850030-eefb-599f-9c14-1c26359f13ff"
+          ],
+          "contradicting_evidence_ids": [],
+          "explanation_summary": "The payments service CPU usage exceeds the threshold of 0.30 CPU-seconds/second (F12), meeting the condition for cpu_contention as defined in candidate_rules.",
+          "additional_evidence_needed": []
+        }
+      ],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/35df0847-7090-4126-bcfe-104ac5d7f92f"
+    },
+    "correct": true
+  },
+  {
+    "case_id": "incident-v3-dev-019",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-019",
+    "context_chars": 3286,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 2.9992501874531365,
+          "unit": "requests/second",
+          "evidence_id": "6cf14e22-8ec3-5ac2-bc16-dffd14742b4f"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.02425,
+          "unit": "seconds",
+          "evidence_id": "40c1a373-0ba0-5cd6-a793-2766553e7d63"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 3.0,
+          "unit": "requests/second",
+          "evidence_id": "3f50da69-e5eb-5a60-8916-b2a9e7a648fa"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.023,
+          "unit": "seconds",
+          "evidence_id": "0fb22d65-6ed4-5364-b378-46a762382f56"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "payments",
+            "route": "/pay"
+          },
+          "maximum": 0.004750000000000001,
+          "unit": "seconds",
+          "evidence_id": "d634845a-55e6-52dd-a5e1-2418944a0106"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "connections",
+          "evidence_id": "428c7999-0b66-589a-a94e-d0cc299e25f9"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "428c7999-0b66-589a-a94e-d0cc299e25f9"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 3.4991252186953257,
+          "unit": "requests/second",
+          "evidence_id": "7b2c8bc7-3e92-5ecf-9acc-b30a59ad4e88"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "7b2c8bc7-3e92-5ecf-9acc-b30a59ad4e88"
+        },
+        {
+          "ref": "F10",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.03499999999999659,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "2a2b93e9-4acb-5a94-b329-63eca7e38f34"
+        },
+        {
+          "ref": "F11",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.08004002001001752,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "2a2b93e9-4acb-5a94-b329-63eca7e38f34"
+        },
+        {
+          "ref": "F12",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.017504376094036017,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "2a2b93e9-4acb-5a94-b329-63eca7e38f34"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 3.0,
+          "request_latency_seconds": 0.02425,
+          "payments_request_latency_seconds": 0.004750000000000001,
+          "checkout_pool_connections": 0.0,
+          "checkout_pool_timeouts": 0.0,
+          "cache_hit_rps": 3.4991252186953257,
+          "cache_miss_rps": 0.0,
+          "payments_cpu_seconds_per_second": 0.017504376094036017,
+          "approved_change_count": 0.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [
+          "dependency_errors"
+        ],
+        "ambiguous": false,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": []
+      },
+      "candidate_fact_refs": {
+        "dependency_errors": [
+          "F1",
+          "F3"
+        ]
+      },
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:17.920452452Z",
+          "message": {
+            "role": "assistant",
+            "content": "{\n  \"decision\": \"insufficient_observation\",\n  \"evidence_refs\": [\"F1\", \"F3\", \"F8\"],\n  \"rationale\": \"Dependency errors are observed (F1, F3) but no supporting telemetry for cache degradation or CPU contention is present; cache misses are zero (F9), and payments CPU is below threshold (F12), so no candidate rule is fully supported.\"\n}"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 2180438882,
+          "load_duration": 1881004,
+          "prompt_eval_count": 1181,
+          "prompt_eval_cached_count": 248,
+          "prompt_eval_duration": 549561000,
+          "eval_count": 88,
+          "eval_duration": 1461766000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "1a1b9583f8046597a79e5f1d2b028db202da1a4ca601edb048054f30511a74bf",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "774faba6-3934-46b7-8f29-d34009253074",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928085558-7db6241ef5",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:55:58.166385Z",
+        "end": "2026-09-28T08:56:06.030408Z"
+      },
+      "observation_cutoff": "2026-09-28T08:56:06.030408Z",
+      "outcome": "inconclusive",
+      "summary": "The model did not establish a single supported cause in this run.",
+      "observed_symptoms": [
+        {
+          "description": "dependency_outcomes {\"dependency\": \"checkout\", \"outcome\": \"error\", \"service\": \"gateway\"}: captured maximum 2.99925 requests/second.",
+          "evidence_ids": [
+            "6cf14e22-8ec3-5ac2-bc16-dffd14742b4f"
+          ]
+        },
+        {
+          "description": "dependency_outcomes {\"dependency\": \"payments\", \"outcome\": \"error\", \"service\": \"checkout\"}: captured maximum 3 requests/second.",
+          "evidence_ids": [
+            "3f50da69-e5eb-5a60-8916-b2a9e7a648fa"
+          ]
+        },
+        {
+          "description": "cache_outcomes {\"result\": \"hit\", \"service\": \"payments\"}: captured maximum 3.49913 requests/second.",
+          "evidence_ids": [
+            "7b2c8bc7-3e92-5ecf-9acc-b30a59ad4e88"
+          ]
+        },
+        {
+          "description": "cache_outcomes {\"result\": \"miss\", \"service\": \"payments\"}: captured maximum 0 requests/second.",
+          "evidence_ids": [
+            "7b2c8bc7-3e92-5ecf-9acc-b30a59ad4e88"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [
+        "Dependency errors are observed (F1, F3) but no supporting telemetry for cache degradation or CPU contention is present; cache misses are zero (F9), and payments CPU is below threshold (F12), so no candidate rule is fully supported."
+      ],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/774faba6-3934-46b7-8f29-d34009253074"
+    },
+    "correct": false
+  },
+  {
+    "case_id": "incident-v3-dev-021",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-021",
+    "context_chars": 3200,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "cc1ec17b-9789-5e9b-bf09-dcd4e25286d0"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.0241875,
+          "unit": "seconds",
+          "evidence_id": "cf970bf9-5e31-5415-b5bd-4f4cd013445f"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "3d0a3817-b4d2-5f05-9230-5f0e0bab17bd"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.0240625,
+          "unit": "seconds",
+          "evidence_id": "51d2d9ac-8207-5be0-a63e-537baee00d76"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "payments",
+            "route": "/pay"
+          },
+          "maximum": 0.00475,
+          "unit": "seconds",
+          "evidence_id": "4e840c2f-66e7-56d7-8b00-8baa8648f35c"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "connections",
+          "evidence_id": "5e5b102a-37a3-57f9-9ad2-8eab875596c7"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "5e5b102a-37a3-57f9-9ad2-8eab875596c7"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 5.998500374906273,
+          "unit": "requests/second",
+          "evidence_id": "6a779690-57b4-5fde-a32b-f9c5b4884a0d"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "6a779690-57b4-5fde-a32b-f9c5b4884a0d"
+        },
+        {
+          "ref": "F10",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.03749062734315852,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "dbfb5959-44f6-5f34-a7c2-77204c17941a"
+        },
+        {
+          "ref": "F11",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.03250812703178523,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "dbfb5959-44f6-5f34-a7c2-77204c17941a"
+        },
+        {
+          "ref": "F12",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.019995001249697806,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "dbfb5959-44f6-5f34-a7c2-77204c17941a"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 0.0,
+          "request_latency_seconds": 0.0241875,
+          "payments_request_latency_seconds": 0.00475,
+          "checkout_pool_connections": 0.0,
+          "checkout_pool_timeouts": 0.0,
+          "cache_hit_rps": 5.998500374906273,
+          "cache_miss_rps": 0.0,
+          "payments_cpu_seconds_per_second": 0.019995001249697806,
+          "approved_change_count": 0.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [],
+        "ambiguous": false,
+        "bounded_healthy_candidate": true,
+        "unavailable_measurements": []
+      },
+      "candidate_fact_refs": {},
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:20.031253357Z",
+          "message": {
+            "role": "assistant",
+            "content": "{\n  \"decision\": \"insufficient_observation\",\n  \"evidence_refs\": [\"F1\", \"F3\", \"F8\"],\n  \"rationale\": \"Dependency errors are observed in gateway and checkout services (F1, F3), but no measured CPU contention or cache degradation is present; however, the absence of a clear fault family with complete supporting facts prevents a definitive lab\u8a3a\"\n}"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 2103234447,
+          "load_duration": 1895545,
+          "prompt_eval_count": 1136,
+          "prompt_eval_cached_count": 248,
+          "prompt_eval_duration": 498776000,
+          "eval_count": 83,
+          "eval_duration": 1429151000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "243f7cdd98c32a32fa16d63fbeb59c84f6ced189e6f802bec8a14de2b07fd44b",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "7768047b-eda2-46c9-bf53-ec7616a3bb3d",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928085509-04574cfa1d",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:55:09.724645Z",
+        "end": "2026-09-28T08:55:17.568482Z"
+      },
+      "observation_cutoff": "2026-09-28T08:55:17.568482Z",
+      "outcome": "inconclusive",
+      "summary": "The model did not establish a single supported cause in this run.",
+      "observed_symptoms": [
+        {
+          "description": "dependency_outcomes {\"dependency\": \"checkout\", \"outcome\": \"error\", \"service\": \"gateway\"}: captured maximum 0 requests/second.",
+          "evidence_ids": [
+            "cc1ec17b-9789-5e9b-bf09-dcd4e25286d0"
+          ]
+        },
+        {
+          "description": "dependency_outcomes {\"dependency\": \"payments\", \"outcome\": \"error\", \"service\": \"checkout\"}: captured maximum 0 requests/second.",
+          "evidence_ids": [
+            "3d0a3817-b4d2-5f05-9230-5f0e0bab17bd"
+          ]
+        },
+        {
+          "description": "cache_outcomes {\"result\": \"hit\", \"service\": \"payments\"}: captured maximum 5.9985 requests/second.",
+          "evidence_ids": [
+            "6a779690-57b4-5fde-a32b-f9c5b4884a0d"
+          ]
+        },
+        {
+          "description": "cache_outcomes {\"result\": \"miss\", \"service\": \"payments\"}: captured maximum 0 requests/second.",
+          "evidence_ids": [
+            "6a779690-57b4-5fde-a32b-f9c5b4884a0d"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [
+        "Dependency errors are observed in gateway and checkout services (F1, F3), but no measured CPU contention or cache degradation is present; however, the absence of a clear fault family with complete supporting facts prevents a definitive lab\u8a3a"
+      ],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/7768047b-eda2-46c9-bf53-ec7616a3bb3d"
+    },
+    "correct": false
+  },
+  {
+    "case_id": "incident-v3-dev-026",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-026",
+    "context_chars": 2735,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "2bdbaa8b-d4cf-573b-b0b4-6438fb1742a5"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.02408333333333333,
+          "unit": "seconds",
+          "evidence_id": "8c96070a-573c-513e-9d67-316fadf5c56b"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "810a263c-3e58-5dba-97cb-fc5e30df287b"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.02398529411764706,
+          "unit": "seconds",
+          "evidence_id": "222d0238-3070-5d67-9f8b-eb63a5f1e9ca"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "connections",
+          "evidence_id": "55f83319-3734-5e4d-b832-7a9072a9eeea"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "55f83319-3734-5e4d-b832-7a9072a9eeea"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.04253189892421135,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "7f2681ae-042f-5870-be4b-124e0e4e011d"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.03499999999999659,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "7f2681ae-042f-5870-be4b-124e0e4e011d"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 0.0,
+          "request_latency_seconds": 0.02408333333333333,
+          "payments_request_latency_seconds": 0.0,
+          "checkout_pool_connections": 0.0,
+          "checkout_pool_timeouts": 0.0,
+          "cache_hit_rps": 0.0,
+          "cache_miss_rps": 0.0,
+          "payments_cpu_seconds_per_second": 0.0,
+          "approved_change_count": 0.0
+        },
+        "telemetry_gaps": [
+          "svc-payments:cache_outcomes",
+          "svc-payments:request_latency"
+        ],
+        "active_signals": [],
+        "ambiguous": false,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": [
+          "svc-payments:cache_outcomes:no_finite_samples",
+          "svc-payments:request_latency:no_finite_samples"
+        ]
+      },
+      "candidate_fact_refs": {},
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:21.789139537Z",
+          "message": {
+            "role": "assistant",
+            "content": "{ \"decision\": \"insufficient_observation\",\n\n\"evidence_refs\": [\"F1\", \"F3\", \"F5\"],\n\n\"rationale\": \"Dependency errors and checkout latency are present, but critical telemetry for payments (cache outcomes and request latency) is missing, preventing evaluation of candidate mechanisms like cache degradation or deployment regression.\" }"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 1750071872,
+          "load_duration": 3330847,
+          "prompt_eval_count": 975,
+          "prompt_eval_cached_count": 294,
+          "prompt_eval_duration": 403863000,
+          "eval_count": 71,
+          "eval_duration": 1171615000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "3045ef8219253a07e82f95bf6532abf1728123a1501efd9c29e4a08aaa001f62",
+    "mode": "development_diagnosis_replay",
+    "report": {
+      "investigation_id": "dbfe93d9-5492-447c-9de0-117e0495d8ec",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928085622-7fa8d4e02f",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:56:22.325038Z",
+        "end": "2026-09-28T08:56:30.179998Z"
+      },
+      "observation_cutoff": "2026-09-28T08:56:30.179998Z",
+      "outcome": "inconclusive",
+      "summary": "The model did not establish a single supported cause in this run.",
+      "observed_symptoms": [
+        {
+          "description": "dependency_outcomes {\"dependency\": \"checkout\", \"outcome\": \"error\", \"service\": \"gateway\"}: captured maximum 0 requests/second.",
+          "evidence_ids": [
+            "2bdbaa8b-d4cf-573b-b0b4-6438fb1742a5"
+          ]
+        },
+        {
+          "description": "dependency_outcomes {\"dependency\": \"payments\", \"outcome\": \"error\", \"service\": \"checkout\"}: captured maximum 0 requests/second.",
+          "evidence_ids": [
+            "810a263c-3e58-5dba-97cb-fc5e30df287b"
+          ]
+        },
+        {
+          "description": "db_pool_in_use {\"job\": \"checkout\", \"service\": \"checkout\"}: captured maximum 0 connections.",
+          "evidence_ids": [
+            "55f83319-3734-5e4d-b832-7a9072a9eeea"
+          ]
+        },
+        {
+          "description": "db_pool_timeouts {\"service\": \"checkout\"}: captured maximum 0 timeouts/10_seconds.",
+          "evidence_ids": [
+            "55f83319-3734-5e4d-b832-7a9072a9eeea"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [
+        "Dependency errors and checkout latency are present, but critical telemetry for payments (cache outcomes and request latency) is missing, preventing evaluation of candidate mechanisms like cache degradation or deployment regression."
+      ],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/dbfe93d9-5492-447c-9de0-117e0495d8ec"
+    },
+    "correct": true
+  },
+  {
+    "case_id": "incident-v3-dev-029",
+    "source_job_id": "dev-r1-fixed-incident-v3-dev-029",
+    "context_chars": 3375,
+    "packet": {
+      "facts": [
+        {
+          "ref": "F1",
+          "service": "svc-gateway",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "gateway",
+            "dependency": "checkout",
+            "outcome": "error"
+          },
+          "maximum": 1.25,
+          "unit": "requests/second",
+          "evidence_id": "b353a0f6-38fe-5dcf-9323-137639622773"
+        },
+        {
+          "ref": "F2",
+          "service": "svc-gateway",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "gateway",
+            "route": "/checkout"
+          },
+          "maximum": 0.24142857142857144,
+          "unit": "seconds",
+          "evidence_id": "57d0035d-81b6-536e-bc4d-84b70a3e00fa"
+        },
+        {
+          "ref": "F3",
+          "service": "svc-checkout",
+          "source": "dependency_outcomes",
+          "labels": {
+            "service": "checkout",
+            "dependency": "payments",
+            "outcome": "error"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "f68f5066-7593-55b8-9baf-bc86e5d28d26"
+        },
+        {
+          "ref": "F4",
+          "service": "svc-checkout",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "checkout",
+            "route": "/checkout"
+          },
+          "maximum": 0.24134615384615385,
+          "unit": "seconds",
+          "evidence_id": "3ad2eb82-4785-56ae-9cbf-16414066b819"
+        },
+        {
+          "ref": "F5",
+          "service": "svc-payments",
+          "source": "request_latency_p95",
+          "labels": {
+            "service": "payments",
+            "route": "/pay"
+          },
+          "maximum": 0.2425,
+          "unit": "seconds",
+          "evidence_id": "5632b9fa-55c9-50da-ac79-f8da5ae72c00"
+        },
+        {
+          "ref": "F6",
+          "service": "svc-checkout",
+          "source": "db_pool_in_use",
+          "labels": {
+            "service": "checkout",
+            "job": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "connections",
+          "evidence_id": "399c98af-9d3d-5e4e-9662-df8a805f7edd"
+        },
+        {
+          "ref": "F7",
+          "service": "svc-checkout",
+          "source": "db_pool_timeouts",
+          "labels": {
+            "service": "checkout"
+          },
+          "maximum": 0.0,
+          "unit": "timeouts/10_seconds",
+          "evidence_id": "399c98af-9d3d-5e4e-9662-df8a805f7edd"
+        },
+        {
+          "ref": "F8",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "hit"
+          },
+          "maximum": 5.003752814610959,
+          "unit": "requests/second",
+          "evidence_id": "cb5515d6-6c38-56b9-8a28-7aae839d5a94"
+        },
+        {
+          "ref": "F9",
+          "service": "svc-payments",
+          "source": "cache_outcomes",
+          "labels": {
+            "service": "payments",
+            "result": "miss"
+          },
+          "maximum": 0.0,
+          "unit": "requests/second",
+          "evidence_id": "cb5515d6-6c38-56b9-8a28-7aae839d5a94"
+        },
+        {
+          "ref": "F10",
+          "service": "svc-checkout",
+          "source": "process_cpu",
+          "labels": {
+            "job": "checkout"
+          },
+          "maximum": 0.04501125281321922,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "58406638-0188-5a63-9448-0f8f18a5e684"
+        },
+        {
+          "ref": "F11",
+          "service": "svc-gateway",
+          "source": "process_cpu",
+          "labels": {
+            "job": "gateway"
+          },
+          "maximum": 0.03750000000002274,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "58406638-0188-5a63-9448-0f8f18a5e684"
+        },
+        {
+          "ref": "F12",
+          "service": "svc-payments",
+          "source": "process_cpu",
+          "labels": {
+            "job": "payments"
+          },
+          "maximum": 0.02249437640590648,
+          "unit": "cpu_seconds/second",
+          "evidence_id": "58406638-0188-5a63-9448-0f8f18a5e684"
+        },
+        {
+          "ref": "F13",
+          "source": "approved_changes",
+          "count": 1,
+          "evidence_id": "614ad118-240e-5fb9-8649-3355cded0976"
+        }
+      ],
+      "signal_summary": {
+        "scope": "frozen synthetic-lab calibration; not a production threshold policy",
+        "thresholds": {
+          "dependency_error_rps": 1.5,
+          "request_latency_seconds": 0.15,
+          "checkout_pool_connections": 3.5,
+          "checkout_pool_timeouts": 1.0,
+          "cache_miss_minimum_rps": 2.0,
+          "cache_miss_to_hit_ratio": 1.2,
+          "payments_cpu_seconds_per_second": 0.3
+        },
+        "observed_maxima": {
+          "dependency_error_rps": 1.25,
+          "request_latency_seconds": 0.2425,
+          "payments_request_latency_seconds": 0.2425,
+          "checkout_pool_connections": 0.0,
+          "checkout_pool_timeouts": 0.0,
+          "cache_hit_rps": 5.003752814610959,
+          "cache_miss_rps": 0.0,
+          "payments_cpu_seconds_per_second": 0.02249437640590648,
+          "approved_change_count": 1.0
+        },
+        "telemetry_gaps": [],
+        "active_signals": [
+          "deployment_regression",
+          "downstream_latency"
+        ],
+        "ambiguous": true,
+        "bounded_healthy_candidate": false,
+        "unavailable_measurements": []
+      },
+      "candidate_fact_refs": {
+        "deployment_regression": [
+          "F13",
+          "F1"
+        ],
+        "downstream_latency": [
+          "F5"
+        ]
+      },
+      "candidate_rules": {
+        "database_pool_exhaustion": "checkout pool >=3.5 connections AND >=1 timeout/10s",
+        "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
+        "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
+        "deployment_regression": "approved change count >=1 AND dependency error >=1.0 requests/s",
+        "dependency_errors": "dependency error >=1.5 requests/s without a stronger specific signal",
+        "downstream_latency": "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
+      }
+    },
+    "attempts": [
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:24.230365225Z",
+          "message": {
+            "role": "assistant",
+            "content": "{ \"decision\": \"downstream_latency\", \"evidence_refs\": [\"F1\", \"F5\"], \"rationale\": \"F1 shows dependency error at 1.25 requests/second, below the 1.5 threshold for dependency_errors, and F5 shows payments latency at 0.2425 seconds, exceeding the 0.15s threshold for downstream_latency, with no pool or cache degradation signs\"}"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 2428446846,
+          "load_duration": 1776394,
+          "prompt_eval_count": 1188,
+          "prompt_eval_cached_count": 248,
+          "prompt_eval_duration": 562556000,
+          "eval_count": 93,
+          "eval_duration": 1712781000
+        },
+        "error": "missing or competing observations require inconclusive",
+        "error_type": "ValueError"
+      },
+      {
+        "response": {
+          "model": "qwen3:4b-instruct-2507-q4_K_M",
+          "created_at": "2026-09-28T12:40:25.97381171Z",
+          "message": {
+            "role": "assistant",
+            "content": "{\n  \"decision\": \"insufficient_observation\",\n  \"evidence_refs\": [\"F1\", \"F5\", \"F8\"],\n  \"rationale\": \"The observed dependency error (F1) and payments latency (F5) suggest a potential downstream latency issue, but cache miss data (F8) shows zero misses, contradicting the cache degradation rule. No pool exhaustion or CPU contention is present\"\n}"
+          },
+          "done": true,
+          "done_reason": "stop",
+          "total_duration": 1739911223,
+          "load_duration": 1744769,
+          "prompt_eval_count": 1218,
+          "prompt_eval_cached_count": 1186,
+          "prompt_eval_duration": 87477000,
+          "eval_count": 88,
+          "eval_duration": 1601840000
+        }
+      }
+    ],
+    "probe_version": "repair-2",
+    "source_trace_sha256": "726593fced88fd82c9535610fcefed39b108982e8813169e3bf97cd503b764de",
+    "mode": "development_diagnosis_replay",
+    "correct": true,
+    "report": {
+      "investigation_id": "240ff541-9db5-4b61-8bd1-950825fb688f",
+      "report_version": 1,
+      "mode": "replay",
+      "snapshot_id": "cap-20260928085646-41dd7d076c",
+      "target_service": "svc-gateway",
+      "environment": "lab",
+      "incident_window": {
+        "start": "2026-09-28T08:56:46.432681Z",
+        "end": "2026-09-28T08:56:54.508730Z"
+      },
+      "observation_cutoff": "2026-09-28T08:56:54.508730Z",
+      "outcome": "inconclusive",
+      "summary": "The model did not establish a single supported cause in this run.",
+      "observed_symptoms": [
+        {
+          "description": "dependency_outcomes {\"dependency\": \"checkout\", \"outcome\": \"error\", \"service\": \"gateway\"}: captured maximum 1.25 requests/second.",
+          "evidence_ids": [
+            "b353a0f6-38fe-5dcf-9323-137639622773"
+          ]
+        },
+        {
+          "description": "request_latency_p95 {\"route\": \"/pay\", \"service\": \"payments\"}: captured maximum 0.2425 seconds.",
+          "evidence_ids": [
+            "5632b9fa-55c9-50da-ac79-f8da5ae72c00"
+          ]
+        },
+        {
+          "description": "cache_outcomes {\"result\": \"hit\", \"service\": \"payments\"}: captured maximum 5.00375 requests/second.",
+          "evidence_ids": [
+            "cb5515d6-6c38-56b9-8a28-7aae839d5a94"
+          ]
+        },
+        {
+          "description": "cache_outcomes {\"result\": \"miss\", \"service\": \"payments\"}: captured maximum 0 requests/second.",
+          "evidence_ids": [
+            "cb5515d6-6c38-56b9-8a28-7aae839d5a94"
+          ]
+        }
+      ],
+      "ranked_hypotheses": [],
+      "observed_impact": [],
+      "potential_impact": [],
+      "recommended_next_steps": [],
+      "limitations": [
+        "The observed dependency error (F1) and payments latency (F5) suggest a potential downstream latency issue, but cache miss data (F8) shows zero misses, contradicting the cache degradation rule. No pool exhaustion or CPU contention is present"
+      ],
+      "review_status": "not_requested",
+      "termination_reason": "development_repair_probe",
+      "usage_and_timing": {
+        "model_calls": 1,
+        "tool_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "active_duration_ms": 0.0,
+        "model_latency_ms": 0.0,
+        "tool_latency_ms": 0.0,
+        "cost_is_estimate": false
+      },
+      "trace_reference": "evaluation://phase9-v2/repair_probe/240ff541-9db5-4b61-8bd1-950825fb688f"
+    }
+  }
+]

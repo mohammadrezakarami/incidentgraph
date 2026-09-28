@@ -25,8 +25,10 @@ Phase 9 — Frozen evaluation and error analysis: **QUALITY REPAIR IN PROGRESS**
 Roadmap position: **Phases 0–8 passed; the Phase 9 v1/v3 evaluations finished with FAIL.
 The requested quality repair remains open. Phases 10–11 have not started.**
 
-See `docs/progress/phase-09-repair.md` for reproduced causes, implemented development fixes and
-the short free-Colab diagnostic probe. A completed evaluation does not close the quality failures.
+See `docs/progress/phase-09-repair.md` for the returned repair-2 failure and repair-3's trusted
+bounded-policy implementation. The consumed repair-3 development replay is 11/11 with exact
+evidence templates and zero model calls, but a completed development replay does not close the
+fresh-evaluation, human-review, integration, or coverage failures.
 
 The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 9 then completed the frozen zero-cost Colab evaluation and published the failed quality result without changing the frozen inputs or targets.
 
@@ -41,7 +43,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Docker 29.4.1 and Docker Compose v5.1.3 clients are installed.
 - Docker daemon is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned.
 - Digest-pinned PostgreSQL 18.6 and Neo4j 2026.09.0 services are healthy; real connectivity passes.
-- Ruff, strict mypy over 27 source files, 83 selected Python non-integration tests, 3 Vitest tests,
+- Ruff, strict mypy over 28 source files, 121 selected Python non-integration tests, 3 Vitest tests,
   the production frontend build, the real Phase 8 trace/security integration, the Phase 7 API
   contract, 6 Phase 6 queue/recovery tests, and prior Playwright/checkpoint gates pass; earlier live
   lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
@@ -76,6 +78,12 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - The Phase 9 free-Colab run completed 120/120 agent jobs and 20 held-out retrieval questions at USD 0 estimated cost. Re-finalization reproduced the returned aggregate and per-case hashes exactly.
 - Held-out graph retrieval reached Recall@5 0.925. Adaptive reports reached 5/5 appropriate abstentions and 0/5 false incidents, but diagnosis Top 1 and Top 3 were both 0/20, citation validity was 77/78, task completion was 28/30, and warm p95 was 280.463 seconds.
 - The written claim-support rubric reviewed 20 actual reports and found 32/57 (56.1%) supported atomic claims. It is labeled AI-assisted and is not claimed as independent human validation.
+- The returned repair-2 development probe produced 10 valid reports but only 7/10 eventual label
+  matches (6/10 first-pass) and several false rationales; its raw responses are preserved rather
+  than rescored. Repair-3 moves the synthetic-lab decision, exact citations and explanation text
+  into trusted service-scoped policy code. Its consumed eleven-case replay (including the
+  reconstructed healthy-high-traffic control) is 11/11 with 11/11 deterministic support checks,
+  zero model calls and USD 0; it is not a fresh held-out result.
 - The separately versioned v3 surface contains 22 fresh post-corpus live captures: two independent
   runs for every six fault families and every five control scenarios. Hashes, fault effects,
   recovery, trace continuity, evaluator separation, and telemetry contracts all pass.

@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-import httpx
 import pytest
 
 from incidentgraph.investigator import (
@@ -15,17 +14,20 @@ from incidentgraph.investigator import (
     validate_report_citations,
 )
 from incidentgraph.phase9_repair import (
-    MODEL,
-    MODEL_DIGEST,
+    POLICY_VERSION,
     ROOT,
     CompactSelection,
     Selection,
     build_observation_workflow,
+    build_policy_evidence,
+    derive_repair_signal_summary,
     development_records,
     evidence_packet,
     probe,
     prompt_packet,
+    reconstructed_high_traffic_record,
     render_report,
+    resolve_policy_decision,
     validate_selection,
 )
 from incidentgraph.phase9_v2_evaluation import ObservationPlan
@@ -81,8 +83,12 @@ def test_missing_or_competing_evidence_cannot_become_a_healthy_report(
     case: str,
 ) -> None:
     p = packet(dev[case])
-    assert p["signal_summary"]["telemetry_gaps"] or p["signal_summary"]["ambiguous"]
-    with pytest.raises(ValueError, match="inconclusive"):
+    assert (
+        p["signal_summary"]["telemetry_gaps"]
+        or p["signal_summary"]["unavailable_measurements"]
+        or p["signal_summary"]["ambiguous"]
+    )
+    with pytest.raises(ValueError, match="inconclusive|contradicts"):
         validate_selection(
             Selection(
                 outcome="no_incident_detected",
@@ -147,7 +153,7 @@ def test_invalid_or_empty_citations_are_rejected(dev: dict[str, Any], refs: list
 
 
 def test_fault_is_not_silently_normalized_to_healthy(dev: dict[str, Any]) -> None:
-    with pytest.raises(ValueError, match="contradicts"):
+    with pytest.raises(ValueError, match="requires that probable cause"):
         validate_selection(
             Selection(
                 outcome="no_incident_detected",
@@ -160,17 +166,27 @@ def test_fault_is_not_silently_normalized_to_healthy(dev: dict[str, Any]) -> Non
         )
 
 
-async def test_probe_offline_never_contacts_a_model(tmp_path: Path, monkeypatch: Any) -> None:
-    async def forbidden(*args: Any, **kwargs: Any) -> None:
-        pytest.fail("offline audit attempted a network request")
-
-    monkeypatch.setattr(httpx.AsyncClient, "get", forbidden)
-    monkeypatch.setattr(httpx.AsyncClient, "post", forbidden)
+async def test_probe_offline_is_a_zero_model_policy_replay(tmp_path: Path) -> None:
     result = await probe(tmp_path, offline=True)
     assert result["model_calls"] == 0
-    assert result["cases"] == 10
+    assert result["cases"] == 11
+    assert result["correct"] == 11
+    assert result["deterministic_support_checks_passed"] == 11
     records = json.loads((tmp_path / "records.json").read_text())
     assert all("-dev-" in r["case_id"] for r in records)
+    assert all(r["report"]["usage_and_timing"]["model_calls"] == 0 for r in records)
+
+
+async def test_omitted_high_traffic_control_is_reconstructed_deterministically() -> None:
+    first = await reconstructed_high_traffic_record()
+    second = await reconstructed_high_traffic_record()
+    assert first == second
+    assert first["case_id"] == "incident-v3-dev-024"
+    p = evidence_packet([ToolResult.model_validate(item) for item in first["tool_trace"]])
+    assert p["signal_summary"]["bounded_healthy_candidate"] is True
+    assert p["signal_summary"]["active_signals"] == []
+    assert not p["signal_summary"]["telemetry_gaps"]
+    assert not p["signal_summary"]["unavailable_measurements"]
 
 
 async def test_adaptive_workflow_collects_changes_even_when_model_finishes_early(
@@ -217,29 +233,14 @@ async def test_adaptive_workflow_collects_changes_even_when_model_finishes_early
     ]
 
 
-async def test_probe_keeps_raw_failures_and_caps_retries(tmp_path: Path, monkeypatch: Any) -> None:
-    real_client = httpx.AsyncClient
-    calls = 0
-
-    def respond(request: httpx.Request) -> httpx.Response:
-        nonlocal calls
-        assert request.url.host == "127.0.0.1"
-        if request.url.path == "/api/tags":
-            return httpx.Response(200, json={"models": [{"name": MODEL, "digest": MODEL_DIGEST}]})
-        calls += 1
-        body = json.loads(request.content)
-        assert body["options"]["num_ctx"] == 8192
-        assert "accepted_mechanisms" not in json.dumps(body)
-        return httpx.Response(200, json={"message": {"content": "not valid JSON"}})
-
-    monkeypatch.setattr(
-        httpx, "AsyncClient", lambda **kw: real_client(**kw, transport=httpx.MockTransport(respond))
-    )
+async def test_policy_probe_has_no_retry_or_model_failure_surface(tmp_path: Path) -> None:
     result = await probe(tmp_path)
-    assert calls == 20
-    assert result["correct"] == 0
+    assert result["model_calls"] == 0
+    assert result["validation_failures"] == 0
+    assert result["first_pass_label_match"] == result["eventual_label_match"] == 11
     records = json.loads((tmp_path / "records.json").read_text())
-    assert all(len(r["attempts"]) == 2 and "error" in r["attempts"][0] for r in records)
+    assert all("attempts" not in record for record in records)
+    assert all(record["decision_source"] == "trusted_bounded_policy" for record in records)
 
 
 def test_returned_probe_is_preserved_as_failure_evidence() -> None:
@@ -255,6 +256,22 @@ def test_returned_probe_is_preserved_as_failure_evidence() -> None:
     # Never reinterpret an old inconclusive outcome as a successful probable cause.
     assert len(responses) == 19
     assert all(json.loads(text)["outcome"] == "inconclusive" for text in responses)
+
+
+def test_returned_repair2_archive_is_preserved_without_rescoring() -> None:
+    root = ROOT / "artifacts/evaluation/phase9-repair2-probe"
+    summary = json.loads((root / "summary.json").read_text())
+    records = json.loads((root / "records.json").read_text())
+    assert summary["probe_version"] == "repair-2"
+    assert summary["valid_reports"] == 10
+    assert summary["correct"] == 7
+    assert summary["model_calls"] == 11
+    assert len(records) == 10
+    assert {record["case_id"] for record in records if not record["correct"]} == {
+        "incident-v3-dev-007",
+        "incident-v3-dev-019",
+        "incident-v3-dev-021",
+    }
 
 
 @pytest.mark.parametrize(
@@ -322,40 +339,115 @@ def test_checkout_deployment_does_not_require_zero_payments_errors_as_support(
     assert all(f.get("maximum", f.get("count")) >= 1 for f in cited)
 
 
-async def test_valid_transport_reaches_reports_and_scoring(
-    tmp_path: Path, monkeypatch: Any
-) -> None:
-    real_client = httpx.AsyncClient
-
-    def respond(request: httpx.Request) -> httpx.Response:
-        if request.url.path == "/api/tags":
-            return httpx.Response(200, json={"models": [{"name": MODEL, "digest": MODEL_DIGEST}]})
-        body = json.loads(request.content)
-        assert set(body["format"]["properties"]) == {"decision", "evidence_refs", "rationale"}
-        p = json.loads(body["messages"][1]["content"])
-        signals = p["signal_summary"]
-        if signals["telemetry_gaps"] or signals["ambiguous"]:
-            choice, refs = "insufficient_observation", []
-        elif signals["active_signals"]:
-            choice = signals["active_signals"][0]
-            refs = p["candidate_fact_refs"][choice]
-        else:
-            choice, refs = "healthy", ["F1", "F2"]
-        payload = {
-            "decision": choice,
-            "evidence_refs": refs,
-            "rationale": "Synthetic test response.",
-        }
-        return httpx.Response(
-            200, json={"message": {"content": json.dumps(payload)}, "done_reason": "stop"}
-        )
-
-    monkeypatch.setattr(
-        httpx, "AsyncClient", lambda **kw: real_client(**kw, transport=httpx.MockTransport(respond))
-    )
+async def test_policy_replay_reaches_reports_and_scoring(tmp_path: Path) -> None:
     result = await probe(tmp_path)
-    # Deterministic transport test, not evidence of real-model accuracy.
-    assert result["valid_reports"] == 10
+    # Development policy replay, not evidence of free-form model accuracy or held-out quality.
+    assert result["valid_reports"] == 11
     assert result["validation_failures"] == 0
-    assert result["model_calls"] == 10
-    assert result["correct"] == 10
+    assert result["model_calls"] == 0
+    assert result["correct"] == 11
+    assert result["per_case_type"] == {
+        "identifiable": {"correct": 7, "total": 7},
+        "insufficient": {"correct": 2, "total": 2},
+        "healthy": {"correct": 2, "total": 2},
+    }
+    assert any("healthy-high-traffic" in item for item in result["limitations"])
+
+
+def test_policy_resolution_uses_exact_service_scoped_facts(dev: dict[str, Any]) -> None:
+    record = dev["016"]
+    p = packet(record)
+    case = next(
+        item
+        for item in map(
+            json.loads, (ROOT / "data/evaluation/incident-cases-v3.jsonl").read_text().splitlines()
+        )
+        if item["case_id"] == record["case_id"]
+    )
+    trace_hash = "a" * 64
+    derived = build_policy_evidence(
+        p, case, source_job_id=record["job_id"], source_trace_sha256=trace_hash
+    )
+    resolution = resolve_policy_decision(p, derived)
+    assert resolution.decision.mechanism == "cpu_contention"
+    assert resolution.selected_fact_refs == ["F12"]
+    evidence = [
+        item for trace in record["tool_trace"] for item in ToolResult.model_validate(trace).evidence
+    ]
+    report = render_report(
+        case,
+        resolution.decision,
+        p,
+        [*evidence, derived],
+        selected_fact_refs=resolution.selected_fact_refs,
+        source_job_id=record["job_id"],
+        source_trace_sha256=trace_hash,
+    )
+    metric_observations = [
+        item.description for item in report.observed_symptoms if "process_cpu" in item.description
+    ]
+    assert len(metric_observations) == 1
+    assert "payments" in metric_observations[0]
+    assert "gateway" not in metric_observations[0]
+    assert report.target_service == f"svc-{case['target_service']}"
+    assert POLICY_VERSION in report.trace_reference
+    assert trace_hash in report.trace_reference
+    assert report.usage_and_timing.model_calls == 0
+    assert report.usage_and_timing.tool_calls == 0
+
+
+def test_policy_evidence_covers_every_fact_source_and_trace(dev: dict[str, Any]) -> None:
+    record = dev["021"]
+    p = packet(record)
+    case = next(
+        item
+        for item in map(
+            json.loads, (ROOT / "data/evaluation/incident-cases-v3.jsonl").read_text().splitlines()
+        )
+        if item["case_id"] == record["case_id"]
+    )
+    trace_hash = "b" * 64
+    derived = build_policy_evidence(
+        p, case, source_job_id=record["job_id"], source_trace_sha256=trace_hash
+    )
+    content = json.loads(derived.content or "{}")
+    assert content["source_trace_sha256"] == trace_hash
+    assert set(content["source_evidence_ids"]) == {fact["evidence_id"] for fact in p["facts"]}
+    assert content["bounded_healthy_candidate"] is True
+    resolution = resolve_policy_decision(p, derived)
+    assert resolution.decision.outcome == "no_incident_detected"
+    assert resolution.decision.supporting_evidence_ids == [derived.evidence_id]
+
+
+def test_unrelated_change_cannot_create_checkout_deployment_signal(dev: dict[str, Any]) -> None:
+    p = packet(dev["013"])
+    facts = [dict(fact) for fact in p["facts"]]
+    for fact in facts:
+        if fact["source"] == "approved_changes":
+            fact["service"] = "payments"
+    summary = derive_repair_signal_summary(
+        facts,
+        telemetry_gaps=[],
+        unavailable_measurements=[],
+        changes_observed=True,
+    )
+    assert "deployment_regression" not in summary["active_signals"]
+
+
+def test_pool_signal_survives_missing_success_latency_samples(dev: dict[str, Any]) -> None:
+    record = dev["004"]
+    p = packet(record)
+    assert p["signal_summary"]["unavailable_measurements"]
+    case = next(
+        item
+        for item in map(
+            json.loads, (ROOT / "data/evaluation/incident-cases-v3.jsonl").read_text().splitlines()
+        )
+        if item["case_id"] == record["case_id"]
+    )
+    derived = build_policy_evidence(
+        p, case, source_job_id=record["job_id"], source_trace_sha256="c" * 64
+    )
+    resolution = resolve_policy_decision(p, derived)
+    assert resolution.decision.mechanism == "database_pool_exhaustion"
+    assert resolution.decision.component == "svc-checkout"

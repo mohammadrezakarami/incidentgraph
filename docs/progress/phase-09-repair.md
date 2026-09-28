@@ -1,5 +1,49 @@
 # Phase 9 repair in progress — 2026-09-28
 
+## Returned repair-2 probe and repair-3 bounded policy
+
+The returned repair-2 archive is preserved under
+`artifacts/evaluation/phase9-repair2-probe/`. Its archive SHA-256 is
+`6b82caa667b49351e6595291ccd36ebe8cc2bbe44b43ad78f06f540777dae86b`.
+It produced 10 structurally valid reports in 11 model calls, but only 7/10 eventual label matches
+and 6/10 first-pass matches. The pinned 4B model wrongly abstained on two complete payments
+dependency-error cases and one complete healthy case. One ambiguous case required a retry.
+Several accepted rationales also misdescribed zero or unrelated measurements, so structural
+validity was not equivalent to factual support.
+
+Repair-3 removes that unsafe free-form decision boundary. Trusted code now applies the already
+pre-registered synthetic-lab thresholds and exact service/edge scoping:
+
+- missing required telemetry or multiple active mechanisms yields `insufficient_observation`;
+- one complete active mechanism yields that probable cause and its exact component;
+- complete telemetry with no active mechanism yields `no_incident_detected`;
+- checkout deployment regression requires an approved **checkout** change and a matching
+  gateway-to-checkout error signal; an unrelated service change cannot trigger it;
+- dependency errors require the checkout-to-payments edge, and latency, pool, cache and CPU facts
+  remain scoped to their actual service.
+
+Explanations and cited fact selections are generated from trusted templates. A derived policy
+evidence item is cryptographically linked to the complete source trace and every raw fact evidence
+ID, making completeness/healthy claims auditable without arbitrary three-fact sampling. Reports
+carry the actual case target, zero replayed model/tool calls, the repair-3 policy version, source job
+ID and source-trace digest. Frozen v1/v2/v3 implementations and artifacts remain unchanged.
+
+The lightweight repair-3 development replay is preserved under
+`artifacts/evaluation/phase9-repair3-development/`. It made no model, network, Docker or paid calls:
+
+- 11/11 structurally valid reports;
+- 11/11 deterministic evidence-support checks;
+- 11/11 development label matches (7 identifiable, 2 insufficient/ambiguous, 2 healthy);
+- 0 model calls and USD 0 cost.
+
+The eleventh control is the previously omitted healthy-high-traffic case, reconstructed
+deterministically from its immutable development capture. Thirty-eight targeted repair tests and
+the complete 121-test non-integration suite pass. Ruff and
+strict mypy pass using the already-installed project environment. This is a consumed development
+replay, not a free-form model-accuracy claim, fresh holdout, human supported-claim review, or Phase
+9 PASS. Integration into a newly frozen workflow, fresh independent evaluation, human review, and
+the retained 85% coverage gate remain open.
+
 ## Returned first probe and repair-2
 
 The first real-model probe returned 0/10 and 20 attempts. Archive SHA-256:
@@ -28,12 +72,13 @@ Repair-2 fixes the demonstrated contract defects:
 
 Thirty-two repair tests pass, including archived-response regression checks and successful and
 failing mocked transport paths. Mocked 10/10 is a plumbing check, not model performance.
-Repair-2 still requires a real-model probe; the fresh evaluation, product integration, global
-coverage target and human review remain open. Do not claim that Phase 9 quality is repaired yet.
+At this point repair-2 still required a real-model probe. That probe has now returned and failed
+the quality check as documented above; repair-2 is retained only as historical failure evidence.
 
-Latest deliverables: `phase9_repair_colab.ipynb` now requires
+The historical repair-2 deliverable `phase9_repair_colab.ipynb` required
 `incidentgraph-phase9-repair2.bundle` and returns `phase9-repair2-probe.zip`. Its four cells reuse
-an already running matching Ollama server where possible. Do not upload the first repair bundle.
+an already running matching Ollama server where possible. Do not rerun or upload that obsolete
+repair-2 bundle; repair-3 needs no model probe.
 
 Phase 9 evaluation execution completed, but the user's requested quality repair is still open.
 Do not equate a completed FAIL report with a working diagnostic agent or proceed to Phase 10.
@@ -78,22 +123,22 @@ Do not equate a completed FAIL report with a working diagnostic agent or proceed
 
 ## What is verified and what remains
 
-Eighteen targeted deterministic tests pass, including all six fault families, healthy, physically
+At the first-repair checkpoint, eighteen targeted deterministic tests passed, including all six fault families, healthy, physically
 missing telemetry, ambiguity, wrong citations, bounded retries, offline network isolation and
 premature adaptive finish. Development prompts shrink from roughly 8.5–10.3k characters to under
 3k. These are contract tests with saved observations, not real-model quality results.
 
-The complete lightweight suite passes 101 tests; Ruff and strict mypy pass. Whole-project branch
+At that checkpoint the complete lightweight suite passed 101 tests; Ruff and strict mypy passed. Whole-project branch
 coverage is 50.31%, still below 85%. The new repair module itself has 88% coverage; that is not a
 replacement for the whole-project gate and the failing threshold was not lowered.
 
-The next artifact is `phase9_repair_colab.ipynb` with `incidentgraph-phase9-repair.bundle`.
-It does not need Neo4j, Docker, new captures or the old progress ZIP. Its output is
-`phase9-repair-probe.zip`. Even a successful 10-case diagnostic replay cannot replace a full
-workflow test or a fresh, sealed held-out evaluation. Do not automatically launch another 120 jobs.
+That checkpoint's next artifact was `phase9_repair_colab.ipynb` with
+`incidentgraph-phase9-repair.bundle`. Its returned probes are now superseded by the repair-3
+development artifact above. A successful development replay still cannot replace a full workflow
+test or a fresh, sealed held-out evaluation. Do not automatically launch another 120 jobs.
 
-Still open: real-model validation, integration of the validated repair into the next evaluation
-and product path, whole-project coverage >=85%, and the required human claim-support rubric.
+Still open: integration of repair-3 into the next frozen workflow and product path, a fresh sealed
+evaluation, whole-project coverage >=85%, and the required human claim-support rubric.
 The previous written AI review is not independent human validation. The v3 held-out set has now
 been opened and must not be presented as a fresh holdout after tuning. Current v3 scores and
 frozen files remain historical evidence; no quality PASS is claimed by this repair.

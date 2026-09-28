@@ -1,0 +1,16 @@
+{
+  "mode": "development_diagnosis_replay",
+  "cases": 10,
+  "probe_version": "repair-2",
+  "valid_reports": 10,
+  "validation_failures": 1,
+  "correct": 7,
+  "model_calls": 11,
+  "paid_cost_usd": 0,
+  "full_evaluation_authorized_by_probe": false,
+  "limitations": [
+    "Saved development observations only; not end-to-end agent validation.",
+    "No fresh held-out claim or independent human review.",
+    "Original whole-project coverage target remains unmet."
+  ]
+}

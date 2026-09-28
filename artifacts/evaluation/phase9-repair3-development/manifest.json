@@ -1,0 +1,25 @@
+{
+  "probe_version": "repair-3",
+  "policy_version": "phase9-repair-3-bounded-policy-v1",
+  "decision_source": "trusted_bounded_policy",
+  "model_used": false,
+  "model_digest": null,
+  "source_subset_sha256": "185f523288db5e4d6734c6ab329229a329040d61472e9ae48d3ef2111d2bd967",
+  "repair_code_sha256": "ea0135f92b060a51ed7b35d067d3065028988a141e548a905fff3df0e82f9823",
+  "case_manifest_sha256": "717d799baf14ab2cbe2be4b9b6a93063d25397c7b4aaafa53474653084b614dc",
+  "label_manifest_sha256": "4dfcda7f3d7b5d2495101b383de307e56b62e67c0675804774499cabc4dbbb50",
+  "source_freeze_sha256": "5c7dec2b85178095e5d6ef4560ad92be3c71b5ab0bf5f7a94c3052bb6603b771",
+  "case_ids": [
+    "incident-v3-dev-001",
+    "incident-v3-dev-004",
+    "incident-v3-dev-007",
+    "incident-v3-dev-010",
+    "incident-v3-dev-013",
+    "incident-v3-dev-016",
+    "incident-v3-dev-019",
+    "incident-v3-dev-021",
+    "incident-v3-dev-026",
+    "incident-v3-dev-029",
+    "incident-v3-dev-024"
+  ]
+}

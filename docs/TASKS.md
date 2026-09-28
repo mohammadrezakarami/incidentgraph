@@ -197,6 +197,24 @@ reviewed. Adaptive Top 1/Top 3 were 0/20, appropriate abstention was 3/5, false 
 task completion was 30/30, and supported factual conclusions were 0/20. Coverage measured 48.38%
 against the retained 85% target. Phase 9 is complete with an honest failed quality gate.
 
+### Phase 9 quality repair — newly versioned iteration
+
+- [x] Preserve and inspect the returned repair-2 raw probe without reinterpreting failures.
+- [x] Scope every bounded signal and approved change to the exact service/dependency edge.
+- [x] Move the synthetic-lab decision and report explanation out of unreliable free-form model text.
+- [x] Add derived policy evidence linked to the complete source trace and raw evidence IDs.
+- [x] Replay all 11 development capture groups, including reconstructed healthy-high-traffic:
+  11/11 label and support checks, USD 0.
+- [ ] Add an end-to-end repaired workflow test.
+- [ ] Integrate repair-3 into a new workflow without changing any frozen v1/v2/v3 implementation.
+- [ ] Raise core-domain/policy/retrieval/orchestration coverage to the retained 85% target.
+- [ ] Create and seal a genuinely fresh holdout before opening any new answers.
+- [ ] Run the new frozen comparison for free off-laptop and complete the human claim-support rubric.
+
+Repair-3 development status: **IMPLEMENTATION CONTRACT PASS; PHASE 9 STILL OPEN**. The 11/11 result
+is a deterministic replay over consumed development traces, not model diagnosis accuracy or a
+fresh held-out quality result.
+
 ## Later phase gates
 
 The user requested fixing the remaining Phase 9 failures. Current repair details and outstanding

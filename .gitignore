@@ -64,6 +64,17 @@ artifacts/evaluation/phase9-v3-fresh/*
 !artifacts/evaluation/phase9-v3-fresh/manual-review.jsonl
 !artifacts/evaluation/phase9-v3-fresh/manual-review-summary.json
 !artifacts/evaluation/phase9-v3-fresh/agent-part-*.jsonl
+!artifacts/evaluation/phase9-repair2-probe/
+artifacts/evaluation/phase9-repair2-probe/*
+!artifacts/evaluation/phase9-repair2-probe/README.md
+!artifacts/evaluation/phase9-repair2-probe/records.json
+!artifacts/evaluation/phase9-repair2-probe/summary.json
+!artifacts/evaluation/phase9-repair3-development/
+artifacts/evaluation/phase9-repair3-development/*
+!artifacts/evaluation/phase9-repair3-development/README.md
+!artifacts/evaluation/phase9-repair3-development/manifest.json
+!artifacts/evaluation/phase9-repair3-development/records.json
+!artifacts/evaluation/phase9-repair3-development/summary.json
 artifacts/traces/
 logs/
 *.log

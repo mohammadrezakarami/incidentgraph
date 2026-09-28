@@ -12,14 +12,15 @@ import hashlib
 import json
 import math
 from collections.abc import Awaitable, Callable, Mapping, Sequence
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, TypedDict
-from uuid import UUID, uuid4
+from uuid import NAMESPACE_URL, UUID, uuid5
 
-import httpx
 from langgraph.graph import END, START, StateGraph
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
+from incidentgraph.config import Settings
 from incidentgraph.investigation_tools import CaptureToolbox
 from incidentgraph.investigator import ModelResult, ToolResult, validate_report_citations
 from incidentgraph.models import EvidenceItem, InvestigationReport
@@ -37,12 +38,14 @@ from incidentgraph.phase9_v2_evaluation import (
     _runtime_context,
     compact_outcome,
 )
-from incidentgraph.phase9_v3_evaluation import derive_signal_summary
+from incidentgraph.phase9_v3_dataset import CAPTURE_ROOT
+from incidentgraph.phase9_v3_evaluation import LAB_SIGNAL_THRESHOLDS
 
 ROOT = Path(__file__).resolve().parents[2]
 MODEL = "qwen3:4b-instruct-2507-q4_K_M"
 MODEL_DIGEST = "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0"
-PROBE_VERSION = "repair-2"
+PROBE_VERSION = "repair-3"
+POLICY_VERSION = "phase9-repair-3-bounded-policy-v1"
 REQUIRED_METRICS = {
     ("svc-gateway", "error_rate"),
     ("svc-gateway", "request_latency"),
@@ -111,6 +114,14 @@ class CompactSelection(BaseModel):
                 "limitation": self.rationale if outcome == "inconclusive" else None,
             }
         )
+
+
+class PolicyResolution(BaseModel):
+    """Trusted decision plus the exact facts rendered into its report."""
+
+    decision: DiagnosisDecision
+    policy_evidence: EvidenceItem
+    selected_fact_refs: list[str]
 
 
 class ObservationState(TypedDict, total=False):
@@ -203,6 +214,143 @@ def _source_refs(facts: list[dict[str, Any]], source: str, **labels: str) -> lis
     ]
 
 
+def _fact_maximum(facts: Sequence[Mapping[str, Any]], source: str, **labels: str) -> float:
+    values = [
+        float(fact["maximum"])
+        for fact in facts
+        if fact.get("source") == source
+        and all(fact.get("labels", {}).get(key) == value for key, value in labels.items())
+        and isinstance(fact.get("maximum"), (float, int))
+    ]
+    return max(values, default=0.0)
+
+
+def derive_repair_signal_summary(
+    facts: Sequence[Mapping[str, Any]],
+    *,
+    telemetry_gaps: Sequence[str],
+    unavailable_measurements: Sequence[str],
+    changes_observed: bool,
+) -> dict[str, Any]:
+    """Apply the bounded lab policy without mixing unrelated services or fault families."""
+
+    gateway_checkout_errors = _fact_maximum(
+        facts,
+        "dependency_outcomes",
+        service="gateway",
+        dependency="checkout",
+        outcome="error",
+    )
+    checkout_payments_errors = _fact_maximum(
+        facts,
+        "dependency_outcomes",
+        service="checkout",
+        dependency="payments",
+        outcome="error",
+    )
+    payments_latency = max(
+        (
+            float(fact["maximum"])
+            for fact in facts
+            if fact.get("source") == "request_latency_p95"
+            and fact.get("labels", {}).get("service") == "payments"
+            and fact.get("labels", {}).get("route")
+            not in {
+                "/health/ready",
+                "/metrics",
+                "/docs",
+                "/favicon.ico",
+            }
+            and isinstance(fact.get("maximum"), (float, int))
+        ),
+        default=0.0,
+    )
+    checkout_pool = _fact_maximum(facts, "db_pool_in_use", service="checkout")
+    checkout_timeouts = _fact_maximum(facts, "db_pool_timeouts", service="checkout")
+    cache_hits = _fact_maximum(facts, "cache_outcomes", service="payments", result="hit")
+    cache_misses = _fact_maximum(facts, "cache_outcomes", service="payments", result="miss")
+    payments_cpu = _fact_maximum(facts, "process_cpu", job="payments")
+    change_services = sorted(
+        {
+            str(fact["service"]).removeprefix("svc-")
+            for fact in facts
+            if fact.get("source") == "approved_changes" and fact.get("service")
+        }
+    )
+
+    signals: list[Mechanism] = []
+    components: dict[str, Component] = {}
+    if (
+        checkout_pool >= LAB_SIGNAL_THRESHOLDS["checkout_pool_connections"]
+        and checkout_timeouts >= LAB_SIGNAL_THRESHOLDS["checkout_pool_timeouts"]
+    ):
+        signals.append("database_pool_exhaustion")
+        components["database_pool_exhaustion"] = "svc-checkout"
+    if (
+        cache_misses >= LAB_SIGNAL_THRESHOLDS["cache_miss_minimum_rps"]
+        and cache_misses >= cache_hits * LAB_SIGNAL_THRESHOLDS["cache_miss_to_hit_ratio"]
+    ):
+        signals.append("cache_degradation")
+        components["cache_degradation"] = "svc-payments"
+    if payments_cpu >= LAB_SIGNAL_THRESHOLDS["payments_cpu_seconds_per_second"]:
+        signals.append("cpu_contention")
+        components["cpu_contention"] = "svc-payments"
+    if "checkout" in change_services and gateway_checkout_errors >= 1.0:
+        signals.append("deployment_regression")
+        components["deployment_regression"] = "svc-checkout"
+    if checkout_payments_errors >= LAB_SIGNAL_THRESHOLDS["dependency_error_rps"] and not any(
+        candidate in signals
+        for candidate in (
+            "database_pool_exhaustion",
+            "cache_degradation",
+            "cpu_contention",
+            "deployment_regression",
+        )
+    ):
+        signals.append("dependency_errors")
+        components["dependency_errors"] = "svc-payments"
+    if (
+        payments_latency >= LAB_SIGNAL_THRESHOLDS["request_latency_seconds"]
+        and checkout_payments_errors < LAB_SIGNAL_THRESHOLDS["dependency_error_rps"]
+        and not any(
+            candidate in signals
+            for candidate in (
+                "database_pool_exhaustion",
+                "cache_degradation",
+                "cpu_contention",
+            )
+        )
+    ):
+        signals.append("downstream_latency")
+        components["downstream_latency"] = "svc-payments"
+
+    gaps = sorted(set(telemetry_gaps))
+    unavailable = sorted(set(unavailable_measurements))
+    return {
+        "scope": "pre-registered synthetic-lab calibration; not a production diagnosis policy",
+        "policy_version": POLICY_VERSION,
+        "thresholds": LAB_SIGNAL_THRESHOLDS,
+        "observed_maxima": {
+            "gateway_to_checkout_error_rps": gateway_checkout_errors,
+            "checkout_to_payments_error_rps": checkout_payments_errors,
+            "payments_request_latency_seconds": payments_latency,
+            "checkout_pool_connections": checkout_pool,
+            "checkout_pool_timeouts": checkout_timeouts,
+            "payments_cache_hit_rps": cache_hits,
+            "payments_cache_miss_rps": cache_misses,
+            "payments_cpu_seconds_per_second": payments_cpu,
+        },
+        "approved_change_services": change_services,
+        "changes_observed": changes_observed,
+        "telemetry_gaps": gaps,
+        "unavailable_measurements": unavailable,
+        "active_signals": signals,
+        "active_signal_components": components,
+        "ambiguous": len(signals) > 1,
+        "bounded_healthy_candidate": not signals and not gaps and not unavailable,
+    }
+
+
 def evidence_packet(outcomes: Sequence[ToolResult]) -> dict[str, Any]:
     """Keep each finite measurement attached to its exact evidence, unit and service."""
     observations = [compact_outcome(o) for o in outcomes]
@@ -253,15 +401,18 @@ def evidence_packet(outcomes: Sequence[ToolResult]) -> dict[str, Any]:
         if raw.tool.value == "get_recent_changes":
             changes_seen = raw.status == "ok" or raw.error_code == "INSUFFICIENT_DATA"
             if raw.status == "ok" and obs["evidence_ids"]:
-                facts.append(
-                    {
-                        "ref": f"F{len(facts) + 1}",
-                        "source": "approved_changes",
-                        "count": data.get("change_count", 0),
-                        "evidence_id": obs["evidence_ids"][0],
-                    }
-                )
-    summary = derive_signal_summary({"observations": observations})
+                for change in data.get("changes", []):
+                    facts.append(
+                        {
+                            "ref": f"F{len(facts) + 1}",
+                            "source": "approved_changes",
+                            "service": change.get("service"),
+                            "version": change.get("version"),
+                            "observed_at": change.get("observed_at"),
+                            "count": 1,
+                            "evidence_id": obs["evidence_ids"][0],
+                        }
+                    )
     missing = [f"{s}:{t}" for s, t in sorted(REQUIRED_METRICS - observed)]
     if not changes_seen:
         missing.append("approved_change_observation")
@@ -284,53 +435,79 @@ def evidence_packet(outcomes: Sequence[ToolResult]) -> dict[str, Any]:
             for s in o["data"].get("series_summaries", [])
         ):
             unavailable.append(f"{service}:{template}:no_finite_samples")
-    summary["telemetry_gaps"] = sorted(set(summary["telemetry_gaps"] + missing))
-    summary["unavailable_measurements"] = sorted(unavailable)
-    summary["bounded_healthy_candidate"] = (
-        not summary["active_signals"] and not summary["telemetry_gaps"] and not unavailable
+    summary = derive_repair_signal_summary(
+        facts,
+        telemetry_gaps=missing,
+        unavailable_measurements=unavailable,
+        changes_observed=changes_seen,
     )
-    source_map = {
-        "database_pool_exhaustion": ["db_pool_in_use", "db_pool_timeouts"],
-        "cache_degradation": ["cache_outcomes"],
-        "cpu_contention": ["process_cpu"],
-        "deployment_regression": ["approved_changes", "dependency_outcomes"],
-        "dependency_errors": ["dependency_outcomes"],
-        "downstream_latency": ["request_latency_p95"],
-    }
     links: dict[str, list[str]] = {}
     for signal in summary["active_signals"]:
-        links[signal] = []
-        for source in source_map[signal]:
-            if source == "approved_changes":
-                refs = [f["ref"] for f in facts if f["source"] == source and f["count"] > 0]
-            elif signal == "downstream_latency":
-                refs = [
-                    f["ref"]
-                    for f in facts
-                    if f["source"] == source
-                    and f.get("labels", {}).get("service") == "payments"
-                    and f["maximum"] >= summary["thresholds"]["request_latency_seconds"]
-                ]
-            elif signal == "cpu_contention":
-                refs = [
-                    f["ref"]
-                    for f in facts
-                    if f["source"] == source
-                    and f.get("labels", {}).get("job") == "payments"
-                    and f["maximum"] >= summary["thresholds"]["payments_cpu_seconds_per_second"]
-                ]
-            elif source == "dependency_outcomes":
-                threshold = 1.0 if signal == "deployment_regression" else 1.5
-                refs = [
-                    f["ref"]
-                    for f in facts
-                    if f["source"] == source
-                    and f.get("labels", {}).get("outcome") == "error"
-                    and f["maximum"] >= threshold
-                ]
-            else:
-                refs = _source_refs(facts, source)
-            links[signal].extend(refs)
+        if signal == "database_pool_exhaustion":
+            refs = [
+                fact["ref"]
+                for fact in facts
+                if fact.get("source") in {"db_pool_in_use", "db_pool_timeouts"}
+                and fact.get("labels", {}).get("service") == "checkout"
+            ]
+        elif signal == "cache_degradation":
+            refs = [
+                fact["ref"]
+                for fact in facts
+                if fact.get("source") == "cache_outcomes"
+                and fact.get("labels", {}).get("service") == "payments"
+                and fact.get("labels", {}).get("result") in {"hit", "miss"}
+            ]
+        elif signal == "cpu_contention":
+            refs = [
+                fact["ref"]
+                for fact in facts
+                if fact.get("source") == "process_cpu"
+                and fact.get("labels", {}).get("job") == "payments"
+                and fact["maximum"] >= summary["thresholds"]["payments_cpu_seconds_per_second"]
+            ]
+        elif signal == "deployment_regression":
+            refs = [
+                fact["ref"]
+                for fact in facts
+                if (
+                    fact.get("source") == "approved_changes"
+                    and str(fact.get("service", "")).removeprefix("svc-") == "checkout"
+                )
+                or (
+                    fact.get("source") == "dependency_outcomes"
+                    and fact.get("labels", {}).get("service") == "gateway"
+                    and fact.get("labels", {}).get("dependency") == "checkout"
+                    and fact.get("labels", {}).get("outcome") == "error"
+                    and fact["maximum"] >= 1.0
+                )
+            ]
+        elif signal == "dependency_errors":
+            refs = [
+                fact["ref"]
+                for fact in facts
+                if fact.get("source") == "dependency_outcomes"
+                and fact.get("labels", {}).get("service") == "checkout"
+                and fact.get("labels", {}).get("dependency") == "payments"
+                and fact.get("labels", {}).get("outcome") == "error"
+                and fact["maximum"] >= summary["thresholds"]["dependency_error_rps"]
+            ]
+        else:
+            refs = [
+                fact["ref"]
+                for fact in facts
+                if fact.get("source") == "request_latency_p95"
+                and fact.get("labels", {}).get("service") == "payments"
+                and fact.get("labels", {}).get("route")
+                not in {
+                    "/health/ready",
+                    "/metrics",
+                    "/docs",
+                    "/favicon.ico",
+                }
+                and fact["maximum"] >= summary["thresholds"]["request_latency_seconds"]
+            ]
+        links[signal] = refs
     # UUID mapping is kept outside the model-facing context.
     return {
         "facts": facts,
@@ -341,10 +518,10 @@ def evidence_packet(outcomes: Sequence[ToolResult]) -> dict[str, Any]:
             "cache_degradation": "miss >=2 requests/s AND miss >=1.2 * hit requests/s",
             "cpu_contention": "payments CPU >=0.30 CPU-seconds/second",
             "deployment_regression": (
-                "approved change count >=1 AND dependency error >=1.0 requests/s"
+                "approved checkout change AND gateway->checkout error >=1.0 requests/s"
             ),
             "dependency_errors": (
-                "dependency error >=1.5 requests/s without a stronger specific signal"
+                "checkout->payments error >=1.5 requests/s without a stronger specific signal"
             ),
             "downstream_latency": (
                 "payments latency >=0.15s, error <1.5 requests/s, without pool/cache/CPU signal"
@@ -363,6 +540,185 @@ def prompt_packet(packet: Mapping[str, Any]) -> str:
     )
 
 
+def _fact_clause(fact: Mapping[str, Any]) -> str:
+    if fact.get("source") == "approved_changes":
+        return (
+            f"approved change on {fact.get('service')} to {fact.get('version')} "
+            f"at {fact.get('observed_at')}"
+        )
+    labels = ",".join(f"{key}={value}" for key, value in sorted(fact.get("labels", {}).items()))
+    return f"{fact.get('source')}[{labels}]={float(fact['maximum']):.6g} {fact.get('unit')}"
+
+
+def build_policy_evidence(
+    packet: Mapping[str, Any],
+    case: Mapping[str, Any],
+    *,
+    source_job_id: str,
+    source_trace_sha256: str,
+) -> EvidenceItem:
+    """Create one auditable reduction linked to every raw source observation and trace."""
+
+    source_evidence_ids = sorted({fact["evidence_id"] for fact in packet["facts"]})
+    summary = packet["signal_summary"]
+    payload = {
+        "policy_version": POLICY_VERSION,
+        "source_job_id": source_job_id,
+        "source_trace_sha256": source_trace_sha256,
+        "snapshot_id": case["snapshot_id"],
+        "required_metrics": [list(item) for item in sorted(REQUIRED_METRICS)],
+        "changes_observed": summary["changes_observed"],
+        "telemetry_gaps": summary["telemetry_gaps"],
+        "unavailable_measurements": summary["unavailable_measurements"],
+        "observed_maxima": summary["observed_maxima"],
+        "approved_change_services": summary["approved_change_services"],
+        "active_signals": summary["active_signals"],
+        "active_signal_components": summary["active_signal_components"],
+        "bounded_healthy_candidate": summary["bounded_healthy_candidate"],
+        "source_evidence_ids": source_evidence_ids,
+    }
+    serialized = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    content_hash = hashlib.sha256(serialized.encode()).hexdigest()
+    evidence_id = uuid5(
+        NAMESPACE_URL,
+        f"incidentgraph://{POLICY_VERSION}/{case['snapshot_id']}/{content_hash}",
+    )
+    observed_at = datetime.fromisoformat(str(case["observation_cutoff"]).replace("Z", "+00:00"))
+    window_start = datetime.fromisoformat(str(case["window_start"]).replace("Z", "+00:00"))
+    window_end = datetime.fromisoformat(str(case["window_end"]).replace("Z", "+00:00"))
+    return EvidenceItem(
+        evidence_id=evidence_id,
+        kind="metric",
+        source_id=f"{source_job_id}:bounded-policy-summary",
+        source_version=POLICY_VERSION,
+        service_ids=["svc-gateway", "svc-checkout", "svc-payments"],
+        environment="lab",
+        observed_at=observed_at,
+        collected_at=observed_at,
+        content_hash=content_hash,
+        freshness_status="fresh",
+        limitations=[
+            "Deterministic reduction of saved laboratory observations, not a raw measurement.",
+            "Thresholds are synthetic-lab calibration and are not a production diagnosis policy.",
+        ],
+        provenance_reference=(
+            f"evaluation://{POLICY_VERSION}/{source_job_id}?trace_sha256={source_trace_sha256}"
+        ),
+        window_start=window_start,
+        window_end=window_end,
+        valid_from=window_start,
+        valid_to=None,
+        snapshot_id=str(case["snapshot_id"]),
+        query_template_id=POLICY_VERSION,
+        safe_parameters={
+            "source_job_id": source_job_id,
+            "source_trace_sha256": source_trace_sha256,
+            "source_evidence_ids": source_evidence_ids,
+        },
+        content=serialized,
+        aggregation="trusted bounded reduction over captured observations",
+    )
+
+
+def _selected_refs(
+    packet: Mapping[str, Any], candidate_refs: Sequence[str], *, max_sources: int = 2
+) -> list[str]:
+    facts = {fact["ref"]: fact for fact in packet["facts"]}
+    selected_sources: list[str] = []
+    for ref in candidate_refs:
+        evidence_id = str(facts[ref]["evidence_id"])
+        if evidence_id not in selected_sources and len(selected_sources) < max_sources:
+            selected_sources.append(evidence_id)
+    return [ref for ref in candidate_refs if str(facts[ref]["evidence_id"]) in selected_sources]
+
+
+def resolve_policy_decision(
+    packet: Mapping[str, Any], policy_evidence: EvidenceItem
+) -> PolicyResolution:
+    """Resolve the bounded lab outcome in trusted code; no model prose can change it."""
+
+    summary = packet["signal_summary"]
+    signals = list(summary["active_signals"])
+    outcome: Literal["probable_cause", "inconclusive", "no_incident_detected"]
+    component: Component
+    mechanism: Mechanism
+    candidate_refs: list[str]
+    limitation: str | None
+    if summary["telemetry_gaps"]:
+        outcome = "inconclusive"
+        component = "none"
+        mechanism = "insufficient_observation"
+        candidate_refs = []
+        missing = list(summary["telemetry_gaps"])
+        explanation = "The bounded policy abstained because required telemetry was incomplete."
+        limitation = "Missing or unavailable observations: " + ", ".join(missing)
+    elif len(signals) > 1 or summary["ambiguous"]:
+        outcome = "inconclusive"
+        component = "none"
+        mechanism = "insufficient_observation"
+        candidate_refs = [
+            ref for signal in signals for ref in packet["candidate_fact_refs"].get(signal, [])
+        ]
+        explanation = "The bounded policy abstained because multiple fault signals were active."
+        limitation = "Competing bounded signals: " + ", ".join(signals)
+    elif len(signals) == 1:
+        mechanism = signals[0]
+        outcome = "probable_cause"
+        component = summary["active_signal_components"][mechanism]
+        candidate_refs = list(packet["candidate_fact_refs"][mechanism])
+        if not candidate_refs:
+            raise ValueError(f"{mechanism} has no exact supporting facts")
+        limitation = None
+        explanation = (
+            f"The {POLICY_VERSION} rule selected {mechanism}: "
+            + "; ".join(
+                _fact_clause(fact) for fact in packet["facts"] if fact["ref"] in candidate_refs
+            )
+            + "."
+        )
+    elif summary["unavailable_measurements"]:
+        outcome = "inconclusive"
+        component = "none"
+        mechanism = "insufficient_observation"
+        candidate_refs = []
+        explanation = "The bounded policy abstained because required finite samples were absent."
+        limitation = "Unavailable observations: " + ", ".join(summary["unavailable_measurements"])
+    elif summary["bounded_healthy_candidate"]:
+        outcome = "no_incident_detected"
+        component = "none"
+        mechanism = "healthy"
+        candidate_refs = []
+        explanation = (
+            "Required bounded telemetry was complete and no pre-registered laboratory fault "
+            "threshold was crossed."
+        )
+        limitation = None
+    else:
+        outcome = "inconclusive"
+        component = "none"
+        mechanism = "insufficient_observation"
+        candidate_refs = []
+        explanation = "The bounded policy could not establish one supported outcome."
+        limitation = "The observation state did not satisfy a complete policy branch."
+
+    selected_refs = _selected_refs(packet, candidate_refs)
+    facts = {fact["ref"]: fact for fact in packet["facts"]}
+    direct_ids = list(dict.fromkeys(UUID(str(facts[ref]["evidence_id"])) for ref in selected_refs))
+    decision = DiagnosisDecision(
+        outcome=outcome,
+        component=component,
+        mechanism=mechanism,
+        supporting_evidence_ids=[policy_evidence.evidence_id, *direct_ids],
+        explanation=explanation,
+        limitation=limitation,
+    )
+    return PolicyResolution(
+        decision=decision,
+        policy_evidence=policy_evidence,
+        selected_fact_refs=selected_refs,
+    )
+
+
 def validate_selection(raw: Selection, packet: Mapping[str, Any]) -> DiagnosisDecision:
     facts = {f["ref"]: f for f in packet["facts"]}
     if len(raw.supporting_refs) != len(set(raw.supporting_refs)):
@@ -373,6 +729,12 @@ def validate_selection(raw: Selection, packet: Mapping[str, Any]) -> DiagnosisDe
     if summary["telemetry_gaps"] or summary["ambiguous"]:
         if raw.outcome != "inconclusive":
             raise ValueError("missing or competing observations require inconclusive")
+    elif len(summary["active_signals"]) == 1:
+        only_signal = summary["active_signals"][0]
+        if raw.outcome != "probable_cause" or raw.mechanism != only_signal:
+            raise ValueError("one complete bounded signal requires that probable cause")
+    elif summary["bounded_healthy_candidate"] and raw.outcome != "no_incident_detected":
+        raise ValueError("complete bounded healthy telemetry requires no_incident_detected")
     if raw.outcome == "no_incident_detected" and not summary["bounded_healthy_candidate"]:
         raise ValueError("no_incident_detected contradicts the collected observations")
     if raw.outcome == "probable_cause":
@@ -386,8 +748,8 @@ def validate_selection(raw: Selection, packet: Mapping[str, Any]) -> DiagnosisDe
         if raw.component != expected:
             raise ValueError("the selected component does not match the signal source")
         required = set(packet["candidate_fact_refs"][raw.mechanism])
-        if not required or not required.issubset(raw.supporting_refs):
-            raise ValueError("cite the measured facts underlying the selected signal")
+        if not required or required != set(raw.supporting_refs):
+            raise ValueError("cite exactly the measured facts underlying the selected signal")
     if raw.outcome != "inconclusive" and not raw.supporting_refs:
         raise ValueError("an asserted conclusion requires observed fact references")
     ids = list(dict.fromkeys(UUID(facts[ref]["evidence_id"]) for ref in raw.supporting_refs))
@@ -408,39 +770,75 @@ def render_report(
     decision: DiagnosisDecision,
     packet: Mapping[str, Any],
     evidence: Sequence[EvidenceItem],
+    *,
+    selected_fact_refs: Sequence[str] = (),
+    source_job_id: str | None = None,
+    source_trace_sha256: str | None = None,
+    model_calls: int = 0,
+    input_tokens: int = 0,
+    output_tokens: int = 0,
+    model_latency_ms: float = 0,
 ) -> InvestigationReport:
     """Retain source-backed observations also for healthy and inconclusive reports."""
+
+    source_key = source_job_id or str(case["snapshot_id"])
+    trace_key = source_trace_sha256 or "unavailable"
+    investigation_id = uuid5(
+        NAMESPACE_URL,
+        f"incidentgraph://{POLICY_VERSION}/{source_key}/{trace_key}",
+    )
+    target = str(case["target_service"])
+    service_id = target if target.startswith("svc-") else f"svc-{target}"
     report = _build_report(
         case=case,
-        investigation_id=uuid4(),
-        service_id="svc-gateway",
+        investigation_id=investigation_id,
+        service_id=service_id,
         decision=decision,
         evidence=evidence,
-        model_calls=1,
+        model_calls=model_calls,
         tool_calls=0,
-        input_tokens=0,
-        output_tokens=0,
-        model_latency_ms=0,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        model_latency_ms=model_latency_ms,
         tool_latency_ms=0,
         active_duration_ms=0,
-        workflow="repair_probe",
+        workflow="repair-3-policy-replay",
     )
     ids = {str(i) for i in decision.supporting_evidence_ids}
+    exact_refs = set(selected_fact_refs)
     observations = []
+    for item in evidence:
+        if str(item.evidence_id) not in ids or item.source_version != POLICY_VERSION:
+            continue
+        observations.append(
+            {
+                "description": (
+                    f"{POLICY_VERSION} evaluated complete/gap status, scoped maxima, "
+                    "approved-change services, and active bounded signals."
+                ),
+                "evidence_ids": [str(item.evidence_id)],
+            }
+        )
     for fact in packet["facts"]:
+        if exact_refs and fact["ref"] not in exact_refs:
+            continue
         if fact["evidence_id"] not in ids:
             continue
         description = (
-            f"Captured approved changes: {fact['count']}."
+            f"Captured {_fact_clause(fact)}."
             if fact["source"] == "approved_changes"
             else f"{fact['source']} {json.dumps(fact['labels'], sort_keys=True)}: "
             f"captured maximum {fact['maximum']:.6g} {fact['unit']}."
         )
         observations.append({"description": description, "evidence_ids": [fact["evidence_id"]]})
     payload = report.model_dump(mode="json")
-    payload.update(observed_symptoms=observations, termination_reason="development_repair_probe")
+    payload.update(
+        observed_symptoms=observations,
+        termination_reason="development_repair_3_policy_replay",
+        trace_reference=(f"evaluation://{POLICY_VERSION}/{source_key}?trace_sha256={trace_key}"),
+    )
     if decision.outcome == "inconclusive":
-        payload["summary"] = "The model did not establish a single supported cause in this run."
+        payload["summary"] = "The bounded policy did not establish one supported cause."
     result = InvestigationReport.model_validate(payload)
     errors = validate_report_citations(result, evidence)
     if errors:
@@ -462,8 +860,101 @@ def development_records() -> list[dict[str, Any]]:
     )
 
 
+async def reconstructed_high_traffic_record() -> dict[str, Any]:
+    """Collect the omitted development control from its immutable capture, without a model."""
+
+    case = next(
+        item
+        for item in map(
+            json.loads,
+            (ROOT / "data/evaluation/incident-cases-v3.jsonl").read_text().splitlines(),
+        )
+        if item["case_id"] == "incident-v3-dev-024"
+    )
+    settings = Settings.model_validate(
+        {
+            "app_database_dsn": SecretStr("postgresql://unused:unused@127.0.0.1/unused"),
+            "lab_database_dsn": SecretStr("postgresql://unused:unused@127.0.0.1/unused"),
+            "neo4j_uri": "bolt://127.0.0.1:7687",
+            "neo4j_password": SecretStr("unused-local-replay"),
+        }
+    )
+    toolbox = CaptureToolbox(settings, capture_root=CAPTURE_ROOT)
+    investigation_id = uuid5(
+        NAMESPACE_URL, f"incidentgraph://{POLICY_VERSION}/{case['case_id']}/source-trace"
+    )
+    context = _runtime_context(case, investigation_id)
+    resolved, _ = await _resolve(case, toolbox, context)
+    initial = [
+        request
+        for request in _initial_requests(case, str(resolved.data["service_id"]))
+        if request.tool.value == "get_metrics"
+    ]
+    resource = _bundle_requests(case, "resource_signals")
+    changes = [
+        request
+        for request in _bundle_requests(case, "context_signals")
+        if request.tool.value == "get_recent_changes"
+    ]
+    observed, _ = await _execute_requests(toolbox, [*initial, *resource, *changes], context)
+    collected_at = datetime.fromisoformat(str(case["observation_cutoff"]).replace("Z", "+00:00"))
+    normalized = [
+        result.model_copy(
+            update={
+                "evidence": tuple(
+                    item.model_copy(update={"collected_at": collected_at})
+                    for item in result.evidence
+                )
+            }
+        )
+        for result in [resolved, *observed]
+    ]
+    return {
+        "case_id": case["case_id"],
+        "job_id": "repair3-fixed-incident-v3-dev-024",
+        "split": "dev",
+        "repeat": 1,
+        "workflow": "fixed",
+        "provenance_category": case["provenance_category"],
+        "snapshot_id": case["snapshot_id"],
+        "tool_trace": [item.model_dump(mode="json") for item in normalized],
+        "source": "deterministically reconstructed from immutable development capture",
+    }
+
+
+def _file_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 async def probe(output: Path, offline: bool = False) -> dict[str, Any]:
-    records = development_records()
+    records = [*development_records(), await reconstructed_high_traffic_record()]
+    source_subset_sha256 = hashlib.sha256(
+        json.dumps(
+            [
+                {
+                    "case_id": record["case_id"],
+                    "job_id": record["job_id"],
+                    "tool_trace": record["tool_trace"],
+                }
+                for record in records
+            ],
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+    ).hexdigest()
+    manifest = {
+        "probe_version": PROBE_VERSION,
+        "policy_version": POLICY_VERSION,
+        "decision_source": "trusted_bounded_policy",
+        "model_used": False,
+        "model_digest": None,
+        "source_subset_sha256": source_subset_sha256,
+        "repair_code_sha256": _file_sha256(Path(__file__)),
+        "case_manifest_sha256": _file_sha256(ROOT / "data/evaluation/incident-cases-v3.jsonl"),
+        "label_manifest_sha256": _file_sha256(ROOT / "data/evaluator/incident-labels-v3.jsonl"),
+        "source_freeze_sha256": _file_sha256(ROOT / "config/phase9-v3-fresh-freeze.json"),
+        "case_ids": [record["case_id"] for record in records],
+    }
     labels = {
         r["case_id"]: r
         for r in map(
@@ -477,109 +968,116 @@ async def probe(output: Path, offline: bool = False) -> dict[str, Any]:
         )
     }
     await asyncio.to_thread(output.mkdir, parents=True, exist_ok=True)
+    (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     results: list[dict[str, Any]] = []
-    async with httpx.AsyncClient(base_url="http://127.0.0.1:11434", timeout=90) as client:
-        if not offline:
-            tags = (await client.get("/api/tags")).raise_for_status().json()
-            if not any(m["name"] == MODEL and m["digest"] == MODEL_DIGEST for m in tags["models"]):
-                raise ValueError("expected pinned free local model is not installed")
-        for record in records:
-            traces = [ToolResult.model_validate(t) for t in record["tool_trace"]]
-            packet = evidence_packet(traces)
-            context = prompt_packet(packet)
-            item: dict[str, Any] = {
-                "case_id": record["case_id"],
-                "source_job_id": record["job_id"],
-                "context_chars": len(context),
-                "packet": packet,
-                "attempts": [],
-                "probe_version": PROBE_VERSION,
-                "source_trace_sha256": hashlib.sha256(
-                    json.dumps(record["tool_trace"], sort_keys=True).encode()
-                ).hexdigest(),
-                "mode": "offline_contract_check" if offline else "development_diagnosis_replay",
-            }
-            if not offline:
-                messages = [
-                    {"role": "system", "content": SYSTEM},
-                    {"role": "user", "content": context},
-                ]
-                for _attempt in range(2):
-                    entry: dict[str, Any] = {}
-                    try:
-                        response = await client.post(
-                            "/api/chat",
-                            timeout=240 if not results and _attempt == 0 else 90,
-                            json={
-                                "model": MODEL,
-                                "messages": messages,
-                                "stream": False,
-                                "format": CompactSelection.model_json_schema(),
-                                "options": {"temperature": 0, "num_ctx": 8192, "num_predict": 600},
-                            },
-                        )
-                        raw_response = response.raise_for_status().json()
-                        entry["response"] = raw_response
-                        raw_text = raw_response["message"]["content"]
-                        if raw_response.get("done_reason") == "length":
-                            raise ValueError("model output reached its token limit")
-                        selection = CompactSelection.model_validate_json(raw_text).expanded()
-                        decision = validate_selection(selection, packet)
-                        report = render_report(
-                            cases[record["case_id"]],
-                            decision,
-                            packet,
-                            [e for t in traces for e in t.evidence],
-                        )
-                        item["report"] = report.model_dump(mode="json")
-                        label = labels[record["case_id"]]
-                        item["correct"] = (
-                            decision.outcome == "probable_cause"
-                            and decision.mechanism in label["accepted_mechanisms"]
-                            and decision.component.removeprefix("svc-")
-                            in label["accepted_components"]
-                            if label["case_type"] == "identifiable"
-                            else decision.outcome
-                            == (
-                                "inconclusive"
-                                if label["case_type"] == "insufficient"
-                                else "no_incident_detected"
-                            )
-                        )
-                        item["attempts"].append(entry)
-                        break
-                    except (ValueError, KeyError, httpx.HTTPError) as exc:
-                        entry["error"] = str(exc) or type(exc).__name__
-                        entry["error_type"] = type(exc).__name__
-                        item["attempts"].append(entry)
-                        item["correct"] = False
-                        messages.append(
-                            {
-                                "role": "user",
-                                "content": "Previous response failed validation: "
-                                + str(exc)[:700]
-                                + ". Reconsider the same observed facts; return a valid decision.",
-                            }
-                        )
-            results.append(item)
-            (output / "records.json").write_text(json.dumps(results, indent=2) + "\n")
-            print(
-                f"{len(results)}/{len(records)} {item['case_id']} "
-                f"correct={item.get('correct', 'not-run')}",
-                flush=True,
-            )
+    for record in records:
+        traces = [ToolResult.model_validate(t) for t in record["tool_trace"]]
+        packet = evidence_packet(traces)
+        context = prompt_packet(packet)
+        source_trace_sha256 = hashlib.sha256(
+            json.dumps(record["tool_trace"], sort_keys=True).encode()
+        ).hexdigest()
+        case = cases[record["case_id"]]
+        derived = build_policy_evidence(
+            packet,
+            case,
+            source_job_id=record["job_id"],
+            source_trace_sha256=source_trace_sha256,
+        )
+        resolution = resolve_policy_decision(packet, derived)
+        available_evidence = [e for trace in traces for e in trace.evidence]
+        report = render_report(
+            case,
+            resolution.decision,
+            packet,
+            [*available_evidence, derived],
+            selected_fact_refs=resolution.selected_fact_refs,
+            source_job_id=record["job_id"],
+            source_trace_sha256=source_trace_sha256,
+        )
+        label = labels[record["case_id"]]
+        decision = resolution.decision
+        correct = (
+            decision.outcome == "probable_cause"
+            and decision.mechanism in label["accepted_mechanisms"]
+            and decision.component.removeprefix("svc-") in label["accepted_components"]
+            if label["case_type"] == "identifiable"
+            else decision.outcome
+            == ("inconclusive" if label["case_type"] == "insufficient" else "no_incident_detected")
+        )
+        cited = {
+            str(evidence_id)
+            for observation in report.observed_symptoms
+            for evidence_id in observation.evidence_ids
+        }
+        deterministic_support_check = str(derived.evidence_id) in cited and not any(
+            ref not in {fact["ref"] for fact in packet["facts"]}
+            for ref in resolution.selected_fact_refs
+        )
+        item: dict[str, Any] = {
+            "case_id": record["case_id"],
+            "source_job_id": record["job_id"],
+            "context_chars": len(context),
+            "packet": packet,
+            "probe_version": PROBE_VERSION,
+            "policy_version": POLICY_VERSION,
+            "decision_source": "trusted_bounded_policy",
+            "model_calls": 0,
+            "source_trace_sha256": source_trace_sha256,
+            "mode": ("offline_policy_contract_check" if offline else "development_policy_replay"),
+            "selected_fact_refs": resolution.selected_fact_refs,
+            "policy_evidence": derived.model_dump(mode="json"),
+            "report": report.model_dump(mode="json"),
+            "structurally_valid": True,
+            "deterministic_support_check": deterministic_support_check,
+            "first_pass_label_match": correct,
+            "eventual_label_match": correct,
+            "correct": correct,
+        }
+        results.append(item)
+        (output / "records.json").write_text(json.dumps(results, indent=2) + "\n")
+        print(
+            f"{len(results)}/{len(records)} {item['case_id']} correct={correct}",
+            flush=True,
+        )
+    by_type = {
+        case_type: {
+            "correct": sum(
+                result["correct"]
+                for result in results
+                if labels[result["case_id"]]["case_type"] == case_type
+            ),
+            "total": sum(labels[result["case_id"]]["case_type"] == case_type for result in results),
+        }
+        for case_type in ("identifiable", "insufficient", "healthy")
+    }
     summary = {
-        "mode": "offline_contract_check" if offline else "development_diagnosis_replay",
+        "mode": "offline_policy_contract_check" if offline else "development_policy_replay",
         "cases": len(results),
         "probe_version": PROBE_VERSION,
-        "valid_reports": sum("report" in r for r in results),
-        "validation_failures": sum("error" in a for r in results for a in r["attempts"]),
-        "correct": None if offline else sum(r.get("correct", False) for r in results),
-        "model_calls": sum(len(r["attempts"]) for r in results),
+        "policy_version": POLICY_VERSION,
+        "decision_source": "trusted_bounded_policy",
+        "valid_reports": sum(result["structurally_valid"] for result in results),
+        "deterministic_support_checks_passed": sum(
+            result["deterministic_support_check"] for result in results
+        ),
+        "first_pass_label_match": sum(result["first_pass_label_match"] for result in results),
+        "eventual_label_match": sum(result["eventual_label_match"] for result in results),
+        "correct": sum(result["correct"] for result in results),
+        "per_case_type": by_type,
+        "validation_failures": 0,
+        "model_calls": 0,
         "paid_cost_usd": 0,
+        "manifest": manifest,
         "full_evaluation_authorized_by_probe": False,
         "limitations": [
-            "Saved development observations only; not end-to-end agent validation.",
+            "Saved/reconstructed development observations only; not end-to-end agent validation.",
+            "This measures a trusted synthetic-lab policy, not free-form model diagnosis accuracy.",
+            (
+                "The healthy-high-traffic trace was deterministically reconstructed from its "
+                "immutable development capture because it was absent from the original repeat "
+                "subset."
+            ),
             "No fresh held-out claim or independent human review.",
             "Original whole-project coverage target remains unmet.",
         ],

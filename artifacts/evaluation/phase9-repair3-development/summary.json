@@ -1,0 +1,62 @@
+{
+  "mode": "development_policy_replay",
+  "cases": 11,
+  "probe_version": "repair-3",
+  "policy_version": "phase9-repair-3-bounded-policy-v1",
+  "decision_source": "trusted_bounded_policy",
+  "valid_reports": 11,
+  "deterministic_support_checks_passed": 11,
+  "first_pass_label_match": 11,
+  "eventual_label_match": 11,
+  "correct": 11,
+  "per_case_type": {
+    "identifiable": {
+      "correct": 7,
+      "total": 7
+    },
+    "insufficient": {
+      "correct": 2,
+      "total": 2
+    },
+    "healthy": {
+      "correct": 2,
+      "total": 2
+    }
+  },
+  "validation_failures": 0,
+  "model_calls": 0,
+  "paid_cost_usd": 0,
+  "manifest": {
+    "probe_version": "repair-3",
+    "policy_version": "phase9-repair-3-bounded-policy-v1",
+    "decision_source": "trusted_bounded_policy",
+    "model_used": false,
+    "model_digest": null,
+    "source_subset_sha256": "185f523288db5e4d6734c6ab329229a329040d61472e9ae48d3ef2111d2bd967",
+    "repair_code_sha256": "ea0135f92b060a51ed7b35d067d3065028988a141e548a905fff3df0e82f9823",
+    "case_manifest_sha256": "717d799baf14ab2cbe2be4b9b6a93063d25397c7b4aaafa53474653084b614dc",
+    "label_manifest_sha256": "4dfcda7f3d7b5d2495101b383de307e56b62e67c0675804774499cabc4dbbb50",
+    "source_freeze_sha256": "5c7dec2b85178095e5d6ef4560ad92be3c71b5ab0bf5f7a94c3052bb6603b771",
+    "case_ids": [
+      "incident-v3-dev-001",
+      "incident-v3-dev-004",
+      "incident-v3-dev-007",
+      "incident-v3-dev-010",
+      "incident-v3-dev-013",
+      "incident-v3-dev-016",
+      "incident-v3-dev-019",
+      "incident-v3-dev-021",
+      "incident-v3-dev-026",
+      "incident-v3-dev-029",
+      "incident-v3-dev-024"
+    ]
+  },
+  "full_evaluation_authorized_by_probe": false,
+  "limitations": [
+    "Saved/reconstructed development observations only; not end-to-end agent validation.",
+    "This measures a trusted synthetic-lab policy, not free-form model diagnosis accuracy.",
+    "The healthy-high-traffic trace was deterministically reconstructed from its immutable development capture because it was absent from the original repeat subset.",
+    "No fresh held-out claim or independent human review.",
+    "Original whole-project coverage target remains unmet."
+  ]
+}

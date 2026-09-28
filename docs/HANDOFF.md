@@ -4,9 +4,13 @@ Last updated: 2026-09-28
 
 ## Current phase
 
-Latest steering: the user explicitly wants the Phase 9 quality problems fixed. Development repairs
-and a short Colab probe are described in `docs/progress/phase-09-repair.md`. Keep working on Phase 9;
-the completed evaluation below does not authorize treating the quality work as finished.
+Latest steering: the user explicitly wants the Phase 9 quality problems fixed. Repair-2's returned
+free-Colab probe was 7/10 and exposed unsafe over-abstention and false rationales. Repair-3 now uses
+a trusted, service-scoped bounded policy and generated evidence templates; its consumed eleven-case
+development replay is 11/11 with zero model/paid calls, including the reconstructed
+healthy-high-traffic control. Details and immutable artifacts are in
+`docs/progress/phase-09-repair.md`. Keep working on Phase 9; this does not authorize treating the
+quality work as finished.
 
 Phase 0 through Phase 8 are complete and passed. Phase 9 is also complete, but its immutable v1 and
 separately frozen fresh v3 quality gates are both **FAIL**. The v3 free-Colab execution completed all
@@ -15,6 +19,25 @@ separately frozen fresh v3 quality gates are both **FAIL**. The v3 free-Colab ex
 Roadmap position: Phases 0–8 PASS; Phase 9 COMPLETE/FAIL; Phases 10–11 are not started.
 
 ## Last verified command
+
+Current repair verification:
+
+```text
+.venv/bin/ruff check .
+.venv/bin/mypy
+.venv/bin/pytest -q -m "not integration"
+.venv/bin/python -m incidentgraph.phase9_repair \
+  --output-dir artifacts/evaluation/phase9-repair3-development
+```
+
+Result: strict mypy passes; all 121 selected non-integration tests pass. The targeted repair suite
+passes 38 tests. Repair-3 produces 11/11 valid, deterministically supported development reports
+with 11/11 label match, zero model calls and USD 0. Ruff passes after excluding the intentionally
+Colab-specific repair notebook consistently with the existing Colab notebook exclusions. `make
+lint` and `make typecheck` could not rebuild through uv in the restricted shell because PyPI DNS
+was unavailable; direct commands using the existing locked environment passed.
+
+Previous executable verification of the completed Phase 9 v3 result:
 
 Executable verification of the completed Phase 9 v3 result:
 
@@ -70,11 +93,13 @@ estimated paid cost remains USD 0.
 
 ## Next three tasks
 
-1. Run the ten-case free-Colab development diagnosis probe and inspect its raw responses.
-2. Integrate the validated repair into the next workflow; address whole-project coverage and plan
-   a fresh sealed evaluation. Never relabel the consumed v3 set as independent held-out data.
-3. Keep all model execution free and off the laptop. Do not launch another full run before the
-   development probe and end-to-end workflow checks demonstrate the fixes.
+1. Integrate the repair-3 policy and derived evidence path into a new workflow without modifying
+   frozen v1/v2/v3 files; add end-to-end workflow checks. The omitted healthy-high-traffic
+   development capture is now included by deterministic reconstruction.
+2. Raise whole-project core coverage to the retained 85% target, then define and seal a genuinely
+   fresh evaluation set. Never relabel the consumed v3 set as independent held-out data.
+3. Keep any model-heavy fresh run free and off the laptop. Do not launch another 120-job run until
+   the new workflow, full development scope, freeze manifest and human-review rubric are ready.
 
 ## Relevant documents
 
