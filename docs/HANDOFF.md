@@ -4,29 +4,30 @@ Last updated: 2026-09-28
 
 ## Current phase
 
-Phase 0 through Phase 8 are complete and passed. The immutable Phase 9 v1 execution is complete and
-its frozen quality gate is **FAIL**. A separately versioned v3 iteration now has fresh post-corpus
-captures, a new held-out seal, frozen code/data/model settings, and a resumable free-Colab run plan.
-The v3 model run has not started, so no v3 held-out quality result is claimed yet.
+Phase 0 through Phase 8 are complete and passed. Phase 9 is also complete, but its immutable v1 and
+separately frozen fresh v3 quality gates are both **FAIL**. The v3 free-Colab execution completed all
+120 jobs, reproduced byte-for-byte locally, and received a written review over 20 actual reports.
 
-Roadmap position: Phases 0–8 PASS; Phase 9 v1 FAIL is retained; Phase 9 v3 is awaiting Colab;
-Phases 10–11 are not started.
+Roadmap position: Phases 0–8 PASS; Phase 9 COMPLETE/FAIL; Phases 10–11 are not started.
 
 ## Last verified command
 
-Executable verification of the Phase 9 v3 sealed pre-run surface:
+Executable verification of the completed Phase 9 v3 result:
 
 ```text
 make lint
 make typecheck
-.venv/bin/pytest -m "not integration" -q
-.venv/bin/python -m incidentgraph.phase9_v3_dataset verify
+.venv/bin/pytest -m "not integration" --cov --cov-report=term
 make verify-phase9-v3-freeze
+.venv/bin/python scripts/complete_phase9_v3_manual_review.py \
+  artifacts/evaluation/phase9-v3-fresh \
+  --source-archive /Users/mohammadrezakarami/Desktop/phase9-v3-progress.zip
 ```
 
-Result: Ruff and strict mypy pass; 83 unit tests pass; all 22 fresh captures pass executable
-verification; the 60-case v3 fixture and 37-file evaluation freeze verify. The heavy v3 model run is
-reserved for free Colab and estimated paid cost remains USD 0.
+Result: Ruff and strict mypy pass; all 83 selected non-integration tests pass; coverage is 48.38%
+and therefore correctly fails the retained 85% threshold. All 22 fresh captures, the 60-case v3
+fixture, and the 37-file freeze verify. The 120-job free-Colab result reproduced byte-for-byte and
+estimated paid cost remains USD 0.
 
 ## Configuration assumptions
 
@@ -60,16 +61,16 @@ reserved for free Colab and estimated paid cost remains USD 0.
 8. Both Phase 5 real-model reports were safely inconclusive after bounded structured-output failures. This passes the safety/integration gate but is not a diagnosis-quality claim.
 9. Direct hybrid is slightly below vector on the development split; the current result is retained rather than tuned against held-out data.
 10. The existing untracked `.env` predates Phase 7 service scoping. Add an explicit non-empty `service_ids` list to each configured principal before using the interactive console; missing scope fails closed and `make doctor` reports it without exposing secrets.
-11. Phase 9 v1 failed diagnosis, citation-validity, policy-violation, latency, claim-support, and
-    coverage targets. The v3 result remains unknown until its Colab archive is returned.
+11. Phase 9 v3 fixed the v1 latency and policy-violation failures but still failed diagnosis,
+    abstention, citation-validity, claim-support, and coverage targets.
 
 ## Next three tasks
 
-1. Run `phase9_v3_colab.ipynb` against `incidentgraph-phase9-v3-colab.bundle` on a free T4 and return
-   the latest `phase9-v3-progress.zip` until 120/120 jobs complete.
-2. Reproduce the returned aggregate locally and complete the written support rubric over at least 20
-   reports without tuning against the opened v3 held-out answers.
-3. Publish the final Phase 9 v3 report and only then decide whether Phase 10 may begin.
+1. Decide whether to proceed to Phase 10 with the Phase 9 quality failure explicitly documented.
+2. If diagnosis quality must be repaired, create a new development iteration; never tune or relabel
+   the now-consumed v3 held-out set.
+3. Keep all future model work zero-paid-cost and off the laptop unless the user explicitly changes
+   that constraint.
 
 ## Relevant documents
 
@@ -94,7 +95,7 @@ reserved for free Colab and estimated paid cost remains USD 0.
 ## Resume procedure
 
 Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, the Phase 9 report, and the accepted ADRs.
-Compare the actual directory and Git state with this handoff. Resume from the returned v3 progress
-archive; do not recreate the dataset or rerun completed shards. Never make paid calls. Do not alter
+Compare the actual directory and Git state with this handoff. Do not recreate the v3 dataset or
+rerun its completed shards. Never make paid calls. Do not alter
 any file hashed by `config/phase9-freeze-v1.json`, `config/phase9-v2-regression-freeze.json`, or
 `config/phase9-v3-fresh-freeze.json`.

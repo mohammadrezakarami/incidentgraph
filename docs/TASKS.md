@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-28
 
-Progress: **Phases 0–8 PASS; immutable Phase 9 v1 FAIL; separately sealed Phase 9 v3 iteration is awaiting its free-Colab run.**
+Progress: **Phases 0–8 PASS; Phase 9 COMPLETE/FAIL for both immutable v1 and fresh v3; Phases 10–11 not started.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -187,9 +187,15 @@ unstarted pending a user decision on a newly versioned iteration.
 - [x] Seal the fresh held-out digest before real-model evaluation.
 - [x] Freeze the v3 model, code, data, captures, thresholds, and zero-paid-cost budget.
 - [x] Prepare a resumable 12-shard free-Colab notebook and verified Git bundle.
-- [ ] Complete all 120 v3 model jobs in free Colab.
-- [ ] Reproduce aggregates and complete the written support rubric over at least 20 reports.
-- [ ] Publish the final Phase 9 v3 PASS/FAIL report without changing targets.
+- [x] Complete all 120 v3 model jobs in free Colab.
+- [x] Reproduce aggregates and complete the written support rubric over at least 20 reports.
+- [x] Publish the final Phase 9 v3 PASS/FAIL report without changing targets.
+
+Phase 9 v3 gate result: **FAIL — EVALUATION COMPLETE**. All 120 jobs completed at estimated USD 0,
+the aggregate and per-case outputs reproduced byte-for-byte, and 20 actual adaptive reports were
+reviewed. Adaptive Top 1/Top 3 were 0/20, appropriate abstention was 3/5, false incidents were 0/5,
+task completion was 30/30, and supported factual conclusions were 0/20. Coverage measured 48.38%
+against the retained 85% target. Phase 9 is complete with an honest failed quality gate.
 
 ## Later phase gates
 

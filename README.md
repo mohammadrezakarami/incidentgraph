@@ -253,11 +253,15 @@ The original v1 result remains immutable. A separately frozen corrective regress
 tool arguments in trusted code, presents explicit metric semantics, bounds the adaptive LangGraph to
 named observation bundles, and rejects unsupported citations. Verify it with
 `make verify-phase9-v2-freeze`. Its 120-job model run remains free-Colab-only and is explicitly a
-regression over the now-consumed v1 cases—not a replacement held-out claim. A fresh post-corpus
-capture suite and a 20-report human rubric are still required before Phase 9 can be marked passed.
+regression over the now-consumed v1 cases—not a replacement held-out claim. The later v3 iteration
+supplied the required fresh post-corpus suite and 20-report written rubric, but it still failed the
+unchanged quality targets.
 
 The separately versioned Phase 9 v3 path supplies that fresh surface: 22 post-corpus captures,
 disjoint capture groups between development and held-out splits, a sealed 60-case dataset, and
 trusted normalization of bounded lab signals. Verify it with `make verify-phase9-v3-freeze`; the
-real-model run remains free-Colab-only through `phase9_v3_colab.ipynb` and never authorizes a paid
-provider.
+real-model run was completed through `phase9_v3_colab.ipynb` on a free T4 and never authorized a
+paid provider. All 120 jobs completed and the returned aggregate reproduced byte-for-byte. The
+fresh v3 gate also failed: adaptive Top 1/Top 3 were 0/20, abstention was 3/5, false incidents were
+0/5, task completion was 30/30, and the 20-report written rubric found 0/20 supported factual
+conclusions. Complete artifacts are under `artifacts/evaluation/phase9-v3-fresh/`.

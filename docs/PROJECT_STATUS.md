@@ -20,10 +20,10 @@ Phase 7 — API and incident console: **PASS**.
 
 Phase 8 — Observability and security hardening: **PASS**.
 
-Phase 9 — Frozen evaluation and error analysis: **VERSIONED v3 ITERATION IN PROGRESS**.
+Phase 9 — Frozen evaluation and error analysis: **COMPLETE — QUALITY GATE FAIL**.
 
-Roadmap position: **Phases 0–8 passed; the immutable Phase 9 v1 gate failed, and a separately
-sealed fresh v3 evaluation is awaiting its zero-cost Colab model run. Phases 10–11 have not started.**
+Roadmap position: **Phases 0–8 passed; Phase 9 is complete and its immutable v1 and fresh v3
+quality gates both failed. Phases 10–11 have not started.**
 
 The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 9 then completed the frozen zero-cost Colab evaluation and published the failed quality result without changing the frozen inputs or targets.
 
@@ -38,7 +38,10 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Docker 29.4.1 and Docker Compose v5.1.3 clients are installed.
 - Docker daemon is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned.
 - Digest-pinned PostgreSQL 18.6 and Neo4j 2026.09.0 services are healthy; real connectivity passes.
-- Ruff, strict mypy over 23 source files, 62 Python unit tests, 3 Vitest tests, the production frontend build, the real Phase 8 trace/security integration, the Phase 7 API contract, 6 Phase 6 queue/recovery tests, and prior Playwright/checkpoint gates pass; earlier live lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
+- Ruff, strict mypy over 27 source files, 83 selected Python non-integration tests, 3 Vitest tests,
+  the production frontend build, the real Phase 8 trace/security integration, the Phase 7 API
+  contract, 6 Phase 6 queue/recovery tests, and prior Playwright/checkpoint gates pass; earlier live
+  lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
 - Safe Compose teardown preserves named-volume data.
 - Three real transaction services, Redis, and Prometheus are healthy.
 - Twelve independent live fault captures and five control captures pass executable verification.
@@ -77,7 +80,15 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
   balance. Development and held-out use disjoint sets of 11 capture groups; its held-out digest is
   `bca9a7735948a5946271ec6329c4fefda476959757feb673d5739a1b3293a8cc`.
 - The v3 development-only preflight matched the expected bounded signal/healthy/ambiguity contract
-  for all 11 development capture groups. The held-out split has not been scored locally.
+  for all 11 development capture groups.
+- The v3 free-Colab run completed 120/120 jobs at estimated USD 0. Its pre-review aggregate SHA-256
+  is `e9a2cb42e31f3aadbf0111796093084ddc9c3287cddbb08ea5a99541385808ce`, and local finalization
+  reproduced both aggregate and per-case artifacts byte-for-byte.
+- Fresh v3 adaptive results were Top 1 0/20, Top 3 0/20, appropriate abstention 3/5, false incidents
+  0/5, task completion 30/30, zero policy violations, and 17.269 seconds warm p95 active duration.
+- The v3 written rubric reviewed 20 actual reports and found 0/20 supported factual conclusions;
+  every sampled report left the structured claim fields empty and emitted one uncited generic
+  conclusion. The review is AI-assisted and not independent human validation.
 
 ## Approved decisions recorded in ADRs
 
@@ -89,9 +100,10 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Open gates and limitations
 
-- Phase 9 v1 remains complete with a **FAIL** gate result. The separately frozen v3 iteration still
-  requires the 120-job free-Colab run and a written review of at least 20 returned reports.
-- The retained 85 percent coverage command currently reports 49.45 percent over all modules; the later core target is not yet met.
+- Phase 9 v1 and the separately frozen fresh v3 iteration are both complete with **FAIL** gate
+  results. The measured failures are retained without post-held-out tuning or target changes.
+- The retained 85 percent coverage command reports 48.38 percent over all modules; the target is not
+  met even though all 83 selected non-integration tests pass.
 - Phase 2 captures still predate most Phase 3 corpus validity windows in the immutable v1 result;
   v3 uses newly captured and separately sealed post-corpus cases instead of rewriting history.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
@@ -107,4 +119,6 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Evidence
 
-See `docs/progress/phase-09-report.md` for the final frozen-evaluation decision and `artifacts/evaluation/phase9-frozen-v1/` for the complete returned run, reproduced aggregates, and written rubric.
+See `docs/progress/phase-09-report.md` for the final decisions. Complete v1 and fresh v3 returned
+runs, reproduced aggregates, and written rubrics are under `artifacts/evaluation/phase9-frozen-v1/`
+and `artifacts/evaluation/phase9-v3-fresh/`.

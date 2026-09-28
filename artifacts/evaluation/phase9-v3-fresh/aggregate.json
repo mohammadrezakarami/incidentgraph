@@ -1,0 +1,167 @@
+{
+  "agent": {
+    "fresh_heldout": {
+      "adaptive": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 3,
+          "rate": 0.6
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 0,
+          "numerator": 0,
+          "rate": null
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "independent_groups": 11,
+        "outcomes": {
+          "inconclusive": 11,
+          "no_incident_detected": 19
+        },
+        "p95_active_duration_ms": 17268.70060400006,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 30,
+          "rate": 1.0
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 258525,
+          "model_calls": 90,
+          "output_tokens": 9641,
+          "tool_calls": 360
+        }
+      },
+      "fixed": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 5,
+          "rate": 1.0
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 0,
+          "numerator": 0,
+          "rate": null
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "independent_groups": 11,
+        "outcomes": {
+          "inconclusive": 16,
+          "no_incident_detected": 14
+        },
+        "p95_active_duration_ms": 13038.93716499988,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 30,
+          "rate": 1.0
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 116017,
+          "model_calls": 30,
+          "output_tokens": 5253,
+          "tool_calls": 420
+        }
+      }
+    }
+  },
+  "evaluation_mode": "fresh_post_corpus",
+  "freeze": {
+    "file_count": 37,
+    "freeze_id": "phase9-v3-fresh-post-corpus",
+    "status": "pass"
+  },
+  "gate_status": "fail",
+  "independent_heldout_claim_allowed": true,
+  "limitations": [
+    "This is a small project-authored laboratory dataset, not production evidence.",
+    "Variants sharing one capture are grouped and are not independent observations.",
+    "Five healthy and five insufficient held-out cases provide weak statistical evidence.",
+    "Whole-project non-integration coverage remains below the retained 85% target.",
+    "The written semantic rubric is AI-assisted and is not independent human validation.",
+    "The 20 reviewed adaptive reports contained no cited factual diagnosis; each emitted only one unsupported generic conclusion."
+  ],
+  "manual_review": {
+    "actual_reports_reviewed": 20,
+    "factual_claim_count": 20,
+    "independent_human_validation": false,
+    "method": "Count unique atomic externally verifiable conclusions in summaries, observed symptoms, observed or potential impact, and ranked-hypothesis mechanism or explanation fields. Deduplicate summary restatements and exclude recommendations, schema metadata, and explicit epistemic limitations. A claim passes only when cited eligible run evidence directly entails it. All sampled reports left the structured claim fields empty and emitted one uncited generic conclusion.",
+    "passed": false,
+    "reproduced_aggregate_sha256": "e9a2cb42e31f3aadbf0111796093084ddc9c3287cddbb08ea5a99541385808ce",
+    "reproduced_per_case_sha256": "8a8effb01a46962629a66b55693d325f1989424cb5a50f5aa8194583413c55c7",
+    "reviewed_at": "2026-09-28T00:00:00Z",
+    "reviewer": "Codex manual semantic review (AI-assisted; not independent human validation)",
+    "schema_version": 1,
+    "selection": [
+      "heldout-r1-adaptive-incident-v3-heldout-001",
+      "heldout-r1-adaptive-incident-v3-heldout-002",
+      "heldout-r1-adaptive-incident-v3-heldout-003",
+      "heldout-r1-adaptive-incident-v3-heldout-004",
+      "heldout-r1-adaptive-incident-v3-heldout-005",
+      "heldout-r1-adaptive-incident-v3-heldout-006",
+      "heldout-r1-adaptive-incident-v3-heldout-007",
+      "heldout-r1-adaptive-incident-v3-heldout-008",
+      "heldout-r1-adaptive-incident-v3-heldout-009",
+      "heldout-r1-adaptive-incident-v3-heldout-010",
+      "heldout-r1-adaptive-incident-v3-heldout-011",
+      "heldout-r1-adaptive-incident-v3-heldout-012",
+      "heldout-r1-adaptive-incident-v3-heldout-013",
+      "heldout-r1-adaptive-incident-v3-heldout-014",
+      "heldout-r1-adaptive-incident-v3-heldout-015",
+      "heldout-r1-adaptive-incident-v3-heldout-016",
+      "heldout-r1-adaptive-incident-v3-heldout-017",
+      "heldout-r1-adaptive-incident-v3-heldout-018",
+      "heldout-r1-adaptive-incident-v3-heldout-019",
+      "heldout-r1-adaptive-incident-v3-heldout-020"
+    ],
+    "selection_rule": "case-order sample of the 20 fresh held-out identifiable adaptive reports",
+    "source_archive_sha256": "2345d2b070f26806cdfb96a874eb637e30e381c0562a5829aee08cd2ecbdde09",
+    "supported_claim_rate": 0.0,
+    "supported_factual_claim_count": 0,
+    "target": 0.95
+  },
+  "schema_version": 1,
+  "targets": {
+    "appropriate_abstention": false,
+    "citation_validity": false,
+    "coverage": false,
+    "diagnosis_top1": false,
+    "diagnosis_top3": false,
+    "false_incidents": true,
+    "policy_violations": true,
+    "supported_claim_rate": false,
+    "warm_p95_active_seconds": true
+  }
+}
