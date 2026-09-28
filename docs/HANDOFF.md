@@ -4,6 +4,10 @@ Last updated: 2026-09-28
 
 ## Current phase
 
+Latest steering: the user explicitly wants the Phase 9 quality problems fixed. Development repairs
+and a short Colab probe are described in `docs/progress/phase-09-repair.md`. Keep working on Phase 9;
+the completed evaluation below does not authorize treating the quality work as finished.
+
 Phase 0 through Phase 8 are complete and passed. Phase 9 is also complete, but its immutable v1 and
 separately frozen fresh v3 quality gates are both **FAIL**. The v3 free-Colab execution completed all
 120 jobs, reproduced byte-for-byte locally, and received a written review over 20 actual reports.
@@ -66,11 +70,11 @@ estimated paid cost remains USD 0.
 
 ## Next three tasks
 
-1. Decide whether to proceed to Phase 10 with the Phase 9 quality failure explicitly documented.
-2. If diagnosis quality must be repaired, create a new development iteration; never tune or relabel
-   the now-consumed v3 held-out set.
-3. Keep all future model work zero-paid-cost and off the laptop unless the user explicitly changes
-   that constraint.
+1. Run the ten-case free-Colab development diagnosis probe and inspect its raw responses.
+2. Integrate the validated repair into the next workflow; address whole-project coverage and plan
+   a fresh sealed evaluation. Never relabel the consumed v3 set as independent held-out data.
+3. Keep all model execution free and off the laptop. Do not launch another full run before the
+   development probe and end-to-end workflow checks demonstrate the fixes.
 
 ## Relevant documents
 

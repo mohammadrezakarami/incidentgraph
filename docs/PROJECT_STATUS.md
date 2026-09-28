@@ -20,10 +20,13 @@ Phase 7 — API and incident console: **PASS**.
 
 Phase 8 — Observability and security hardening: **PASS**.
 
-Phase 9 — Frozen evaluation and error analysis: **COMPLETE — QUALITY GATE FAIL**.
+Phase 9 — Frozen evaluation and error analysis: **QUALITY REPAIR IN PROGRESS**.
 
-Roadmap position: **Phases 0–8 passed; Phase 9 is complete and its immutable v1 and fresh v3
-quality gates both failed. Phases 10–11 have not started.**
+Roadmap position: **Phases 0–8 passed; the Phase 9 v1/v3 evaluations finished with FAIL.
+The requested quality repair remains open. Phases 10–11 have not started.**
+
+See `docs/progress/phase-09-repair.md` for reproduced causes, implemented development fixes and
+the short free-Colab diagnostic probe. A completed evaluation does not close the quality failures.
 
 The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 9 then completed the frozen zero-cost Colab evaluation and published the failed quality result without changing the frozen inputs or targets.
 

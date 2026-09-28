@@ -1,0 +1,127 @@
+{
+  "agent": {
+    "fresh_heldout": {
+      "adaptive": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 3,
+          "rate": 0.6
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 0,
+          "numerator": 0,
+          "rate": null
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "independent_groups": 11,
+        "outcomes": {
+          "inconclusive": 11,
+          "no_incident_detected": 19
+        },
+        "p95_active_duration_ms": 17268.70060400006,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 30,
+          "rate": 1.0
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 258525,
+          "model_calls": 90,
+          "output_tokens": 9641,
+          "tool_calls": 360
+        }
+      },
+      "fixed": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 5,
+          "rate": 1.0
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 0,
+          "numerator": 0,
+          "rate": null
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "independent_groups": 11,
+        "outcomes": {
+          "inconclusive": 16,
+          "no_incident_detected": 14
+        },
+        "p95_active_duration_ms": 13038.93716499988,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 30,
+          "rate": 1.0
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 116017,
+          "model_calls": 30,
+          "output_tokens": 5253,
+          "tool_calls": 420
+        }
+      }
+    }
+  },
+  "evaluation_mode": "fresh_post_corpus",
+  "freeze": {
+    "file_count": 37,
+    "freeze_id": "phase9-v3-fresh-post-corpus",
+    "status": "pass"
+  },
+  "gate_status": "pending_manual_review",
+  "independent_heldout_claim_allowed": true,
+  "limitations": [
+    "This is a small project-authored laboratory dataset, not production evidence.",
+    "Variants sharing one capture are grouped and are not independent observations.",
+    "Five healthy and five insufficient held-out cases provide weak statistical evidence.",
+    "Supported factual claim rate requires the written review of at least 20 reports.",
+    "Whole-project non-integration coverage remains below the retained 85% target."
+  ],
+  "schema_version": 1,
+  "targets": {
+    "appropriate_abstention": false,
+    "citation_validity": false,
+    "coverage": false,
+    "diagnosis_top1": false,
+    "diagnosis_top3": false,
+    "false_incidents": true,
+    "policy_violations": true,
+    "supported_claim_rate": null,
+    "warm_p95_active_seconds": true
+  }
+}

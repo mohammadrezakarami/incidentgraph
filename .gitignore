@@ -57,8 +57,10 @@ artifacts/evaluation/phase9-v2-consumed-regression/*
 artifacts/evaluation/phase9-v3-fresh/*
 !artifacts/evaluation/phase9-v3-fresh/README.md
 !artifacts/evaluation/phase9-v3-fresh/aggregate.json
+!artifacts/evaluation/phase9-v3-fresh/aggregate-pre-review.json
 !artifacts/evaluation/phase9-v3-fresh/per-case.csv
 !artifacts/evaluation/phase9-v3-fresh/summary.md
+!artifacts/evaluation/phase9-v3-fresh/summary-pre-review.md
 !artifacts/evaluation/phase9-v3-fresh/manual-review.jsonl
 !artifacts/evaluation/phase9-v3-fresh/manual-review-summary.json
 !artifacts/evaluation/phase9-v3-fresh/agent-part-*.jsonl

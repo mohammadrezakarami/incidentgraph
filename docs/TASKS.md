@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-28
 
-Progress: **Phases 0–8 PASS; Phase 9 COMPLETE/FAIL for both immutable v1 and fresh v3; Phases 10–11 not started.**
+Progress: **Phases 0–8 PASS; Phase 9 evaluation FAIL, quality repair in progress; Phases 10–11 not started.**
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -198,6 +198,10 @@ task completion was 30/30, and supported factual conclusions were 0/20. Coverage
 against the retained 85% target. Phase 9 is complete with an honest failed quality gate.
 
 ## Later phase gates
+
+The user requested fixing the remaining Phase 9 failures. Current repair details and outstanding
+validation are in `docs/progress/phase-09-repair.md`; do not proceed on the basis of evaluation
+execution being complete.
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
 - [x] Phase 3: graph, curated corpus, ingestion, embeddings, and indexes.
