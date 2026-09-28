@@ -168,3 +168,20 @@ calls timed out. Among reports that passed schema validation, `cache_degradation
 predictions because raw nonzero cache misses were shown without a baseline, ratio, or abnormality
 threshold. The returned artifacts and hashes are retained under
 `artifacts/evaluation/phase9-v2-consumed-regression/`.
+
+### v3 preflight repair — 2026-09-28
+
+The next adapter now separates strict transport parsing from trusted cross-field normalization, so
+harmless `finish`/bundle and outcome/mechanism combinations no longer discard a complete report.
+It also adds frozen, unit-aware synthetic-lab signal summaries: ordinary cache misses are not
+classified as degradation unless misses dominate hits, and pool, CPU, deployment, dependency, and
+latency signals have explicit thresholds. Missing required telemetry and competing signals force an
+honest inconclusive result; a probable cause with no bounded abnormal signal is prevented from
+becoming a false incident.
+
+An offline preflight over the already consumed 30 fixed-workflow held-out records matched the
+expected lab signal/healthy/ambiguity contract for 30/30 cases. This is only a development check,
+not a new model score or independent held-out result. The capture writer was also corrected so the
+`incomplete_telemetry` scenario physically omits direct payments metrics, logs, and traces and
+records that evidence gap in the sealed manifest. No heavy model or Docker run was performed for
+this repair.

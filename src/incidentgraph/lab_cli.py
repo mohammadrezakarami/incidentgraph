@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import copy
 import hashlib
 import json
 import math
@@ -415,6 +416,56 @@ async def query_metrics(
     return results
 
 
+def apply_capture_telemetry_policy(
+    scenario: ScenarioName,
+    metrics: dict[str, Any],
+    logs: Sequence[dict[str, Any]],
+    traces: Sequence[dict[str, Any]],
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[str]]:
+    """Materialize evidence availability instead of encoding it only in evaluator labels."""
+    captured_metrics = copy.deepcopy(metrics)
+    captured_logs = list(logs)
+    captured_traces = list(traces)
+    if scenario != "incomplete_telemetry":
+        return captured_metrics, captured_logs, captured_traces, []
+
+    def is_payments_metric(row: object) -> bool:
+        if not isinstance(row, dict):
+            return False
+        labels = row.get("metric", {})
+        if not isinstance(labels, dict):
+            return False
+        return (
+            labels.get("service") == "payments"
+            or labels.get("job") == "payments"
+            or str(labels.get("instance", "")).startswith("payments:")
+        )
+
+    for response in captured_metrics.values():
+        if not isinstance(response, dict):
+            continue
+        data = response.get("data")
+        if not isinstance(data, dict):
+            continue
+        result = data.get("result")
+        if isinstance(result, list):
+            data["result"] = [row for row in result if not is_payments_metric(row)]
+
+    def is_payments_event(row: dict[str, Any]) -> bool:
+        attributes = row.get("attributes", {})
+        trace_service = attributes.get("service.name") if isinstance(attributes, dict) else None
+        return (
+            row.get("service") == "payments"
+            or row.get("service_id") == "svc-payments"
+            or trace_service == "payments"
+        )
+
+    captured_logs = [row for row in captured_logs if not is_payments_event(row)]
+    captured_traces = [row for row in captured_traces if not is_payments_event(row)]
+    gaps = ["direct payments metrics, logs, and traces unavailable in the capture window"]
+    return captured_metrics, captured_logs, captured_traces, gaps
+
+
 def _read_json_lines(
     path: Path, start: datetime, end: datetime, time_field: str
 ) -> list[dict[str, Any]]:
@@ -495,6 +546,10 @@ def write_capture(
             )
         )
 
+    metrics, logs, traces, telemetry_gaps = apply_capture_telemetry_policy(
+        scenario, metrics, logs, traces
+    )
+
     changes: list[dict[str, Any]] = []
     for service, command in controls:
         if command.kind == "deployment_regression":
@@ -516,6 +571,7 @@ def write_capture(
             "observation_cutoff": observation_cutoff.isoformat(),
             "services": ["gateway", "checkout", "payments"],
             "provenance_category": "independent_lab_capture",
+            "telemetry_gaps": telemetry_gaps,
             "limitations": [
                 "laboratory data, not production evidence",
                 "Phase 2 capture predates the curated Phase 3 corpus",

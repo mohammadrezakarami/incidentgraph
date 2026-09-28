@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from incidentgraph.lab_cli import (
     LabOperatorSettings,
     WorkloadResult,
+    apply_capture_telemetry_policy,
     run_workload,
     scenario_controls,
     write_capture,
@@ -126,3 +127,47 @@ def test_capture_keeps_evaluator_label_outside_agent_snapshot(tmp_path: Path) ->
     assert "accepted_mechanisms" not in manifest
     assert labels["scenario"] == "healthy"
     assert settings.lab_evaluator_labels.parent not in capture_dir.parents
+
+
+def test_incomplete_telemetry_is_materialized_in_the_capture() -> None:
+    metrics = {
+        "scrape_health": {
+            "data": {
+                "result": [
+                    {"metric": {"job": "checkout", "instance": "checkout:8080"}},
+                    {"metric": {"job": "payments", "instance": "payments:8080"}},
+                ]
+            }
+        },
+        "dependency_outcomes": {
+            "data": {
+                "result": [
+                    {
+                        "metric": {
+                            "service": "checkout",
+                            "dependency": "payments",
+                            "outcome": "success",
+                        }
+                    }
+                ]
+            }
+        },
+    }
+    logs = [{"service": "checkout"}, {"service": "payments"}]
+    traces = [
+        {"attributes": {"service.name": "checkout"}},
+        {"attributes": {"service.name": "payments"}},
+    ]
+
+    captured_metrics, captured_logs, captured_traces, gaps = apply_capture_telemetry_policy(
+        "incomplete_telemetry", metrics, logs, traces
+    )
+
+    scrape_rows = captured_metrics["scrape_health"]["data"]["result"]
+    dependency_rows = captured_metrics["dependency_outcomes"]["data"]["result"]
+    assert [row["metric"]["job"] for row in scrape_rows] == ["checkout"]
+    assert dependency_rows == metrics["dependency_outcomes"]["data"]["result"]
+    assert captured_logs == [{"service": "checkout"}]
+    assert captured_traces == [{"attributes": {"service.name": "checkout"}}]
+    assert gaps
+    assert len(metrics["scrape_health"]["data"]["result"]) == 2

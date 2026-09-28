@@ -469,6 +469,7 @@ class CaptureToolbox:
                 status="error",
                 summary=f"metric template {value.template} is absent from the snapshot",
                 error_code="INSUFFICIENT_DATA",
+                data={"service_id": value.service_id, "template": value.template},
             )
         bounded: list[dict[str, Any]] = []
         service_name = value.service_id.removeprefix("svc-")
@@ -486,6 +487,7 @@ class CaptureToolbox:
                 status="error",
                 summary="no authorized metric series matched the request",
                 error_code="INSUFFICIENT_DATA",
+                data={"service_id": value.service_id, "template": value.template},
             )
         content = {"template": value.template, "series": bounded}
         evidence = self._evidence(
@@ -504,6 +506,7 @@ class CaptureToolbox:
             summary=f"returned {len(bounded)} bounded metric series",
             evidence=(evidence,),
             data={
+                "service_id": value.service_id,
                 "template": value.template,
                 "series_count": len(bounded),
                 "point_count": sum(len(series.get("values", [])) for series in bounded),
