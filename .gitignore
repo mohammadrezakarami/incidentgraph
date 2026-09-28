@@ -46,10 +46,18 @@ artifacts/evaluation/phase9-frozen-v1/*
 !artifacts/evaluation/phase9-frozen-v1/manual-review-summary.json
 !artifacts/evaluation/phase9-frozen-v1/retrieval-heldout.json
 !artifacts/evaluation/phase9-frozen-v1/agent-part-*.jsonl
+!artifacts/evaluation/phase9-v2-consumed-regression/
+artifacts/evaluation/phase9-v2-consumed-regression/*
+!artifacts/evaluation/phase9-v2-consumed-regression/README.md
+!artifacts/evaluation/phase9-v2-consumed-regression/aggregate.json
+!artifacts/evaluation/phase9-v2-consumed-regression/per-case.csv
+!artifacts/evaluation/phase9-v2-consumed-regression/summary.md
+!artifacts/evaluation/phase9-v2-consumed-regression/agent-part-*.jsonl
 artifacts/traces/
 logs/
 *.log
 phase9-progress.zip
+phase9-v2-progress.zip
 
 # Models and large generated files
 models/

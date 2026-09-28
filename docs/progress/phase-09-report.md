@@ -151,3 +151,20 @@ capture set is created and sealed before opening its labels, followed by the req
 human review of at least 20 reports. Whole-project non-integration coverage currently measures
 47.40%, so the original 85% coverage target also remains an explicit failure rather than being
 removed or redefined in v2.
+
+### v2 returned result — 2026-09-28
+
+The free-Colab corrective regression completed all 120 jobs and reproduced its aggregate and
+per-case files byte-for-byte from the twelve shard records. The fixed workflow reached Top 1/Top 3
+of 3/20, abstention of 0/5, four false incidents among five healthy cases, and task completion of
+19/30. The adaptive workflow reached Top 1/Top 3 of 3/20, abstention of 0/5, two false incidents,
+and task completion of 16/30. Citation validity, zero blocked unauthorized attempts, and warm p95
+latency passed; the quality gate did not.
+
+The dominant new failure was overly strict structured-output coherence validation: 49 reports were
+discarded because a non-causal outcome was paired with a non-healthy mechanism, six plans paired
+`finish` with a bundle value, and two non-causal reports retained a component. Two additional model
+calls timed out. Among reports that passed schema validation, `cache_degradation` dominated the
+predictions because raw nonzero cache misses were shown without a baseline, ratio, or abnormality
+threshold. The returned artifacts and hashes are retained under
+`artifacts/evaluation/phase9-v2-consumed-regression/`.

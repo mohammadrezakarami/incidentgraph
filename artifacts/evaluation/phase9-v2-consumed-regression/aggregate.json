@@ -1,0 +1,127 @@
+{
+  "agent": {
+    "consumed_v1_split": {
+      "adaptive": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 17,
+          "numerator": 17,
+          "rate": 1.0
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 2,
+          "rate": 0.4
+        },
+        "independent_groups": 8,
+        "outcomes": {
+          "None": 14,
+          "probable_cause": 16
+        },
+        "p95_active_duration_ms": 11051.580047999778,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 16,
+          "rate": 0.5333333333333333
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 3,
+          "rate": 0.15
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 3,
+          "rate": 0.15
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 114976,
+          "model_calls": 48,
+          "output_tokens": 2816,
+          "tool_calls": 224
+        }
+      },
+      "fixed": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 19,
+          "numerator": 19,
+          "rate": 1.0
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 4,
+          "rate": 0.8
+        },
+        "independent_groups": 8,
+        "outcomes": {
+          "None": 11,
+          "probable_cause": 19
+        },
+        "p95_active_duration_ms": 7614.5658800001,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 19,
+          "rate": 0.6333333333333333
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 3,
+          "rate": 0.15
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 3,
+          "rate": 0.15
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 60358,
+          "model_calls": 19,
+          "output_tokens": 1663,
+          "tool_calls": 420
+        }
+      }
+    }
+  },
+  "evaluation_mode": "consumed_regression",
+  "freeze": {
+    "file_count": 5,
+    "freeze_id": "phase9-v2-consumed-regression",
+    "status": "pass"
+  },
+  "gate_status": "pending_fresh_post_corpus_holdout",
+  "independent_heldout_claim_allowed": false,
+  "limitations": [
+    "The Phase 9 v1 held-out answers were opened and used for error analysis; these are development regression results, not a new held-out claim.",
+    "A fresh post-corpus capture suite must be sealed before the final comparative gate.",
+    "Supported factual claim rate still requires a written human rubric over at least 20 fresh reports.",
+    "Whole-project non-integration coverage is currently 47.40%, below the unchanged 85% target; v2 does not hide or redefine that failure.",
+    "The v1 retrieval result remains immutable and is not rerun in this regression iteration."
+  ],
+  "schema_version": 1,
+  "targets_as_regression_checks_only": {
+    "appropriate_abstention": false,
+    "citation_validity": true,
+    "coverage": false,
+    "diagnosis_top1": false,
+    "diagnosis_top3": false,
+    "false_incidents": false,
+    "policy_violations": true,
+    "supported_claim_rate": null,
+    "warm_p95_active_seconds": true
+  }
+}
