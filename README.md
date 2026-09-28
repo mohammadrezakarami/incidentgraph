@@ -8,6 +8,12 @@ Phase 0 through Phase 8 are complete and passed. Phase 9 execution and error ana
 
 Roadmap progress: **10 of 12 gated phases have been decided: Phases 0–8 passed, Phase 9 failed its frozen quality gate, and Phases 10–11 have not started.**
 
+Phase 9 quality repair is now in progress. The development implementation rejects contradictory
+healthy decisions, preserves fact-to-source citations and prevents premature observation stops.
+Use [`phase9_repair_colab.ipynb`](phase9_repair_colab.ipynb) for the ten-case free development
+diagnosis probe before considering another full evaluation. See
+[`phase-09-repair.md`](docs/progress/phase-09-repair.md) for verified changes and remaining gates.
+
 See:
 
 - [`docs/progress/phase-00-report.md`](docs/progress/phase-00-report.md)
