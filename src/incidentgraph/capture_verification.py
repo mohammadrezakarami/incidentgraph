@@ -47,13 +47,22 @@ class CaptureVerification(BaseModel):
     recovery_valid: bool
 
 
-def verify_capture_suite(capture_root: Path, labels_path: Path) -> CaptureVerification:
+def verify_capture_suite(
+    capture_root: Path,
+    labels_path: Path,
+    *,
+    minimum_fault_captures: int = 2,
+) -> CaptureVerification:
+    if minimum_fault_captures not in {1, 2}:
+        raise ValueError("minimum_fault_captures must be one or two")
     labels = _read_labels(labels_path)
     errors: list[str] = []
     counts = Counter(str(label["scenario"]) for label in labels)
     for scenario in REQUIRED_FAULT_NAMES:
-        if counts[scenario] < 2:
-            errors.append(f"{scenario} has fewer than two independent captures")
+        if counts[scenario] < minimum_fault_captures:
+            errors.append(
+                f"{scenario} has fewer than {minimum_fault_captures} independent captures"
+            )
 
     hash_valid = True
     telemetry_valid = True

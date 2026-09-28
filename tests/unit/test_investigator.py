@@ -16,6 +16,7 @@ from incidentgraph.investigator import (
     BudgetExceeded,
     HypothesisRevision,
     InvestigatorState,
+    LogsInput,
     MetricsInput,
     ModelResult,
     ModelUsage,
@@ -43,6 +44,7 @@ from incidentgraph.models import (
     InvestigationMode,
     InvestigationReport,
     RankedHypothesis,
+    RecommendedNextStep,
     ReportOutcome,
     UsageAndTiming,
 )
@@ -691,3 +693,164 @@ async def test_token_budget_is_checked_before_model_call() -> None:
     assert result["termination_reason"] == "deterministic_partial_report"
     assert model.calls == 0
     assert any("token budget" in error for error in result["error_summaries"])
+
+
+def test_time_window_and_plan_models_reject_unsafe_shapes() -> None:
+    now = datetime(2026, 9, 23, 12, tzinfo=UTC)
+    with pytest.raises(ValueError, match="later"):
+        MetricsInput(
+            service_id="svc-gateway",
+            template="request_latency",
+            window_start=now,
+            window_end=now,
+        )
+    with pytest.raises(ValueError, match="60 minutes"):
+        MetricsInput(
+            service_id="svc-gateway",
+            template="request_latency",
+            window_start=now - timedelta(minutes=61),
+            window_end=now,
+        )
+    with pytest.raises(ValueError, match="later"):
+        LogsInput(
+            service_ids=("svc-gateway",),
+            window_start=now,
+            window_end=now,
+        )
+    with pytest.raises(ValueError, match="60 minutes"):
+        LogsInput(
+            service_ids=("svc-gateway",),
+            window_start=now - timedelta(minutes=61),
+            window_end=now,
+        )
+    with pytest.raises(ValueError, match="exactly one"):
+        PlanDecision(
+            action="finish",
+            objective="Finish the investigation.",
+            decision_summary="No further observation is needed.",
+            tool_request=ToolRequest(
+                tool=ToolName.RESOLVE_SERVICE,
+                arguments={"name": "gateway", "environment": "lab"},
+                reason="This request is deliberately incompatible with finish.",
+            ),
+        )
+
+
+def test_policy_rejects_environment_time_and_cutoff_expansion() -> None:
+    now = datetime(2026, 9, 23, 12, tzinfo=UTC)
+    runtime = ToolRuntimeContext(
+        investigation_id=uuid4(),
+        principal_id="viewer-1",
+        authorized_service_ids=("svc-gateway",),
+        environment="lab",
+        window_start=now - timedelta(minutes=10),
+        window_end=now,
+        observation_cutoff=now,
+        snapshot_id="cap-test-00000000",
+    )
+    cases = [
+        (
+            ToolRequest(
+                tool=ToolName.RESOLVE_SERVICE,
+                arguments={"name": "gateway", "environment": "production"},
+                reason="Attempt an environment change.",
+            ),
+            "environment",
+        ),
+        (
+            ToolRequest(
+                tool=ToolName.GET_METRICS,
+                arguments={
+                    "service_id": "svc-gateway",
+                    "template": "request_latency",
+                    "window_start": now - timedelta(minutes=11),
+                    "window_end": now,
+                },
+                reason="Attempt a wider time range.",
+            ),
+            "authorized observation interval",
+        ),
+        (
+            ToolRequest(
+                tool=ToolName.GET_SERVICE_CONTEXT,
+                arguments={
+                    "service_id": "svc-gateway",
+                    "observation_time": now + timedelta(seconds=1),
+                },
+                reason="Attempt a future topology lookup.",
+            ),
+            "exceeds the cutoff",
+        ),
+        (
+            ToolRequest(
+                tool=ToolName.RETRIEVE_RUNBOOKS,
+                arguments={
+                    "query": "Find a gateway runbook",
+                    "service_ids": ["svc-gateway"],
+                    "cutoff": now - timedelta(seconds=1),
+                },
+                reason="Attempt a mutable retrieval cutoff.",
+            ),
+            "immutable observation cutoff",
+        ),
+    ]
+    for request, message in cases:
+        with pytest.raises(PolicyViolation, match=message):
+            validate_tool_request(request, runtime, [])
+
+
+def test_report_citation_policy_covers_support_execution_and_abstention() -> None:
+    now = datetime(2026, 9, 23, 12, tzinfo=UTC)
+    item = evidence()
+    unsupported = RankedHypothesis(
+        rank=1,
+        mechanism="dependency failure",
+        suspected_component="svc-payments",
+        evidence_strength="low",
+        supporting_evidence_ids=[],
+        explanation_summary="A deliberately unsupported test hypothesis.",
+    )
+    executed = RecommendedNextStep.model_construct(
+        description="Restart the dependency.",
+        rationale="Exercise the no-execution policy.",
+        evidence_ids=[item.evidence_id],
+        risk_level="high",
+        preconditions=[],
+        verification_steps=[],
+        rollback_considerations=[],
+        execution_status="executed",
+    )
+    base = InvestigationReport(
+        investigation_id=uuid4(),
+        report_version=1,
+        mode="replay",
+        snapshot_id="cap-test-00000000",
+        target_service="svc-gateway",
+        environment="lab",
+        incident_window=IncidentWindow(start=now - timedelta(minutes=5), end=now),
+        observation_cutoff=now,
+        outcome="probable_cause",
+        summary="A report used to exercise citation policy branches.",
+        ranked_hypotheses=[unsupported],
+        recommended_next_steps=[executed],
+        limitations=["Test fixture."],
+        termination_reason="test",
+        usage_and_timing=UsageAndTiming(
+            model_calls=0,
+            tool_calls=0,
+            input_tokens=0,
+            output_tokens=0,
+            estimated_cost_usd=0,
+            active_duration_ms=0,
+            model_latency_ms=0,
+            tool_latency_ms=0,
+        ),
+        trace_reference="trace://test",
+    )
+    errors = validate_report_citations(base, [item])
+    assert "no supporting evidence" in errors[0]
+    assert "not_executed" in errors[1]
+
+    inconclusive = base.model_copy(update={"outcome": ReportOutcome.INCONCLUSIVE})
+    errors = validate_report_citations(inconclusive, [item])
+    assert any("additional evidence" in message for message in errors)

@@ -1,0 +1,18 @@
+{
+  "capture_id": "cap-20260928162855-fb325d4443",
+  "environment": "lab",
+  "limitations": [
+    "laboratory data, not production evidence",
+    "capture follows the curated corpus baseline; eligibility remains cutoff-enforced"
+  ],
+  "mode": "live_capture",
+  "observation_cutoff": "2026-09-28T16:29:03.101798+00:00",
+  "observation_start": "2026-09-28T16:28:55.032272+00:00",
+  "provenance_category": "independent_lab_capture",
+  "services": [
+    "gateway",
+    "checkout",
+    "payments"
+  ],
+  "telemetry_gaps": []
+}

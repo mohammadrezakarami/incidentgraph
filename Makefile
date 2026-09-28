@@ -1,7 +1,7 @@
 UV := UV_PYTHON_INSTALL_DIR='$(CURDIR)/.tools/python' UV_CACHE_DIR='$(CURDIR)/.tools/cache' .tools/uv
 COMPOSE := docker compose -f ops/compose.yaml --env-file .env
 
-.PHONY: doctor bootstrap up down migrate retention-status seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate verify-phase9-freeze verify-phase9-v2-freeze verify-phase9-v3-freeze evaluate-test evaluate-phase9-v2 evaluate-phase9-v3 report smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures api worker frontend test test-frontend test-e2e coverage test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
+.PHONY: doctor bootstrap up down migrate retention-status seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate verify-phase9-freeze verify-phase9-v2-freeze verify-phase9-v3-freeze verify-phase9-v4-freeze evaluate-test evaluate-phase9-v2 evaluate-phase9-v3 evaluate-phase9-v4 report smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures api worker frontend test test-frontend test-e2e coverage coverage-all test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
 
 doctor:
 	$(UV) run incidentgraph doctor
@@ -72,6 +72,9 @@ verify-phase9-v2-freeze:
 verify-phase9-v3-freeze:
 	$(UV) run python -m incidentgraph.phase9_v3_evaluation verify-freeze
 
+verify-phase9-v4-freeze:
+	$(UV) run python -m incidentgraph.phase9_v4_runner verify-freeze
+
 evaluate-test:
 	@echo "Phase 9 real-model evaluation is intentionally Colab-only; use phase9_colab.ipynb."
 	@exit 2
@@ -82,6 +85,10 @@ evaluate-phase9-v2:
 
 evaluate-phase9-v3:
 	@echo "Phase 9 v3 fresh real-model evaluation is intentionally Colab-only; use phase9_v3_colab.ipynb."
+	@exit 2
+
+evaluate-phase9-v4:
+	@echo "Phase 9 v4 fresh post-repair evaluation is intentionally Colab-only; use phase9_v4_colab.ipynb."
 	@exit 2
 
 report:
@@ -132,6 +139,14 @@ test-e2e:
 	npm --prefix frontend run test:e2e
 
 coverage:
+	$(UV) run pytest -m "not integration" \
+		--cov=incidentgraph.models --cov=incidentgraph.auth \
+		--cov=incidentgraph.api_support --cov=incidentgraph.investigation_tools \
+		--cov=incidentgraph.investigator --cov=incidentgraph.retrieval \
+		--cov=incidentgraph.phase9_repair --cov=incidentgraph.phase9_v4_evaluation \
+		--cov-branch --cov-report=term-missing
+
+coverage-all:
 	$(UV) run pytest -m "not integration" --cov --cov-report=term-missing
 
 test-integration:

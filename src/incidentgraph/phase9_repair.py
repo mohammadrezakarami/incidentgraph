@@ -778,6 +778,9 @@ def render_report(
     input_tokens: int = 0,
     output_tokens: int = 0,
     model_latency_ms: float = 0,
+    tool_calls: int = 0,
+    tool_latency_ms: float = 0,
+    active_duration_ms: float = 0,
 ) -> InvestigationReport:
     """Retain source-backed observations also for healthy and inconclusive reports."""
 
@@ -796,12 +799,12 @@ def render_report(
         decision=decision,
         evidence=evidence,
         model_calls=model_calls,
-        tool_calls=0,
+        tool_calls=tool_calls,
         input_tokens=input_tokens,
         output_tokens=output_tokens,
         model_latency_ms=model_latency_ms,
-        tool_latency_ms=0,
-        active_duration_ms=0,
+        tool_latency_ms=tool_latency_ms,
+        active_duration_ms=active_duration_ms,
         workflow="repair-3-policy-replay",
     )
     ids = {str(i) for i in decision.supporting_evidence_ids}
