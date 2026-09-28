@@ -31,6 +31,10 @@ failing mocked transport paths. Mocked 10/10 is a plumbing check, not model perf
 Repair-2 still requires a real-model probe; the fresh evaluation, product integration, global
 coverage target and human review remain open. Do not claim that Phase 9 quality is repaired yet.
 
+Latest deliverables: `phase9_repair_colab.ipynb` now requires
+`incidentgraph-phase9-repair2.bundle` and returns `phase9-repair2-probe.zip`. Its four cells reuse
+an already running matching Ollama server where possible. Do not upload the first repair bundle.
+
 Phase 9 evaluation execution completed, but the user's requested quality repair is still open.
 Do not equate a completed FAIL report with a working diagnostic agent or proceed to Phase 10.
 
