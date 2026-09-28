@@ -68,7 +68,12 @@ markers = [
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-extend-exclude = ["phase5_colab.ipynb", "phase9_colab.ipynb", "phase9_repair_colab.ipynb"]
+extend-exclude = [
+  "phase5_colab.ipynb",
+  "phase9_colab.ipynb",
+  "phase9_repair_colab.ipynb",
+  "phase9_v4_colab.ipynb",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "ASYNC", "S"]

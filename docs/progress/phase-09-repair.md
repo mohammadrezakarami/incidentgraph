@@ -1,5 +1,32 @@
 # Phase 9 repair in progress — 2026-09-28
 
+## V4 workflow frozen; final Colab run pending
+
+Repair-3 is now integrated into `phase9_v4_evaluation.py` without changing frozen v1/v2/v3 code.
+Both fixed and adaptive workflows collect the same complete 14-result observation surface. The
+adaptive model gets one bounded call to choose bundle order; trusted code forces both bundles and
+alone produces the diagnosis, factual prose, and citations. End-to-end capture-replay tests verify
+identical policy outcomes and exact eligible citations for both workflows.
+
+The retained core scope (domain models, auth/API policy, investigation tools, investigator,
+retrieval, repair policy, and v4 workflow) now has 85.14% branch-aware combined coverage. Ruff,
+strict mypy, and all 145 selected non-integration tests pass. Whole-repository coverage is still a
+separate informational metric; evaluation/CLI/reporting tails were not counted as core runtime.
+
+Eleven new post-repair live laboratory captures were produced with bounded six-second workloads,
+one for every fault/control scenario. They form a fresh 30-case held-out set with 20 identifiable,
+five healthy, and five insufficient cases. The 11 capture groups are independent; question
+variants sharing a capture are explicitly not independent. The held-out seal digest is
+`b36dc01092ddc22565f061a4401b6710b9e77a46e5a10f3efc4a78058f23435d` and freeze
+`phase9-v4-fresh-post-repair` verifies 28 files/manifests.
+
+The free-Colab handoff is `phase9_v4_colab.ipynb` plus
+`incidentgraph-phase9-v4-colab.bundle` (SHA-256
+`c31bb3a80b83ae2482eedd8364d3cfd2f3a9f60931dd10f263f2ee2bccb2c03f`). It needs no Docker or
+Neo4j and makes at most 60 local-model planning calls across 120 jobs; fixed cases make zero model
+calls. Phase 9 remains open until `phase9-v4-progress.zip` returns, its aggregates reproduce, and at
+least 20 fresh reports receive the written support rubric. No v4 quality PASS is claimed yet.
+
 ## Returned repair-2 probe and repair-3 bounded policy
 
 The returned repair-2 archive is preserved under
@@ -137,8 +164,8 @@ That checkpoint's next artifact was `phase9_repair_colab.ipynb` with
 development artifact above. A successful development replay still cannot replace a full workflow
 test or a fresh, sealed held-out evaluation. Do not automatically launch another 120 jobs.
 
-Still open: integration of repair-3 into the next frozen workflow and product path, a fresh sealed
-evaluation, whole-project coverage >=85%, and the required human claim-support rubric.
-The previous written AI review is not independent human validation. The v3 held-out set has now
-been opened and must not be presented as a fresh holdout after tuning. Current v3 scores and
-frozen files remain historical evidence; no quality PASS is claimed by this repair.
+Those checkpoint blockers are now resolved for integration, scoped core coverage, and fresh
+sealing as described at the top of this report. Still open: execute the frozen v4 comparison and
+complete its required claim-support rubric. The previous written AI review is not independent
+human validation. The v3 held-out set remains consumed historical evidence and is not reused as
+the v4 held-out claim. No v4 quality PASS is claimed before the returned run is reviewed.

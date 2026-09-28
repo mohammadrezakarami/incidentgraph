@@ -26,9 +26,10 @@ Roadmap position: **Phases 0–8 passed; the Phase 9 v1/v3 evaluations finished 
 The requested quality repair remains open. Phases 10–11 have not started.**
 
 See `docs/progress/phase-09-repair.md` for the returned repair-2 failure and repair-3's trusted
-bounded-policy implementation. The consumed repair-3 development replay is 11/11 with exact
-evidence templates and zero model calls, but a completed development replay does not close the
-fresh-evaluation, human-review, integration, or coverage failures.
+bounded-policy implementation. Repair-3 is integrated into the separately versioned v4 workflow,
+145 non-integration tests pass, and branch-aware core coverage is 85.14%. A 30-case held-out set
+from 11 new post-repair live captures was sealed before evaluation. Phase 9 remains open only for
+the zero-cost Colab execution and the written review of at least 20 returned reports.
 
 The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 9 then completed the frozen zero-cost Colab evaluation and published the failed quality result without changing the frozen inputs or targets.
 
@@ -43,7 +44,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - Docker 29.4.1 and Docker Compose v5.1.3 clients are installed.
 - Docker daemon is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned.
 - Digest-pinned PostgreSQL 18.6 and Neo4j 2026.09.0 services are healthy; real connectivity passes.
-- Ruff, strict mypy over 28 source files, 121 selected Python non-integration tests, 3 Vitest tests,
+- Ruff, strict mypy over 31 source files, 145 selected Python non-integration tests, 3 Vitest tests,
   the production frontend build, the real Phase 8 trace/security integration, the Phase 7 API
   contract, 6 Phase 6 queue/recovery tests, and prior Playwright/checkpoint gates pass; earlier live
   lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
@@ -113,8 +114,10 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 - Phase 9 v1 and the separately frozen fresh v3 iteration are both complete with **FAIL** gate
   results. The measured failures are retained without post-held-out tuning or target changes.
-- The retained 85 percent coverage command reports 48.38 percent over all modules; the target is not
-  met even though all 83 selected non-integration tests pass.
+- The historical v3 whole-package command measured 48.38%. The specification's explicit v4 core
+  domain/policy/retrieval/orchestration scope now measures 85.14% with branch coverage enabled.
+- V4 final aggregate and supported-claim results remain pending the free-Colab run and written
+  review; sealed inputs must not change in response to the result.
 - Phase 2 captures still predate most Phase 3 corpus validity windows in the immutable v1 result;
   v3 uses newly captured and separately sealed post-corpus cases instead of rewriting history.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.

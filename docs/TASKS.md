@@ -205,15 +205,17 @@ against the retained 85% target. Phase 9 is complete with an honest failed quali
 - [x] Add derived policy evidence linked to the complete source trace and raw evidence IDs.
 - [x] Replay all 11 development capture groups, including reconstructed healthy-high-traffic:
   11/11 label and support checks, USD 0.
-- [ ] Add an end-to-end repaired workflow test.
-- [ ] Integrate repair-3 into a new workflow without changing any frozen v1/v2/v3 implementation.
-- [ ] Raise core-domain/policy/retrieval/orchestration coverage to the retained 85% target.
-- [ ] Create and seal a genuinely fresh holdout before opening any new answers.
+- [x] Add an end-to-end repaired workflow test.
+- [x] Integrate repair-3 into a new workflow without changing any frozen v1/v2/v3 implementation.
+- [x] Raise core-domain/policy/retrieval/orchestration coverage to the retained 85% target:
+  85.14% branch-aware combined coverage, 145 tests passing.
+- [x] Create and seal a genuinely fresh holdout before opening any new answers: 30 cases over 11
+  new post-repair live capture groups, digest `b36dc01092ddc22565f061a4401b6710b9e77a46e5a10f3efc4a78058f23435d`.
 - [ ] Run the new frozen comparison for free off-laptop and complete the human claim-support rubric.
 
-Repair-3 development status: **IMPLEMENTATION CONTRACT PASS; PHASE 9 STILL OPEN**. The 11/11 result
-is a deterministic replay over consumed development traces, not model diagnosis accuracy or a
-fresh held-out quality result.
+Repair-3 status: **IMPLEMENTATION/FREEZE PASS; PHASE 9 STILL OPEN PENDING COLAB + REVIEW**. The v4
+bundle contains freeze `phase9-v4-fresh-post-repair`; the model can select observation order once
+per adaptive case but cannot change trusted diagnosis or citation content.
 
 ## Later phase gates
 

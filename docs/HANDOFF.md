@@ -4,13 +4,13 @@ Last updated: 2026-09-28
 
 ## Current phase
 
-Latest steering: the user explicitly wants the Phase 9 quality problems fixed. Repair-2's returned
-free-Colab probe was 7/10 and exposed unsafe over-abstention and false rationales. Repair-3 now uses
-a trusted, service-scoped bounded policy and generated evidence templates; its consumed eleven-case
-development replay is 11/11 with zero model/paid calls, including the reconstructed
-healthy-high-traffic control. Details and immutable artifacts are in
-`docs/progress/phase-09-repair.md`. Keep working on Phase 9; this does not authorize treating the
-quality work as finished.
+Latest steering: the user explicitly wants the Phase 9 quality problems fixed. Repair-3 now uses a
+trusted, service-scoped bounded policy and generated evidence templates. It is integrated into v4,
+145 non-integration tests pass, branch-aware core coverage is 85.14%, and a fresh 30-case held-out
+set from 11 new post-repair captures is sealed. Freeze verification passes at bundle revision
+`f3d990672a31ae606adbaec1f2abee745e1cc4b4`. The only remaining work is the free-Colab v4 run and
+the written claim-support review after its ZIP returns. Details are in
+`docs/progress/phase-09-repair.md`.
 
 Phase 0 through Phase 8 are complete and passed. Phase 9 is also complete, but its immutable v1 and
 separately frozen fresh v3 quality gates are both **FAIL**. The v3 free-Colab execution completed all
@@ -20,22 +20,22 @@ Roadmap position: Phases 0–8 PASS; Phase 9 COMPLETE/FAIL; Phases 10–11 are n
 
 ## Last verified command
 
-Current repair verification:
+Current v4 repair verification:
 
 ```text
 .venv/bin/ruff check .
 .venv/bin/mypy
 .venv/bin/pytest -q -m "not integration"
-.venv/bin/python -m incidentgraph.phase9_repair \
-  --output-dir artifacts/evaluation/phase9-repair3-development
+.venv/bin/python -m incidentgraph.phase9_v4_dataset verify
+.venv/bin/python -m incidentgraph.phase9_v4_runner verify-freeze
 ```
 
-Result: strict mypy passes; all 121 selected non-integration tests pass. The targeted repair suite
-passes 38 tests. Repair-3 produces 11/11 valid, deterministically supported development reports
-with 11/11 label match, zero model calls and USD 0. Ruff passes after excluding the intentionally
-Colab-specific repair notebook consistently with the existing Colab notebook exclusions. `make
-lint` and `make typecheck` could not rebuild through uv in the restricted shell because PyPI DNS
-was unavailable; direct commands using the existing locked environment passed.
+Result: Ruff and strict mypy pass; 145 selected non-integration tests pass. The exact retained core
+coverage command passes at 85.14%. The new held-out seal digest is
+`b36dc01092ddc22565f061a4401b6710b9e77a46e5a10f3efc4a78058f23435d`; freeze verification covers
+28 files/manifests. The v4 bundle SHA-256 is
+`c31bb3a80b83ae2482eedd8364d3cfd2f3a9f60931dd10f263f2ee2bccb2c03f`. Use only
+`phase9_v4_colab.ipynb` and `incidentgraph-phase9-v4-colab.bundle` for the next run.
 
 Previous executable verification of the completed Phase 9 v3 result:
 
@@ -77,7 +77,8 @@ estimated paid cost remains USD 0.
 
 ## Open issues and honest limitations
 
-1. Unit-only global coverage remains below the retained 85 percent later-core gate.
+1. Historical whole-package v3 coverage was below 85%; the newly explicit core runtime scope now
+   passes at 85.14%. Do not present that scoped result as whole-repository coverage.
 2. Local JSONL tracing is not a centralized or multi-host observability backend; public deployment remains out of scope.
 3. Cooperative cancellation cannot undo a provider request or charge already issued before cancellation is observed.
 4. GitHub CLI authentication is stale, although the private remote exists and normal Git push works.
@@ -93,13 +94,12 @@ estimated paid cost remains USD 0.
 
 ## Next three tasks
 
-1. Integrate the repair-3 policy and derived evidence path into a new workflow without modifying
-   frozen v1/v2/v3 files; add end-to-end workflow checks. The omitted healthy-high-traffic
-   development capture is now included by deterministic reconstruction.
-2. Raise whole-project core coverage to the retained 85% target, then define and seal a genuinely
-   fresh evaluation set. Never relabel the consumed v3 set as independent held-out data.
-3. Keep any model-heavy fresh run free and off the laptop. Do not launch another 120-job run until
-   the new workflow, full development scope, freeze manifest and human-review rubric are ready.
+1. Run every cell in `phase9_v4_colab.ipynb` with
+   `incidentgraph-phase9-v4-colab.bundle` on a free T4 and return `phase9-v4-progress.zip`.
+2. Reproduce the aggregate from the 120 returned job records and write the claim-support rubric
+   over at least 20 fresh adaptive reports without changing any frozen input or target.
+3. Publish the final v4 PASS/FAIL status honestly; only then decide whether Phase 9 closes and Phase
+   10 may start.
 
 ## Relevant documents
 
