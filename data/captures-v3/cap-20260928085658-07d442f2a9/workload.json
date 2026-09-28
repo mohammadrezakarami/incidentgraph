@@ -1,0 +1,18 @@
+{
+  "concurrency": 4,
+  "duration_seconds": 6.064,
+  "ended_at": "2026-09-28T08:57:04.798805Z",
+  "failure_count": 6,
+  "max_latency_ms": 239.355,
+  "mean_latency_ms": 202.38,
+  "p95_latency_ms": 238.41,
+  "rate_per_second": 6.0,
+  "request_count": 36,
+  "seed": 9401,
+  "started_at": "2026-09-28T08:56:58.734616Z",
+  "status_counts": {
+    "200": 30,
+    "502": 6
+  },
+  "success_count": 30
+}

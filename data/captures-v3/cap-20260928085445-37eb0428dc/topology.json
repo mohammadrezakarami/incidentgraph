@@ -1,0 +1,29 @@
+{
+  "dependencies": [
+    {
+      "callee": "checkout",
+      "caller": "gateway"
+    },
+    {
+      "callee": "payments",
+      "caller": "checkout"
+    },
+    {
+      "caller": "checkout",
+      "resource": "lab-postgresql"
+    },
+    {
+      "caller": "payments",
+      "resource": "lab-postgresql"
+    },
+    {
+      "caller": "payments",
+      "resource": "lab-redis"
+    }
+  ],
+  "services": [
+    "gateway",
+    "checkout",
+    "payments"
+  ]
+}

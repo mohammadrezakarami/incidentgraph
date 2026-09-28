@@ -255,3 +255,9 @@ named observation bundles, and rejects unsupported citations. Verify it with
 `make verify-phase9-v2-freeze`. Its 120-job model run remains free-Colab-only and is explicitly a
 regression over the now-consumed v1 cases—not a replacement held-out claim. A fresh post-corpus
 capture suite and a 20-report human rubric are still required before Phase 9 can be marked passed.
+
+The separately versioned Phase 9 v3 path supplies that fresh surface: 22 post-corpus captures,
+disjoint capture groups between development and held-out splits, a sealed 60-case dataset, and
+trusted normalization of bounded lab signals. Verify it with `make verify-phase9-v3-freeze`; the
+real-model run remains free-Colab-only through `phase9_v3_colab.ipynb` and never authorizes a paid
+provider.

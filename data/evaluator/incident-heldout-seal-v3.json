@@ -1,0 +1,39 @@
+{
+  "capture_verification": {
+    "capture_count": 22,
+    "control_capture_count": 10,
+    "evaluator_separation_valid": true,
+    "hash_manifests_valid": true,
+    "independent_fault_capture_count": 12,
+    "recovery_valid": true,
+    "scenario_counts": {
+      "ambiguous_two_cause": 2,
+      "cache_degradation": 2,
+      "dependency_errors": 2,
+      "deployment_regression": 2,
+      "downstream_latency": 2,
+      "healthy": 2,
+      "healthy_high_traffic": 2,
+      "incomplete_telemetry": 2,
+      "misleading_correlation": 2,
+      "pool_exhaustion": 2,
+      "resource_contention": 2
+    },
+    "telemetry_signals_valid": true,
+    "trace_continuity_valid": true
+  },
+  "case_count": 30,
+  "digest": "bca9a7735948a5946271ec6329c4fefda476959757feb673d5739a1b3293a8cc",
+  "distribution": {
+    "healthy": 5,
+    "identifiable": 20,
+    "insufficient": 5
+  },
+  "hash_algorithm": "sha256",
+  "independent_capture_groups": 11,
+  "label_count": 30,
+  "schema_version": 1,
+  "sealed_at": "2026-09-28T08:58:57.773269+00:00",
+  "split": "heldout",
+  "status": "sealed-before-phase9-v3-model-evaluation"
+}

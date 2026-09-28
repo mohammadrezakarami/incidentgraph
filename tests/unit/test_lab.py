@@ -11,6 +11,8 @@ from incidentgraph.lab_cli import (
     LabOperatorSettings,
     WorkloadResult,
     apply_capture_telemetry_policy,
+    capture_suite,
+    corpus_timing_limitation,
     run_workload,
     scenario_controls,
     write_capture,
@@ -171,3 +173,23 @@ def test_incomplete_telemetry_is_materialized_in_the_capture() -> None:
     assert captured_traces == [{"attributes": {"service.name": "checkout"}}]
     assert gaps
     assert len(metrics["scrape_health"]["data"]["result"]) == 2
+
+
+def test_corpus_timing_is_derived_from_the_manifest() -> None:
+    before = datetime(2026, 9, 22, tzinfo=UTC)
+    after = datetime(2026, 9, 24, tzinfo=UTC)
+
+    assert "predates" in corpus_timing_limitation(before)
+    assert "follows" in corpus_timing_limitation(after)
+
+
+@pytest.mark.asyncio
+async def test_capture_suite_rejects_unbounded_control_repeats(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="control_runs"):
+        await capture_suite(
+            operator_settings(tmp_path),
+            duration_seconds=6,
+            rate_per_second=6,
+            concurrency=4,
+            control_runs=4,
+        )

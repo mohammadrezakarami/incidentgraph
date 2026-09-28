@@ -25,6 +25,7 @@ from incidentgraph.persistence import Database
 
 ROOT = Path(__file__).resolve().parents[2]
 LAB_MIGRATION = ROOT / "ops" / "migrations" / "002_lab.sql"
+CORPUS_MANIFEST = ROOT / "data" / "corpus" / "manifest.jsonl"
 
 ScenarioName = Literal[
     "downstream_latency",
@@ -494,6 +495,19 @@ def _percentile(values: list[float], percentile: float) -> float:
     return ordered[index]
 
 
+def corpus_timing_limitation(observation_start: datetime) -> str:
+    if not CORPUS_MANIFEST.is_file():
+        return "curated corpus timing could not be verified at capture time"
+    valid_from_values = [
+        datetime.fromisoformat(json.loads(line)["valid_from"].replace("Z", "+00:00"))
+        for line in CORPUS_MANIFEST.read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+    if valid_from_values and observation_start >= max(valid_from_values):
+        return "capture follows the curated corpus baseline; eligibility remains cutoff-enforced"
+    return "capture predates at least one curated corpus validity window"
+
+
 def validate_effect(scenario: ScenarioName, workload: WorkloadResult) -> bool:
     if scenario == "downstream_latency":
         return workload.p95_latency_ms >= 150
@@ -574,7 +588,7 @@ def write_capture(
             "telemetry_gaps": telemetry_gaps,
             "limitations": [
                 "laboratory data, not production evidence",
-                "Phase 2 capture predates the curated Phase 3 corpus",
+                corpus_timing_limitation(observation_start),
             ],
         },
         "workload.json": workload.model_dump(mode="json"),
@@ -618,9 +632,11 @@ def write_capture(
         "capture_id": capture_id,
         "scenario": scenario,
         "seed": seed,
-        "answerability": "insufficient_observation"
-        if scenario == "incomplete_telemetry"
-        else "answerable",
+        "answerability": (
+            "insufficient_observation"
+            if scenario in {"incomplete_telemetry", "ambiguous_two_cause"}
+            else "answerable"
+        ),
         "accepted_components": _accepted_components(scenario),
         "accepted_mechanisms": _accepted_mechanisms(scenario),
         "setup": [
@@ -659,7 +675,7 @@ def _accepted_components(scenario: ScenarioName) -> list[str]:
         "healthy_high_traffic": [],
         "misleading_correlation": ["payments"],
         "incomplete_telemetry": [],
-        "ambiguous_two_cause": ["checkout", "payments"],
+        "ambiguous_two_cause": [],
     }
     return mapping[scenario]
 
@@ -676,7 +692,7 @@ def _accepted_mechanisms(scenario: ScenarioName) -> list[str]:
         "healthy_high_traffic": ["healthy_high_traffic"],
         "misleading_correlation": ["dependency_errors"],
         "incomplete_telemetry": ["insufficient_observation"],
-        "ambiguous_two_cause": ["deployment_regression", "downstream_latency"],
+        "ambiguous_two_cause": ["insufficient_observation"],
     }
     return mapping[scenario]
 
@@ -751,7 +767,10 @@ async def capture_suite(
     duration_seconds: int,
     rate_per_second: float,
     concurrency: int,
+    control_runs: int = 1,
 ) -> list[Path]:
+    if not 1 <= control_runs <= 3:
+        raise ValueError("control_runs must be between 1 and 3")
     captures: list[Path] = []
     for scenario_index, scenario in enumerate(REQUIRED_FAULTS):
         for independent_run in range(2):
@@ -767,16 +786,17 @@ async def capture_suite(
             captures.append(capture)
             print(json.dumps({"capture": str(capture), "scenario": scenario}))
     for scenario_index, scenario in enumerate(CONTROL_SCENARIOS):
-        capture = await run_scenario(
-            settings,
-            scenario=scenario,
-            seed=9_000 + scenario_index,
-            duration_seconds=duration_seconds,
-            rate_per_second=rate_per_second,
-            concurrency=concurrency,
-        )
-        captures.append(capture)
-        print(json.dumps({"capture": str(capture), "scenario": scenario}))
+        for independent_run in range(control_runs):
+            capture = await run_scenario(
+                settings,
+                scenario=scenario,
+                seed=9_000 + scenario_index * 100 + independent_run,
+                duration_seconds=duration_seconds,
+                rate_per_second=rate_per_second,
+                concurrency=concurrency,
+            )
+            captures.append(capture)
+            print(json.dumps({"capture": str(capture), "scenario": scenario}))
     return captures
 
 
@@ -802,6 +822,7 @@ def main() -> None:
     suite_parser.add_argument("--duration", type=int, default=6)
     suite_parser.add_argument("--rate", type=float, default=6)
     suite_parser.add_argument("--concurrency", type=int, default=4)
+    suite_parser.add_argument("--control-runs", type=int, default=1)
     subcommands.add_parser("verify-captures")
     args = parser.parse_args()
     settings = LabOperatorSettings()  # type: ignore[call-arg]
@@ -843,6 +864,7 @@ def main() -> None:
                 duration_seconds=args.duration,
                 rate_per_second=args.rate,
                 concurrency=args.concurrency,
+                control_runs=args.control_runs,
             )
         )
         print(json.dumps({"capture_count": len(captures)}))

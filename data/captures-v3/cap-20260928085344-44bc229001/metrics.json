@@ -1,0 +1,1019 @@
+{
+  "cache_outcomes": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "result": "hit",
+            "service": "payments"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "result": "miss",
+            "service": "payments"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "1.7777331995987964"
+            ],
+            [
+              1790585631.907,
+              "1.9326489734601906"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "cache_outcomes"
+  },
+  "db_pool_in_use": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "__name__": "lab_db_pool_in_use",
+            "instance": "checkout:8080",
+            "job": "checkout",
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "0"
+            ],
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "lab_db_pool_in_use",
+            "instance": "gateway:8080",
+            "job": "gateway",
+            "service": "gateway"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "0"
+            ],
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "lab_db_pool_in_use",
+            "instance": "payments:8080",
+            "job": "payments",
+            "service": "payments"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "0"
+            ],
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "db_pool_in_use"
+  },
+  "db_pool_timeouts": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "db_pool_timeouts"
+  },
+  "dependency_latency_p95": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "dependency": "checkout",
+            "service": "gateway"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.02425"
+            ],
+            [
+              1790585631.907,
+              "0.023821428571428573"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "dependency": "payments",
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.00975"
+            ],
+            [
+              1790585631.907,
+              "0.009583333333333333"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "dependency_latency_p95"
+  },
+  "dependency_outcomes": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "dependency": "checkout",
+            "outcome": "error",
+            "service": "gateway"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "1.4766233766233765"
+            ],
+            [
+              1790585631.907,
+              "1.7285429141716566"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "dependency": "checkout",
+            "outcome": "success",
+            "service": "gateway"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "1.4766233766233765"
+            ],
+            [
+              1790585631.907,
+              "2.0742514970059878"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "dependency": "payments",
+            "outcome": "error",
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.9251999999999999"
+            ],
+            [
+              1790585631.907,
+              "1.3252"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "dependency": "payments",
+            "outcome": "success",
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "1.8503999999999998"
+            ],
+            [
+              1790585631.907,
+              "1.9878"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "dependency_outcomes"
+  },
+  "deployment": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "__name__": "lab_deployment_info",
+            "instance": "checkout:8080",
+            "job": "checkout",
+            "service": "checkout",
+            "version": "checkout-v1.0.0"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "1"
+            ],
+            [
+              1790585630.907,
+              "1"
+            ],
+            [
+              1790585631.907,
+              "1"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "lab_deployment_info",
+            "instance": "checkout:8080",
+            "job": "checkout",
+            "service": "checkout",
+            "version": "v1.1.0-regressed"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "0"
+            ],
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "lab_deployment_info",
+            "instance": "gateway:8080",
+            "job": "gateway",
+            "service": "gateway",
+            "version": "gateway-v1.0.0"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "1"
+            ],
+            [
+              1790585630.907,
+              "1"
+            ],
+            [
+              1790585631.907,
+              "1"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "lab_deployment_info",
+            "instance": "payments:8080",
+            "job": "payments",
+            "service": "payments",
+            "version": "payments-v1.0.0"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "1"
+            ],
+            [
+              1790585630.907,
+              "1"
+            ],
+            [
+              1790585631.907,
+              "1"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "deployment"
+  },
+  "process_cpu": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "job": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.01850400000003576"
+            ],
+            [
+              1790585631.907,
+              "0.016565000000022596"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "job": "gateway"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.019688311688293783"
+            ],
+            [
+              1790585631.907,
+              "0.017285429141700843"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "job": "payments"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.008888665997985898"
+            ],
+            [
+              1790585631.907,
+              "0.009663244867292163"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "process_cpu"
+  },
+  "request_latency_p95": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "route": "/checkout",
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.02375"
+            ],
+            [
+              1790585631.907,
+              "0.023125"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/checkout",
+            "service": "gateway"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.02425"
+            ],
+            [
+              1790585631.907,
+              "0.023821428571428573"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/docs",
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "NaN"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/docs",
+            "service": "gateway"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "NaN"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/docs",
+            "service": "payments"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "NaN"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/favicon.ico",
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "NaN"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/favicon.ico",
+            "service": "gateway"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "NaN"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/favicon.ico",
+            "service": "payments"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "NaN"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/health/ready",
+            "service": "checkout"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "0.00475"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/health/ready",
+            "service": "gateway"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "NaN"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/health/ready",
+            "service": "payments"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "NaN"
+            ],
+            [
+              1790585631.907,
+              "0.00475"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/pay",
+            "service": "payments"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.00475"
+            ],
+            [
+              1790585631.907,
+              "0.00475"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "request_latency_p95"
+  },
+  "request_rate": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "route": "/checkout",
+            "service": "checkout",
+            "status_class": "2xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "1.3878"
+            ],
+            [
+              1790585631.907,
+              "1.9878"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/checkout",
+            "service": "checkout",
+            "status_class": "5xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.9251999999999999"
+            ],
+            [
+              1790585631.907,
+              "1.3252"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/checkout",
+            "service": "gateway",
+            "status_class": "2xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "1.4766233766233765"
+            ],
+            [
+              1790585631.907,
+              "2.0742514970059878"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/checkout",
+            "service": "gateway",
+            "status_class": "5xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "1.4766233766233765"
+            ],
+            [
+              1790585631.907,
+              "1.7285429141716566"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/docs",
+            "service": "checkout",
+            "status_class": "4xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/docs",
+            "service": "gateway",
+            "status_class": "4xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/docs",
+            "service": "payments",
+            "status_class": "4xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/favicon.ico",
+            "service": "checkout",
+            "status_class": "4xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/favicon.ico",
+            "service": "gateway",
+            "status_class": "4xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/favicon.ico",
+            "service": "payments",
+            "status_class": "4xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/health/ready",
+            "service": "checkout",
+            "status_class": "2xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0.3313"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/health/ready",
+            "service": "checkout",
+            "status_class": "5xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/health/ready",
+            "service": "gateway",
+            "status_class": "2xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/health/ready",
+            "service": "payments",
+            "status_class": "2xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0"
+            ],
+            [
+              1790585631.907,
+              "0.3221081622433651"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/pay",
+            "service": "payments",
+            "status_class": "2xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "1.7777331995987964"
+            ],
+            [
+              1790585631.907,
+              "1.9326489734601906"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "route": "/pay",
+            "service": "payments",
+            "status_class": "5xx"
+          },
+          "values": [
+            [
+              1790585630.907,
+              "0.8888665997993982"
+            ],
+            [
+              1790585631.907,
+              "1.2884326489734603"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "request_rate"
+  },
+  "scrape_health": {
+    "data": {
+      "result": [
+        {
+          "metric": {
+            "__name__": "up",
+            "instance": "checkout:8080",
+            "job": "checkout"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "1"
+            ],
+            [
+              1790585630.907,
+              "1"
+            ],
+            [
+              1790585631.907,
+              "1"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "up",
+            "instance": "gateway:8080",
+            "job": "gateway"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "1"
+            ],
+            [
+              1790585630.907,
+              "1"
+            ],
+            [
+              1790585631.907,
+              "1"
+            ]
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "up",
+            "instance": "payments:8080",
+            "job": "payments"
+          },
+          "values": [
+            [
+              1790585629.907,
+              "1"
+            ],
+            [
+              1790585630.907,
+              "1"
+            ],
+            [
+              1790585631.907,
+              "1"
+            ]
+          ]
+        }
+      ],
+      "resultType": "matrix"
+    },
+    "parameters": {
+      "end": "2026-09-28T08:53:52.753097+00:00",
+      "start": "2026-09-28T08:53:43.907093+00:00",
+      "step_seconds": 1
+    },
+    "status": "success",
+    "template_id": "scrape_health"
+  }
+}

@@ -192,7 +192,11 @@ def _telemetry_signal_present(scenario: str, capture_dir: Path) -> bool:
             and workload["p95_latency_ms"] >= 70
         )
     if scenario == "incomplete_telemetry":
-        return _minimum(metrics, "scrape_health", job="payments") == 0
+        manifest = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
+        return (
+            not _series_values(metrics, "scrape_health", job="payments")
+            and bool(manifest.get("telemetry_gaps"))
+        )
     if scenario == "ambiguous_two_cause":
         return float(workload["p95_latency_ms"]) >= 100 and int(workload["failure_count"]) > 0
     if scenario == "misleading_correlation":
@@ -216,12 +220,11 @@ def _trace_continuity_present(capture_dir: Path, scenario: str) -> bool:
             observations[request_id]["trace_ids"].add(trace_id)
     expected_services = (
         {"gateway", "checkout"}
-        if scenario == "pool_exhaustion"
+        if scenario in {"pool_exhaustion", "incomplete_telemetry"}
         else {"gateway", "checkout", "payments"}
     )
     return any(
-        observation["services"] == expected_services
-        and len(observation["trace_ids"]) == 1
+        observation["services"] == expected_services and len(observation["trace_ids"]) == 1
         for observation in observations.values()
     )
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from incidentgraph.phase9_v3_evaluation import (
     RawDiagnosisDecision,
     RawObservationPlan,
+    agent_jobs,
     derive_signal_summary,
     normalize_diagnosis,
     normalize_plan,
@@ -87,8 +88,8 @@ def test_competing_change_and_latency_signals_force_honest_abstention() -> None:
             _metric(
                 "request_latency_p95",
                 0.24,
-                service="checkout",
-                route="/checkout",
+                service="payments",
+                route="/pay",
             ),
             changes=1,
         )
@@ -96,6 +97,36 @@ def test_competing_change_and_latency_signals_force_honest_abstention() -> None:
 
     assert summary["active_signals"] == ["deployment_regression", "downstream_latency"]
     assert summary["ambiguous"] is True
+
+
+def test_checkout_only_latency_with_a_change_is_not_false_ambiguity() -> None:
+    summary = derive_signal_summary(
+        _payload(
+            _metric(
+                "dependency_outcomes",
+                1.0,
+                service="checkout",
+                dependency="payments",
+                outcome="error",
+            ),
+            _metric(
+                "request_latency_p95",
+                0.24,
+                service="checkout",
+                route="/checkout",
+            ),
+            _metric(
+                "request_latency_p95",
+                0.01,
+                service="payments",
+                route="/pay",
+            ),
+            changes=1,
+        )
+    )
+
+    assert summary["active_signals"] == ["deployment_regression"]
+    assert summary["ambiguous"] is False
 
 
 def test_missing_telemetry_overrides_incoherent_no_incident_output() -> None:
@@ -141,3 +172,12 @@ def test_probable_cause_without_a_bounded_signal_is_not_a_false_incident() -> No
     assert normalized.outcome == "no_incident_detected"
     assert normalized.component == "none"
     assert normalized.mechanism == "healthy"
+
+
+def test_fresh_run_plan_has_120_unique_budgeted_jobs() -> None:
+    jobs = agent_jobs()
+
+    assert len(jobs) == 120
+    assert len({item["job_id"] for item in jobs}) == 120
+    assert sum(item["split"] == "dev" for item in jobs) == 60
+    assert sum(item["split"] == "heldout" for item in jobs) == 60
