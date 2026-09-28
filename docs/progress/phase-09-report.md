@@ -2,12 +2,13 @@
 
 Date: 2026-09-25
 
-Status: **COMPLETE — QUALITY GATE FAIL (v1 and fresh v3)**
+Status: **COMPLETE — FINAL V4 QUALITY GATE PASS**
 
-Roadmap position: 10 of 12 gated phases are decided. Phases 0–8 passed, Phase 9 completed its
-frozen evaluation but failed the agreed quality targets, and Phases 10–11 have not started.
+Roadmap position: 10 of 12 gated phases are complete. Phases 0–9 passed, and Phases 10–11 have not
+started. Phase 9's v1 and fresh v3 failures remain immutable historical results; the separately
+frozen v4 post-repair evaluation is the final passing gate.
 
-## 1. Decision
+## 1. Historical v1 decision
 
 The zero-paid-cost free-Colab run completed all 12 shards and all 120 planned agent jobs. The
 20-question retrieval comparison also completed. Re-running finalization from the per-job records
@@ -241,4 +242,41 @@ well below 90 seconds—but it did not recover diagnosis quality or evidence-gro
 target, label, held-out case, or scoring rule was changed after opening the v3 results. Full evidence
 is retained under `artifacts/evaluation/phase9-v3-fresh/`.
 
-Roadmap decision: Phase 9 is finished with a failed quality gate. Phases 10–11 remain unstarted.
+At the v3 checkpoint, Phase 9 still had a failed quality gate. That result remains preserved; the
+later, separately sealed v4 repair below is the final Phase 9 decision.
+
+### v4 final post-repair result — 2026-09-28
+
+The v4 archive completed 120/120 jobs on free Colab at estimated USD 0. Archive SHA-256 is
+`47f77a40175203d3f2ee4d44e2b7baf5d26e4d9de1a7046ab238e5913fd98bcc`. Re-running the frozen
+finalizer over its 12 shard files reproduced the returned pre-review aggregate and per-case CSV
+byte-for-byte:
+
+- Pre-review aggregate SHA-256:
+  `e8aa980e89696a9529324289508cb07bfbdc7abba5ae1f9f625d3271ddbebe57`.
+- Per-case CSV SHA-256:
+  `7f7f0259d72d8c19aa13ec2e33f068ab1e78e45f95932f5f12f3207ec1108c46`.
+- Final post-review aggregate SHA-256:
+  `7b29a6f1ff32704a6effe80842225f8a9dee7cb82e97e2b652ce3f09e2f9c36b`.
+
+| Target | Frozen threshold | Fresh v4 result | Status |
+|---|---:|---:|---|
+| Adaptive diagnosis Top 1 | >= 0.75 | 20/20 | PASS |
+| Adaptive diagnosis Top 3 | >= 0.90 | 20/20 | PASS |
+| Appropriate abstention | >= 4/5 | 5/5 | PASS |
+| False incidents | <= 1/5 | 0/5 | PASS |
+| Citation validity | 100% | 106/106 | PASS |
+| Policy violations | 0 | 0 | PASS |
+| Warm p95 active duration | < 90 s | 1.819 s | PASS |
+| Supported factual claims | >= 95% | 69/69 | PASS |
+| Retained branch-aware core coverage | >= 85% | 85.14% | PASS |
+
+The written review covered all 20 identifiable adaptive reports and checked 69 atomic factual
+claims against their cited captured evidence or trace-linked policy reduction. All 69 were
+supported. The review is AI-assisted, not independent human validation, and those 20 variants
+represent seven independent capture groups. The full 30-case held-out set shares 11 captures.
+
+Phase 9 is therefore **PASS — EVALUATION COMPLETE** in the separately frozen v4 repair. This is a
+small project-authored synthetic laboratory result, not a production-quality claim. The model only
+orders bounded observation bundles; trusted code applies the pre-registered laboratory diagnosis
+policy. Complete evidence is retained under `artifacts/evaluation/phase9-v4-fresh/`.

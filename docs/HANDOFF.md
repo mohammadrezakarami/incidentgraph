@@ -4,19 +4,19 @@ Last updated: 2026-09-28
 
 ## Current phase
 
-Latest steering: the user explicitly wants the Phase 9 quality problems fixed. Repair-3 now uses a
-trusted, service-scoped bounded policy and generated evidence templates. It is integrated into v4,
-145 non-integration tests pass, branch-aware core coverage is 85.14%, and a fresh 30-case held-out
-set from 11 new post-repair captures is sealed. Freeze verification passes at bundle revision
-`f3d990672a31ae606adbaec1f2abee745e1cc4b4`. The only remaining work is the free-Colab v4 run and
-the written claim-support review after its ZIP returns. Details are in
+Phase 9 quality repair is complete. Repair-3 uses a trusted, service-scoped bounded policy and
+generated evidence templates. It is integrated into v4, 145 non-integration tests pass,
+branch-aware core coverage is 85.14%, and the frozen 30-case holdout uses 11 new post-repair
+captures. The free-Colab v4 run completed 120/120 jobs at estimated USD 0 and reproduced
+byte-for-byte. Every automated target passed, and the written review found 69/69 supported atomic
+claims across all 20 identifiable adaptive reports. Details are in
 `docs/progress/phase-09-repair.md`.
 
-Phase 0 through Phase 8 are complete and passed. Phase 9 is also complete, but its immutable v1 and
-separately frozen fresh v3 quality gates are both **FAIL**. The v3 free-Colab execution completed all
-120 jobs, reproduced byte-for-byte locally, and received a written review over 20 actual reports.
+Phase 0 through Phase 9 are complete and passed. Phase 9's immutable v1 and separately frozen fresh
+v3 quality gates remain historical **FAIL** results; the independently versioned v4 repair is the
+final **PASS** result.
 
-Roadmap position: Phases 0–8 PASS; Phase 9 COMPLETE/FAIL; Phases 10–11 are not started.
+Roadmap position: Phases 0–9 PASS; Phases 10–11 are not started.
 
 ## Last verified command
 
@@ -28,14 +28,18 @@ Current v4 repair verification:
 .venv/bin/pytest -q -m "not integration"
 .venv/bin/python -m incidentgraph.phase9_v4_dataset verify
 .venv/bin/python -m incidentgraph.phase9_v4_runner verify-freeze
+.venv/bin/python scripts/complete_phase9_v4_manual_review.py \
+  artifacts/evaluation/phase9-v4-fresh \
+  --source-archive /Users/mohammadrezakarami/Desktop/phase9-v4-progress.zip
 ```
 
 Result: Ruff and strict mypy pass; 145 selected non-integration tests pass. The exact retained core
-coverage command passes at 85.14%. The new held-out seal digest is
+coverage command passes at 85.14%. The held-out seal digest is
 `b36dc01092ddc22565f061a4401b6710b9e77a46e5a10f3efc4a78058f23435d`; freeze verification covers
-28 files/manifests. The v4 bundle SHA-256 is
-`c31bb3a80b83ae2482eedd8364d3cfd2f3a9f60931dd10f263f2ee2bccb2c03f`. Use only
-`phase9_v4_colab.ipynb` and `incidentgraph-phase9-v4-colab.bundle` for the next run.
+28 files/manifests. The returned v4 archive SHA-256 is
+`47f77a40175203d3f2ee4d44e2b7baf5d26e4d9de1a7046ab238e5913fd98bcc`. The reproduced pre-review
+aggregate and per-case hashes are `e8aa980e89696a9529324289508cb07bfbdc7abba5ae1f9f625d3271ddbebe57`
+and `7f7f0259d72d8c19aa13ec2e33f068ab1e78e45f95932f5f12f3207ec1108c46`.
 
 Previous executable verification of the completed Phase 9 v3 result:
 
@@ -91,15 +95,15 @@ estimated paid cost remains USD 0.
 10. The existing untracked `.env` predates Phase 7 service scoping. Add an explicit non-empty `service_ids` list to each configured principal before using the interactive console; missing scope fails closed and `make doctor` reports it without exposing secrets.
 11. Phase 9 v3 fixed the v1 latency and policy-violation failures but still failed diagnosis,
     abstention, citation-validity, claim-support, and coverage targets.
+12. Phase 9 v4 passes the frozen laboratory gate, but it is not production evidence: 30 cases share
+    11 captures, the model controls only observation order, and the written review is AI-assisted
+    rather than independent human validation.
 
 ## Next three tasks
 
-1. Run every cell in `phase9_v4_colab.ipynb` with
-   `incidentgraph-phase9-v4-colab.bundle` on a free T4 and return `phase9-v4-progress.zip`.
-2. Reproduce the aggregate from the 120 returned job records and write the claim-support rubric
-   over at least 20 fresh adaptive reports without changing any frozen input or target.
-3. Publish the final v4 PASS/FAIL status honestly; only then decide whether Phase 9 closes and Phase
-   10 may start.
+1. Begin Phase 10 reproducible release and operations only when the user requests it.
+2. Preserve all Phase 9 v1/v2/v3/v4 frozen inputs and returned evidence without rewriting history.
+3. Keep heavy model evaluation off the laptop and paid providers disabled.
 
 ## Relevant documents
 
@@ -124,7 +128,7 @@ estimated paid cost remains USD 0.
 ## Resume procedure
 
 Read this file, `docs/PROJECT_STATUS.md`, `docs/TASKS.md`, the Phase 9 report, and the accepted ADRs.
-Compare the actual directory and Git state with this handoff. Do not recreate the v3 dataset or
-rerun its completed shards. Never make paid calls. Do not alter
+Compare the actual directory and Git state with this handoff. Do not recreate the v3/v4 datasets or
+rerun their completed shards. Never make paid calls. Do not alter
 any file hashed by `config/phase9-freeze-v1.json`, `config/phase9-v2-regression-freeze.json`, or
-`config/phase9-v3-fresh-freeze.json`.
+`config/phase9-v3-fresh-freeze.json`; preserve the v4 freeze and evidence as well.

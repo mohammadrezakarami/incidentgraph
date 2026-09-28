@@ -1,0 +1,436 @@
+{
+  "agent": {
+    "consumed_development_repeats": {
+      "adaptive": {
+        "1": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 37,
+            "numerator": 37,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 1,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 10,
+          "outcomes": {
+            "inconclusive": 2,
+            "no_incident_detected": 1,
+            "probable_cause": 7
+          },
+          "p95_active_duration_ms": 75140.20886000003,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "top3": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 1540,
+            "model_calls": 10,
+            "output_tokens": 549,
+            "tool_calls": 140
+          }
+        },
+        "2": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 37,
+            "numerator": 37,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 1,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 10,
+          "outcomes": {
+            "inconclusive": 2,
+            "no_incident_detected": 1,
+            "probable_cause": 7
+          },
+          "p95_active_duration_ms": 1736.920844999986,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "top3": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 1711,
+            "model_calls": 10,
+            "output_tokens": 614,
+            "tool_calls": 140
+          }
+        },
+        "3": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 37,
+            "numerator": 37,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 1,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 10,
+          "outcomes": {
+            "inconclusive": 2,
+            "no_incident_detected": 1,
+            "probable_cause": 7
+          },
+          "p95_active_duration_ms": 1844.600150999895,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "top3": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 1711,
+            "model_calls": 10,
+            "output_tokens": 614,
+            "tool_calls": 140
+          }
+        }
+      },
+      "fixed": {
+        "1": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 37,
+            "numerator": 37,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 1,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 10,
+          "outcomes": {
+            "inconclusive": 2,
+            "no_incident_detected": 1,
+            "probable_cause": 7
+          },
+          "p95_active_duration_ms": 20.86827300013283,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "top3": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 0,
+            "model_calls": 0,
+            "output_tokens": 0,
+            "tool_calls": 140
+          }
+        },
+        "2": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 37,
+            "numerator": 37,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 1,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 10,
+          "outcomes": {
+            "inconclusive": 2,
+            "no_incident_detected": 1,
+            "probable_cause": 7
+          },
+          "p95_active_duration_ms": 19.853264999937892,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "top3": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 0,
+            "model_calls": 0,
+            "output_tokens": 0,
+            "tool_calls": 140
+          }
+        },
+        "3": {
+          "appropriate_abstention": {
+            "denominator": 2,
+            "numerator": 2,
+            "rate": 1.0
+          },
+          "cases": 10,
+          "citation_validity": {
+            "denominator": 37,
+            "numerator": 37,
+            "rate": 1.0
+          },
+          "false_incidents": {
+            "denominator": 1,
+            "numerator": 0,
+            "rate": 0.0
+          },
+          "independent_groups": 10,
+          "outcomes": {
+            "inconclusive": 2,
+            "no_incident_detected": 1,
+            "probable_cause": 7
+          },
+          "p95_active_duration_ms": 19.992543999933332,
+          "policy_violations": 0,
+          "task_completion": {
+            "denominator": 10,
+            "numerator": 10,
+            "rate": 1.0
+          },
+          "top1": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "top3": {
+            "denominator": 7,
+            "numerator": 7,
+            "rate": 1.0
+          },
+          "usage": {
+            "estimated_cost_usd": 0.0,
+            "input_tokens": 0,
+            "model_calls": 0,
+            "output_tokens": 0,
+            "tool_calls": 140
+          }
+        }
+      }
+    },
+    "fresh_heldout": {
+      "adaptive": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 5,
+          "rate": 1.0
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 106,
+          "numerator": 106,
+          "rate": 1.0
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "independent_groups": 11,
+        "outcomes": {
+          "inconclusive": 5,
+          "no_incident_detected": 5,
+          "probable_cause": 20
+        },
+        "p95_active_duration_ms": 1818.5195439998552,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 30,
+          "rate": 1.0
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 20,
+          "rate": 1.0
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 20,
+          "rate": 1.0
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 5121,
+          "model_calls": 30,
+          "output_tokens": 1804,
+          "tool_calls": 420
+        }
+      },
+      "fixed": {
+        "appropriate_abstention": {
+          "denominator": 5,
+          "numerator": 5,
+          "rate": 1.0
+        },
+        "cases": 30,
+        "citation_validity": {
+          "denominator": 106,
+          "numerator": 106,
+          "rate": 1.0
+        },
+        "false_incidents": {
+          "denominator": 5,
+          "numerator": 0,
+          "rate": 0.0
+        },
+        "independent_groups": 11,
+        "outcomes": {
+          "inconclusive": 5,
+          "no_incident_detected": 5,
+          "probable_cause": 20
+        },
+        "p95_active_duration_ms": 17.57997200002137,
+        "policy_violations": 0,
+        "task_completion": {
+          "denominator": 30,
+          "numerator": 30,
+          "rate": 1.0
+        },
+        "top1": {
+          "denominator": 20,
+          "numerator": 20,
+          "rate": 1.0
+        },
+        "top3": {
+          "denominator": 20,
+          "numerator": 20,
+          "rate": 1.0
+        },
+        "usage": {
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 0,
+          "model_calls": 0,
+          "output_tokens": 0,
+          "tool_calls": 420
+        }
+      }
+    }
+  },
+  "coverage": {
+    "percent": 85.14437689969606,
+    "scope": [
+      "incidentgraph.models",
+      "incidentgraph.auth",
+      "incidentgraph.api_support",
+      "incidentgraph.investigation_tools",
+      "incidentgraph.investigator",
+      "incidentgraph.retrieval",
+      "incidentgraph.phase9_repair",
+      "incidentgraph.phase9_v4_evaluation"
+    ]
+  },
+  "evaluation_mode": "fresh_post_repair",
+  "freeze": {
+    "file_count": 28,
+    "freeze_id": "phase9-v4-fresh-post-repair",
+    "status": "pass"
+  },
+  "gate_status": "pending_manual_review",
+  "independent_heldout_claim_allowed": true,
+  "limitations": [
+    "This is a small project-authored laboratory dataset, not production evidence.",
+    "Thirty cases share 11 captures; question variants are not independent observations.",
+    "The local model controls bounded observation order only; trusted code applies the pre-registered synthetic-lab diagnosis policy.",
+    "Document retrieval is equally unavailable to both v4 agent workflows; retrieval quality remains a separate frozen v1 result.",
+    "Supported factual claim rate requires written review of at least 20 fresh reports."
+  ],
+  "schema_version": 1,
+  "targets": {
+    "appropriate_abstention": true,
+    "citation_validity": true,
+    "core_coverage": true,
+    "diagnosis_top1": true,
+    "diagnosis_top3": true,
+    "false_incidents": true,
+    "policy_violations": true,
+    "supported_claim_rate": null,
+    "warm_p95_active_seconds": true
+  }
+}

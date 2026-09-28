@@ -20,18 +20,21 @@ Phase 7 — API and incident console: **PASS**.
 
 Phase 8 — Observability and security hardening: **PASS**.
 
-Phase 9 — Frozen evaluation and error analysis: **QUALITY REPAIR IN PROGRESS**.
+Phase 9 — Frozen evaluation and error analysis: **PASS (separately frozen v4 repair)**.
 
-Roadmap position: **Phases 0–8 passed; the Phase 9 v1/v3 evaluations finished with FAIL.
-The requested quality repair remains open. Phases 10–11 have not started.**
+Roadmap position: **Phases 0–9 passed; Phases 10–11 have not started.** The immutable Phase 9 v1
+and v3 evaluations remain FAIL; the later separately frozen v4 post-repair gate is PASS.
 
-See `docs/progress/phase-09-repair.md` for the returned repair-2 failure and repair-3's trusted
-bounded-policy implementation. Repair-3 is integrated into the separately versioned v4 workflow,
-145 non-integration tests pass, and branch-aware core coverage is 85.14%. A 30-case held-out set
-from 11 new post-repair live captures was sealed before evaluation. Phase 9 remains open only for
-the zero-cost Colab execution and the written review of at least 20 returned reports.
+See `docs/progress/phase-09-repair.md` for the returned repair-2 failure, repair-3's trusted bounded
+policy, and the final v4 result. Repair-3 is integrated into the separately versioned v4 workflow,
+145 non-integration tests pass, and branch-aware core coverage is 85.14%. The sealed 30-case
+holdout came from 11 new post-repair live captures. Its zero-cost Colab execution completed 120/120
+jobs, and the written review found 69/69 supported claims across 20 actual reports.
 
-The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive investigator, durable human-review lifecycle, API/console, and observability/security hardening are implemented and verified. Phase 9 then completed the frozen zero-cost Colab evaluation and published the failed quality result without changing the frozen inputs or targets.
+The foundation, telemetry lab, operational graph, corpus ingestion, retrieval layer, adaptive
+investigator, durable human-review lifecycle, API/console, and observability/security hardening are
+implemented and verified. Phase 9 preserved its failed historical evaluations, then completed a
+newly sealed zero-cost v4 evaluation and passed every unchanged target in that versioned gate.
 
 ## Verified environment
 
@@ -101,6 +104,15 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 - The v3 written rubric reviewed 20 actual reports and found 0/20 supported factual conclusions;
   every sampled report left the structured claim fields empty and emitted one uncited generic
   conclusion. The review is AI-assisted and not independent human validation.
+- The v4 free-Colab run completed 120/120 jobs at estimated USD 0. Re-finalization reproduced the
+  returned pre-review aggregate and per-case CSV byte-for-byte. Archive SHA-256 is
+  `47f77a40175203d3f2ee4d44e2b7baf5d26e4d9de1a7046ab238e5913fd98bcc`.
+- Fresh v4 fixed and adaptive results were Top 1 20/20, Top 3 20/20, appropriate abstention 5/5,
+  zero false incidents, 30/30 task completion, 100% citation validity, and zero policy violations.
+  Adaptive warm p95 active duration was 1.819 seconds.
+- The v4 written rubric reviewed all 20 identifiable adaptive reports across seven represented
+  capture groups and found 69/69 supported atomic claims. The review is AI-assisted and is not
+  independent human validation.
 
 ## Approved decisions recorded in ADRs
 
@@ -112,12 +124,13 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Open gates and limitations
 
-- Phase 9 v1 and the separately frozen fresh v3 iteration are both complete with **FAIL** gate
-  results. The measured failures are retained without post-held-out tuning or target changes.
+- Phase 9 v1 and the separately frozen fresh v3 iteration are both complete with historical
+  **FAIL** results. Their measured failures are retained without post-held-out tuning or target
+  changes; the independently versioned v4 repair is the final **PASS** gate.
 - The historical v3 whole-package command measured 48.38%. The specification's explicit v4 core
   domain/policy/retrieval/orchestration scope now measures 85.14% with branch coverage enabled.
-- V4 final aggregate and supported-claim results remain pending the free-Colab run and written
-  review; sealed inputs must not change in response to the result.
+- V4 final aggregate and supported-claim results are complete; all sealed inputs and frozen targets
+  remained unchanged after the result was opened.
 - Phase 2 captures still predate most Phase 3 corpus validity windows in the immutable v1 result;
   v3 uses newly captured and separately sealed post-corpus cases instead of rewriting history.
 - Development metrics are based on a small project-authored laboratory corpus and must not be presented as held-out or production quality.
@@ -133,6 +146,7 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 
 ## Evidence
 
-See `docs/progress/phase-09-report.md` for the final decisions. Complete v1 and fresh v3 returned
-runs, reproduced aggregates, and written rubrics are under `artifacts/evaluation/phase9-frozen-v1/`
-and `artifacts/evaluation/phase9-v3-fresh/`.
+See `docs/progress/phase-09-report.md` for the versioned decisions. Complete v1, fresh v3, and final
+v4 returned runs, reproduced aggregates, and written rubrics are under
+`artifacts/evaluation/phase9-frozen-v1/`, `artifacts/evaluation/phase9-v3-fresh/`, and
+`artifacts/evaluation/phase9-v4-fresh/`.

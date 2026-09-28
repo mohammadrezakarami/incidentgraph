@@ -1,6 +1,6 @@
-# Phase 9 repair in progress — 2026-09-28
+# Phase 9 repair complete — 2026-09-28
 
-## V4 workflow frozen; final Colab run pending
+## V4 final result — PASS
 
 Repair-3 is now integrated into `phase9_v4_evaluation.py` without changing frozen v1/v2/v3 code.
 Both fixed and adaptive workflows collect the same complete 14-result observation surface. The
@@ -20,12 +20,43 @@ variants sharing a capture are explicitly not independent. The held-out seal dig
 `b36dc01092ddc22565f061a4401b6710b9e77a46e5a10f3efc4a78058f23435d` and freeze
 `phase9-v4-fresh-post-repair` verifies 28 files/manifests.
 
-The free-Colab handoff is `phase9_v4_colab.ipynb` plus
+The free-Colab handoff used `phase9_v4_colab.ipynb` plus
 `incidentgraph-phase9-v4-colab.bundle` (SHA-256
-`c31bb3a80b83ae2482eedd8364d3cfd2f3a9f60931dd10f263f2ee2bccb2c03f`). It needs no Docker or
-Neo4j and makes at most 60 local-model planning calls across 120 jobs; fixed cases make zero model
-calls. Phase 9 remains open until `phase9-v4-progress.zip` returns, its aggregates reproduce, and at
-least 20 fresh reports receive the written support rubric. No v4 quality PASS is claimed yet.
+`c31bb3a80b83ae2482eedd8364d3cfd2f3a9f60931dd10f263f2ee2bccb2c03f`). It needed no Docker or
+Neo4j. The returned archive completed all 120 jobs at estimated USD 0 and has SHA-256
+`47f77a40175203d3f2ee4d44e2b7baf5d26e4d9de1a7046ab238e5913fd98bcc`. Re-running the frozen
+finalizer reproduced both the pre-review aggregate and per-case CSV byte-for-byte:
+
+- Pre-review aggregate SHA-256:
+  `e8aa980e89696a9529324289508cb07bfbdc7abba5ae1f9f625d3271ddbebe57`.
+- Per-case CSV SHA-256:
+  `7f7f0259d72d8c19aa13ec2e33f068ab1e78e45f95932f5f12f3207ec1108c46`.
+- Final post-review aggregate SHA-256:
+  `7b29a6f1ff32704a6effe80842225f8a9dee7cb82e97e2b652ce3f09e2f9c36b`.
+
+| Target | Frozen threshold | Fresh v4 result | Status |
+|---|---:|---:|---|
+| Adaptive diagnosis Top 1 | >= 0.75 | 20/20 (1.000) | PASS |
+| Adaptive diagnosis Top 3 | >= 0.90 | 20/20 (1.000) | PASS |
+| Appropriate abstention | >= 4/5 | 5/5 | PASS |
+| False incidents | <= 1/5 | 0/5 | PASS |
+| Citation validity | 100% | 106/106 | PASS |
+| Policy violations | 0 | 0 | PASS |
+| Warm p95 active duration | < 90 s | 1.819 s | PASS |
+| Supported factual claims | >= 95% | 69/69 (100%) | PASS |
+| Retained branch-aware core coverage | >= 85% | 85.14% | PASS |
+
+The written semantic review covered all 20 identifiable adaptive reports. It counted one bounded
+policy-observation statement, each distinct raw metric or approved-change statement, and the
+bounded conclusion; duplicated hypothesis prose was excluded. Every one of 69 atomic claims was
+entailed by its cited captured record or trace-linked policy reduction. The review is AI-assisted
+and is not independent human validation. These 20 report variants represent seven independent
+capture groups.
+
+Phase 9 v4 therefore **PASSes every frozen target**, and Phase 9 is complete. This remains a small
+project-authored laboratory result, not production evidence. Thirty held-out cases share 11
+captures, the local model controls bounded observation order only, and trusted code applies the
+pre-registered lab policy. Historical v1/v2/v3 failures remain preserved.
 
 ## Returned repair-2 probe and repair-3 bounded policy
 
@@ -107,8 +138,9 @@ The historical repair-2 deliverable `phase9_repair_colab.ipynb` required
 an already running matching Ollama server where possible. Do not rerun or upload that obsolete
 repair-2 bundle; repair-3 needs no model probe.
 
-Phase 9 evaluation execution completed, but the user's requested quality repair is still open.
-Do not equate a completed FAIL report with a working diagnostic agent or proceed to Phase 10.
+At that checkpoint, Phase 9 evaluation execution had completed but the requested quality repair was
+still open. That warning remains part of the historical repair-2 record; the later v4 result above
+is the completed passing gate.
 
 ## Reproduced defects
 
@@ -164,8 +196,7 @@ That checkpoint's next artifact was `phase9_repair_colab.ipynb` with
 development artifact above. A successful development replay still cannot replace a full workflow
 test or a fresh, sealed held-out evaluation. Do not automatically launch another 120 jobs.
 
-Those checkpoint blockers are now resolved for integration, scoped core coverage, and fresh
-sealing as described at the top of this report. Still open: execute the frozen v4 comparison and
-complete its required claim-support rubric. The previous written AI review is not independent
-human validation. The v3 held-out set remains consumed historical evidence and is not reused as
-the v4 held-out claim. No v4 quality PASS is claimed before the returned run is reviewed.
+Those checkpoint blockers are resolved for integration, scoped core coverage, fresh sealing,
+zero-cost execution, and claim-support review as described at the top of this report. The written
+review is not independent human validation. The v3 held-out set remains consumed historical
+evidence and was not reused as the v4 held-out claim.

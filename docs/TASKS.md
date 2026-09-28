@@ -2,7 +2,8 @@
 
 Last updated: 2026-09-28
 
-Progress: **Phases 0–8 PASS; Phase 9 evaluation FAIL, quality repair in progress; Phases 10–11 not started.**
+Progress: **Phases 0–9 PASS; Phases 10–11 not started.** Historical Phase 9 v1/v3 FAIL results
+remain preserved; the separately frozen v4 post-repair gate is the final passing result.
 
 ## Phase 0 — Discovery, architecture, and feasibility
 
@@ -211,17 +212,18 @@ against the retained 85% target. Phase 9 is complete with an honest failed quali
   85.14% branch-aware combined coverage, 145 tests passing.
 - [x] Create and seal a genuinely fresh holdout before opening any new answers: 30 cases over 11
   new post-repair live capture groups, digest `b36dc01092ddc22565f061a4401b6710b9e77a46e5a10f3efc4a78058f23435d`.
-- [ ] Run the new frozen comparison for free off-laptop and complete the human claim-support rubric.
+- [x] Run the new frozen comparison for free off-laptop and complete the written claim-support rubric.
 
-Repair-3 status: **IMPLEMENTATION/FREEZE PASS; PHASE 9 STILL OPEN PENDING COLAB + REVIEW**. The v4
-bundle contains freeze `phase9-v4-fresh-post-repair`; the model can select observation order once
-per adaptive case but cannot change trusted diagnosis or citation content.
+Repair-3 status: **PASS — PHASE 9 COMPLETE**. The v4 run completed all 120 jobs at USD 0 estimated
+cost, reproduced byte-for-byte, and passed every frozen automated target. The written AI-assisted
+review covered all 20 identifiable adaptive reports and found 69/69 supported atomic claims. It is
+not independent human validation. The model selects observation order once per adaptive case but
+cannot change trusted diagnosis or citation content.
 
 ## Later phase gates
 
-The user requested fixing the remaining Phase 9 failures. Current repair details and outstanding
-validation are in `docs/progress/phase-09-repair.md`; do not proceed on the basis of evaluation
-execution being complete.
+The requested Phase 9 repair is complete. Historical failed versions and the final v4 evidence are
+documented in `docs/progress/phase-09-repair.md`.
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
 - [x] Phase 3: graph, curated corpus, ingestion, embeddings, and indexes.
@@ -230,7 +232,7 @@ execution being complete.
 - [x] Phase 6: durability, review, recovery, cancellation, and follow-ups.
 - [x] Phase 7: complete API and incident console.
 - [x] Phase 8: observability and security hardening.
-- [x] Phase 9: frozen evaluation and error analysis complete; quality gate **FAIL**.
+- [x] Phase 9: separately frozen v4 post-repair evaluation complete; quality gate **PASS**.
 - [ ] Phase 10: reproducible release and operations.
 - [ ] Phase 11: portfolio handoff and technical defense.
 

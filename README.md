@@ -4,17 +4,24 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 8 are complete and passed. Phase 9 execution and error analysis are complete, with an honest **FAIL** gate result against the frozen quality targets. The versioned FastAPI surface and React console expose the durable investigator, while the hardened local runtime adds correlated API/worker/model/tool traces, bounded operational metrics, pre-export redaction, retention controls, adversarial tests, and a measured local resource snapshot. The Phase 5 and Phase 9 real-model evaluations used free Colab compute; no paid model call was made.
+Phase 0 through Phase 9 are complete and passed. Phase 9 reached **PASS** only in the separately
+frozen v4 post-repair evaluation; the earlier v1 and v3 failures remain immutable historical
+evidence. The versioned FastAPI surface and React console expose the durable investigator, while
+the hardened local runtime adds correlated API/worker/model/tool traces, bounded operational
+metrics, pre-export redaction, retention controls, adversarial tests, and a measured local resource
+snapshot. The Phase 5 and Phase 9 real-model evaluations used free Colab compute; no paid model
+call was made.
 
-Roadmap progress: **10 of 12 gated phases have been decided: Phases 0–8 passed, Phase 9 failed its frozen quality gate, and Phases 10–11 have not started.**
+Roadmap progress: **10 of 12 gated phases are complete: Phases 0–9 passed, and Phases 10–11 have
+not started.**
 
-Phase 9 quality repair is now frozen for its final fresh evaluation. Repair-3 rejects contradictory
-healthy decisions, preserves fact-to-source citations, prevents premature observation stops, and
-passes the retained core branch-coverage gate at 85.14%. Eleven new post-repair laboratory
-captures form a sealed 30-case held-out set. Use
-[`phase9_v4_colab.ipynb`](phase9_v4_colab.ipynb) with the matching v4 bundle for the zero-paid-cost
-final run; manual review remains required after that archive returns. See
-[`phase-09-repair.md`](docs/progress/phase-09-repair.md) for verified changes and remaining gates.
+Phase 9 repair-3 rejects contradictory healthy decisions, preserves fact-to-source citations,
+prevents premature observation stops, and passes the retained core branch-coverage gate at
+85.14%. Its sealed 30-case v4 holdout uses 11 new post-repair laboratory captures. The free-Colab
+run completed 120/120 jobs at estimated cost USD 0; every automated target passed, and the written
+review found 69/69 supported atomic claims across 20 actual reports. See
+[`phase-09-repair.md`](docs/progress/phase-09-repair.md) and the committed
+[`phase9-v4-fresh`](artifacts/evaluation/phase9-v4-fresh/) evidence.
 
 See:
 
@@ -273,3 +280,11 @@ paid provider. All 120 jobs completed and the returned aggregate reproduced byte
 fresh v3 gate also failed: adaptive Top 1/Top 3 were 0/20, abstention was 3/5, false incidents were
 0/5, task completion was 30/30, and the 20-report written rubric found 0/20 supported factual
 conclusions. Complete artifacts are under `artifacts/evaluation/phase9-v3-fresh/`.
+
+The final repair is separately frozen as v4. Its 120-job free-Colab run reproduced byte-for-byte
+from the returned per-job records. Both fixed and adaptive workflows reached Top 1 20/20, Top 3
+20/20, appropriate abstention 5/5, zero false incidents, 30/30 task completion, 100% citation
+validity, zero policy violations, and a warm p95 below 90 seconds. The retained branch-aware core
+coverage is 85.14%. A written AI-assisted semantic review—not independent human validation—checked
+all 20 identifiable adaptive reports and found 69/69 supported atomic claims. All frozen v4 targets
+therefore pass; complete artifacts are under `artifacts/evaluation/phase9-v4-fresh/`.
