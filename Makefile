@@ -1,7 +1,17 @@
 UV := UV_PYTHON_INSTALL_DIR='$(CURDIR)/.tools/python' UV_CACHE_DIR='$(CURDIR)/.tools/cache' .tools/uv
-COMPOSE := docker compose -f ops/compose.yaml --env-file .env
+COMPOSE_PROJECT ?= incidentgraph
+ENV_FILE ?= .env
+RESOURCE_PROFILE ?= standard
+SCENARIO ?= healthy
+BACKUP ?= backups/incidentgraph-app.dump
+COMPOSE_FILES := -f ops/compose.yaml
+ifeq ($(RESOURCE_PROFILE),low)
+COMPOSE_FILES += -f ops/compose.low-resource.yaml
+endif
+COMPOSE := docker compose -p $(COMPOSE_PROJECT) $(COMPOSE_FILES) --env-file $(ENV_FILE)
+RELEASE_COMPOSE := docker compose -p $(COMPOSE_PROJECT) -f ops/compose.yaml -f ops/compose.release.yaml $(if $(filter low,$(RESOURCE_PROFILE)),-f ops/compose.low-resource.yaml) --env-file $(ENV_FILE)
 
-.PHONY: doctor bootstrap up down migrate retention-status seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate verify-phase9-freeze verify-phase9-v2-freeze verify-phase9-v3-freeze verify-phase9-v4-freeze evaluate-test evaluate-phase9-v2 evaluate-phase9-v3 evaluate-phase9-v4 report smoke lab-up lab-migrate lab-ready scenario capture-suite verify-captures api worker frontend test test-frontend test-e2e coverage coverage-all test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint typecheck
+.PHONY: doctor bootstrap configure up down reset migrate retention-status seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev evaluate-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate verify-phase9-freeze verify-phase9-v2-freeze verify-phase9-v3-freeze verify-phase9-v4-freeze evaluate-test evaluate-phase9-v2 evaluate-phase9-v3 evaluate-phase9-v4 report smoke lab-up lab-migrate lab-ready scenario capture capture-suite verify-captures api worker frontend demo test test-offline test-frontend test-e2e coverage coverage-all test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint format-check typecheck release-verify release-build release-up release-down backup-app restore-app
 
 doctor:
 	$(UV) run incidentgraph doctor
@@ -9,11 +19,20 @@ doctor:
 bootstrap:
 	$(UV) sync --frozen --dev
 
+configure:
+	.venv/bin/python scripts/create_local_env.py
+
 up:
 	$(COMPOSE) up -d --wait app-db lab-db neo4j
 
 down:
 	$(COMPOSE) down
+
+reset:
+	@echo "This removes only these Docker volumes: $(COMPOSE_PROJECT)_app-db-data $(COMPOSE_PROJECT)_lab-db-data $(COMPOSE_PROJECT)_neo4j-data $(COMPOSE_PROJECT)_neo4j-logs $(COMPOSE_PROJECT)_prometheus-data $(COMPOSE_PROJECT)_ollama-data"
+	@test "$(CONFIRM)" = "DELETE_INCIDENTGRAPH_VOLUMES" || (echo "Re-run with CONFIRM=DELETE_INCIDENTGRAPH_VOLUMES"; exit 2)
+	$(COMPOSE) down
+	docker volume rm $(COMPOSE_PROJECT)_app-db-data $(COMPOSE_PROJECT)_lab-db-data $(COMPOSE_PROJECT)_neo4j-data $(COMPOSE_PROJECT)_neo4j-logs $(COMPOSE_PROJECT)_prometheus-data $(COMPOSE_PROJECT)_ollama-data
 
 migrate:
 	$(UV) run incidentgraph migrate
@@ -38,6 +57,8 @@ retrieve:
 
 evaluate-retrieval-dev:
 	$(UV) run incidentgraph-retrieval evaluate-dev
+
+evaluate-dev: evaluate-retrieval-dev
 
 verify-retrieval:
 	$(UV) run incidentgraph-retrieval verify
@@ -76,8 +97,8 @@ verify-phase9-v4-freeze:
 	$(UV) run python -m incidentgraph.phase9_v4_runner verify-freeze
 
 evaluate-test:
-	@echo "Phase 9 real-model evaluation is intentionally Colab-only; use phase9_colab.ipynb."
-	@exit 2
+	$(UV) run python -m incidentgraph.phase9_v4_runner verify-freeze
+	$(UV) run python -m incidentgraph.release verify-evaluation
 
 evaluate-phase9-v2:
 	@echo "Phase 9 v2 real-model regression is intentionally Colab-only; use phase9_v2_colab.ipynb."
@@ -92,7 +113,7 @@ evaluate-phase9-v4:
 	@exit 2
 
 report:
-	$(UV) run incidentgraph-phase9-eval finalize
+	$(UV) run python -m incidentgraph.release report
 
 smoke:
 	$(UV) run incidentgraph check-connections
@@ -112,15 +133,13 @@ lab-ready:
 scenario:
 	$(UV) run incidentgraph-lab scenario --scenario "$(SCENARIO)"
 
+capture: scenario
+
 capture-suite:
 	$(UV) run incidentgraph-lab capture-suite
 
 verify-captures:
 	$(UV) run incidentgraph-lab verify-captures
-
-test:
-	$(UV) run pytest -m "not integration"
-	npm --prefix frontend test
 
 api:
 	$(UV) run incidentgraph-api
@@ -130,6 +149,18 @@ worker:
 
 frontend:
 	npm --prefix frontend run dev
+
+demo: up migrate
+	npm --prefix frontend run test:e2e
+
+test:
+	$(UV) run pytest -m "not integration"
+	npm --prefix frontend test
+
+test-offline:
+	HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 .venv/bin/python -m pytest -m "not integration"
+	npm --prefix frontend test
+	npm --prefix frontend run build
 
 test-frontend:
 	npm --prefix frontend test
@@ -171,6 +202,28 @@ test-investigator-integration:
 lint:
 	$(UV) run ruff check .
 
+format-check:
+	$(UV) run ruff format --check src/incidentgraph/config.py src/incidentgraph/release.py src/incidentgraph/worker.py scripts/create_local_env.py tests/unit/test_config.py tests/unit/test_create_local_env.py tests/unit/test_release.py
+
 typecheck:
 	$(UV) run mypy
 	npm --prefix frontend run build
+
+release-verify:
+	$(UV) run python -m incidentgraph.release verify
+	$(RELEASE_COMPOSE) config --quiet
+
+release-build:
+	docker build --tag incidentgraph-core:0.1.0 .
+
+release-up: up migrate
+	$(RELEASE_COMPOSE) up -d --wait api
+
+release-down:
+	$(RELEASE_COMPOSE) down
+
+backup-app:
+	$(UV) run python -m incidentgraph.release backup-app --project-name "$(COMPOSE_PROJECT)" --output "$(BACKUP)"
+
+restore-app:
+	$(UV) run python -m incidentgraph.release restore-app --project-name "$(COMPOSE_PROJECT)" --input "$(BACKUP)" --confirm "$(CONFIRM)"

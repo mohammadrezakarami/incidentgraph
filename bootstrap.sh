@@ -5,6 +5,7 @@ PROJECT_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 UV_VERSION=0.12.17
 PYTHON_VERSION=3.12.14
 UV_BIN="$PROJECT_ROOT/.tools/uv"
+UV_PROJECT_CACHE_DIR=${INCIDENTGRAPH_UV_CACHE_DIR:-"$PROJECT_ROOT/.tools/cache"}
 
 if [ ! -x "$UV_BIN" ]; then
   mkdir -p "$PROJECT_ROOT/.tools"
@@ -20,11 +21,11 @@ if [ "$ACTUAL_UV" != "$UV_VERSION" ]; then
 fi
 
 UV_PYTHON_INSTALL_DIR="$PROJECT_ROOT/.tools/python" \
-UV_CACHE_DIR="$PROJECT_ROOT/.tools/cache" \
+UV_CACHE_DIR="$UV_PROJECT_CACHE_DIR" \
   "$UV_BIN" python install --no-bin "$PYTHON_VERSION"
 
 UV_PYTHON_INSTALL_DIR="$PROJECT_ROOT/.tools/python" \
-UV_CACHE_DIR="$PROJECT_ROOT/.tools/cache" \
+UV_CACHE_DIR="$UV_PROJECT_CACHE_DIR" \
   "$UV_BIN" sync --frozen --dev
 
 npm --prefix "$PROJECT_ROOT/frontend" ci --ignore-scripts

@@ -1,0 +1,87 @@
+name: deterministic-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deterministic-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: 0.12.17
+  PYTHON_VERSION: 3.12.14
+  NODE_VERSION: 24.13.1
+
+jobs:
+  deterministic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+          package-manager-cache: false
+      - name: Install frozen dependencies
+        run: |
+          uv sync --frozen --dev
+          npm --prefix frontend ci --ignore-scripts
+      - name: Static and deterministic tests
+        run: |
+          make UV=uv format-check
+          uv run ruff check .
+          uv run mypy
+          uv run pytest -m "not integration"
+          npm --prefix frontend test
+      - name: Reproducible builds and release contract
+        run: |
+          npm --prefix frontend run build
+          uv build --no-sources
+          uv run python -m incidentgraph.release verify
+          python scripts/create_local_env.py --token ci-deterministic-token
+          docker compose -f ops/compose.yaml -f ops/compose.release.yaml --env-file .env config --quiet
+          docker build --tag incidentgraph-core:ci .
+
+  service-and-browser:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+          package-manager-cache: false
+      - name: Install frozen dependencies and Chromium
+        run: |
+          uv sync --frozen --dev
+          npm --prefix frontend ci --ignore-scripts
+          npx --prefix frontend playwright install --with-deps chromium
+          python scripts/create_local_env.py --token ci-browser-token
+      - name: Start core and run service/browser gates
+        run: |
+          make UV=uv up
+          make UV=uv migrate
+          make UV=uv smoke
+          make UV=uv test-integration
+          make UV=uv test-e2e
+      - name: Safe shutdown
+        if: always()
+        run: make UV=uv down

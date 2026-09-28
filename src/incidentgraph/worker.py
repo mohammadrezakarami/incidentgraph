@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
+import signal
 import time
 from datetime import datetime
 from typing import Any, cast
@@ -140,8 +142,45 @@ async def run_worker_once(settings: Settings) -> bool:
         await database.close()
 
 
+async def run_worker_loop(settings: Settings, poll_seconds: float = 1.0) -> None:
+    """Poll the durable queue until SIGINT/SIGTERM, completing the active lease first."""
+    stop = asyncio.Event()
+    loop = asyncio.get_running_loop()
+    registered: list[signal.Signals] = []
+    for signum in (signal.SIGINT, signal.SIGTERM):
+        with contextlib.suppress(NotImplementedError):
+            loop.add_signal_handler(signum, stop.set)
+            registered.append(signum)
+    log = structlog.get_logger().bind(worker_id=settings.worker_id)
+    log.info("worker_loop_started")
+    try:
+        while not stop.is_set():
+            processed = await run_worker_once(settings)
+            if processed:
+                continue
+            try:
+                await asyncio.wait_for(stop.wait(), timeout=poll_seconds)
+            except TimeoutError:
+                pass
+    finally:
+        for signum in registered:
+            loop.remove_signal_handler(signum)
+        log.info("worker_loop_stopped")
+
+
 def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="incidentgraph-worker")
+    parser.add_argument(
+        "--once",
+        action="store_true",
+        help="process at most one queued job, returning 2 when the queue is empty",
+    )
+    args = parser.parse_args()
     settings = Settings()  # type: ignore[call-arg]
     configure_logging(settings.log_level)
-    processed = asyncio.run(run_worker_once(settings))
-    raise SystemExit(0 if processed else 2)
+    if args.once:
+        processed = asyncio.run(run_worker_once(settings))
+        raise SystemExit(0 if processed else 2)
+    asyncio.run(run_worker_loop(settings))

@@ -12,8 +12,8 @@ metrics, pre-export redaction, retention controls, adversarial tests, and a meas
 snapshot. The Phase 5 and Phase 9 real-model evaluations used free Colab compute; no paid model
 call was made.
 
-Roadmap progress: **10 of 12 gated phases are complete: Phases 0–9 passed, and Phases 10–11 have
-not started.**
+Roadmap progress: **10 of 12 gated phases are complete: Phases 0–9 passed. Phase 10 release and
+operations work is in progress; Phase 11 has not started.**
 
 Phase 9 repair-3 rejects contradictory healthy decisions, preserves fact-to-source citations,
 prevents premature observation stops, and passes the retained core branch-coverage gate at
@@ -51,10 +51,11 @@ Requirements: Docker Desktop, Node 24.13.1, npm 11.8.0, and `curl`. The bootstra
 git clone https://github.com/mohammadrezakarami/incidentgraph.git
 cd incidentgraph
 ./bootstrap.sh
-cp .env.example .env
+.venv/bin/python scripts/create_local_env.py
 ```
 
-Replace every `CHANGE_ME` in `.env` with local-only URL-safe secrets. Generate a bearer token and hash with:
+The configuration command writes an ignored mode-0600 `.env` with independent local secrets and
+prints a one-time bearer token. Store that token outside Git. To hash another token manually:
 
 ```bash
 .tools/uv run incidentgraph generate-token
@@ -74,6 +75,39 @@ make test-integration
 ```
 
 `make down` removes containers and the project network but intentionally preserves database volumes. Removing volumes is a separate destructive operation and is not part of the normal teardown.
+
+## Operational command contract
+
+The release interface is implemented and kept in parity with this README:
+
+```bash
+make doctor
+make bootstrap
+make up                         # RESOURCE_PROFILE=standard or low
+make seed
+make ingest
+make smoke
+make scenario SCENARIO=healthy
+make capture SCENARIO=healthy
+make demo                       # deterministic real-API browser flow; zero model calls
+make test
+make test-offline
+make test-integration
+make test-e2e
+make evaluate-dev
+make evaluate-test              # verifies current v4 freeze and committed result; no model call
+make report
+make backup-app BACKUP=backups/incidentgraph-app.dump
+make restore-app BACKUP=backups/incidentgraph-app.dump CONFIRM=RESTORE_INCIDENTGRAPH_APP_DB
+make release-verify
+make down
+```
+
+First-time dependency, image, browser, and optional embedding-model downloads are online. After
+dependencies are present, `make test-offline` makes no package or model download. A new stochastic
+model evaluation remains explicitly gated to the free-Colab notebook; it is never triggered by CI
+or a normal test target. Release profiles, clean-clone steps, backup/restore, safe shutdown, and
+troubleshooting are in [`docs/operations/RELEASE.md`](docs/operations/RELEASE.md).
 
 ## API surface
 
@@ -239,11 +273,13 @@ See [`docs/operations/OBSERVABILITY.md`](docs/operations/OBSERVABILITY.md) and
 ## Phase 9 frozen evaluation
 
 The prompts, workflow, evaluator, datasets, seals, corpus snapshot, dependency lock, exact local
-Qwen digest, scoring rules, targets, and zero-paid-cost budget are frozen in
-[`config/phase9-freeze-v1.json`](config/phase9-freeze-v1.json). Verify them without running a model:
+Qwen digest, scoring rules, targets, and zero-paid-cost budget were frozen in
+[`config/phase9-freeze-v1.json`](config/phase9-freeze-v1.json). That historical v1 source freeze is
+retained with its failed artifacts; the release code has intentionally advanced through v4. Verify
+the current passing freeze and its committed per-job evidence without running a model:
 
 ```bash
-make verify-phase9-freeze
+make evaluate-test
 ```
 
 The heavy 120-job agent comparison is intentionally not a local Make workload. Use

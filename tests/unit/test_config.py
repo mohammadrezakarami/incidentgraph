@@ -41,6 +41,21 @@ def test_non_loopback_bind_is_rejected() -> None:
         Settings(**values)
 
 
+def test_container_bind_and_internal_free_model_endpoint_are_explicitly_allowed() -> None:
+    values = settings_kwargs() | {
+        "environment": "container",
+        "api_host": "0.0.0.0",
+        "model_provider": "local_openai_compatible",
+        "model_id": "local-test-model",
+        "model_base_url": "http://ollama:11434/v1",
+        "model_cost_ceiling_usd": 0,
+    }
+
+    settings = Settings(**values)
+
+    assert settings.validate_runtime() == []
+
+
 def test_enabled_provider_requires_model_and_budget() -> None:
     values = settings_kwargs() | {"model_provider": "openai"}
     settings = Settings(**values)

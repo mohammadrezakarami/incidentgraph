@@ -1,0 +1,74 @@
+x-incidentgraph-environment: &incidentgraph-environment
+  INCIDENTGRAPH_ENVIRONMENT: container
+  INCIDENTGRAPH_API_HOST: 0.0.0.0
+  INCIDENTGRAPH_APP_DATABASE_DSN: postgresql://incidentgraph:${INCIDENTGRAPH_APP_DB_PASSWORD}@app-db:5432/incidentgraph
+  INCIDENTGRAPH_LAB_DATABASE_DSN: postgresql://lab:${INCIDENTGRAPH_LAB_DB_PASSWORD}@lab-db:5432/lab
+  INCIDENTGRAPH_NEO4J_URI: bolt://neo4j:7687
+  INCIDENTGRAPH_MODEL_BASE_URL: http://ollama:11434/v1
+  INCIDENTGRAPH_OBSERVABILITY_TRACE_DIR: /app/data/runtime/app-traces
+
+services:
+  api:
+    image: incidentgraph-core:0.1.0
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    env_file:
+      - ../.env
+    environment: *incidentgraph-environment
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ../data/runtime/app-traces:/app/data/runtime/app-traces
+      - ../models:/app/models
+    depends_on:
+      app-db:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live').read()",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    mem_limit: 768m
+    cpus: 1.5
+    restart: unless-stopped
+    stop_grace_period: 30s
+    logging:
+      options:
+        max-size: 5m
+        max-file: "2"
+
+  worker:
+    image: incidentgraph-core:0.1.0
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    profiles: ["investigator"]
+    command: ["incidentgraph-worker"]
+    env_file:
+      - ../.env
+    environment: *incidentgraph-environment
+    volumes:
+      - ../data/runtime/app-traces:/app/data/runtime/app-traces
+      - ../models:/app/models
+    depends_on:
+      app-db:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    mem_limit: 1536m
+    cpus: 2.0
+    restart: unless-stopped
+    stop_grace_period: 210s
+    logging:
+      options:
+        max-size: 5m
+        max-file: "2"

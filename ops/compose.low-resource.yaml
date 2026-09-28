@@ -1,0 +1,24 @@
+services:
+  app-db:
+    mem_limit: 512m
+    cpus: 0.75
+
+  lab-db:
+    mem_limit: 384m
+    cpus: 0.5
+
+  neo4j:
+    environment:
+      NEO4J_server_memory_heap_initial__size: 192m
+      NEO4J_server_memory_heap_max__size: 384m
+      NEO4J_server_memory_pagecache_size: 256m
+    mem_limit: 1024m
+    cpus: 1.0
+
+  redis:
+    mem_limit: 96m
+    cpus: 0.25
+
+  prometheus:
+    mem_limit: 384m
+    cpus: 0.5

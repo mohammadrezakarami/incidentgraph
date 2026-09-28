@@ -5,7 +5,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, Field, SecretStr, field_validator
+from pydantic import BaseModel, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    environment: Literal["local", "test", "ci"] = "local"
+    environment: Literal["local", "test", "ci", "container"] = "local"
     api_host: str = "127.0.0.1"
     api_port: int = Field(default=8000, ge=1024, le=65535)
     frontend_origin: str = "http://127.0.0.1:5173"
@@ -76,12 +76,15 @@ class Settings(BaseSettings):
     embedding_batch_size: int = Field(default=16, ge=1, le=64)
     corpus_id: str = Field(default="incidentgraph-lab-corpus-v1", min_length=1, max_length=128)
 
-    @field_validator("api_host")
-    @classmethod
-    def bind_local_by_default(cls, value: str) -> str:
-        if value not in {"127.0.0.1", "localhost"}:
-            raise ValueError("the Phase 1 API must bind to loopback")
-        return value
+    @model_validator(mode="after")
+    def validate_network_boundaries(self) -> Settings:
+        loopback = {"127.0.0.1", "localhost"}
+        if self.environment == "container":
+            if self.api_host not in {"0.0.0.0", *loopback}:  # noqa: S104
+                raise ValueError("container API_HOST must be 0.0.0.0 or loopback")
+        elif self.api_host not in loopback:
+            raise ValueError("local, test, and CI APIs must bind to loopback")
+        return self
 
     @cached_property
     def auth_tokens(self) -> dict[str, PrincipalConfig]:
@@ -126,8 +129,16 @@ class Settings(BaseSettings):
         if self.model_provider == "local_openai_compatible":
             if not self.model_base_url:
                 problems.append("MODEL_BASE_URL is required for a local model provider")
-            elif not self.model_base_url.startswith(("http://127.0.0.1", "http://localhost")):
-                problems.append("local MODEL_BASE_URL must use a loopback address")
+            else:
+                local_prefixes = ("http://127.0.0.1", "http://localhost")
+                container_prefixes = (*local_prefixes, "http://ollama:")
+                permitted = (
+                    container_prefixes if self.environment == "container" else local_prefixes
+                )
+                if not self.model_base_url.startswith(permitted):
+                    problems.append(
+                        "local MODEL_BASE_URL must use loopback or the container-only ollama host"
+                    )
             if self.model_cost_ceiling_usd != 0:
                 problems.append("local model runs must keep MODEL_COST_CEILING_USD at zero")
         if len(self.embedding_model_revision) != 40 or any(
