@@ -77,7 +77,7 @@ Top-3 diagnoses, 5/5 appropriate abstentions, 0/5 false incidents, 106/106 valid
 **Implementation evidence.** `src/incidentgraph/phase9_v4_dataset.py`,
 `src/incidentgraph/phase9_v4_evaluation.py`, `src/incidentgraph/phase9_v4_runner.py`,
 `src/incidentgraph/phase9_repair.py`, `config/phase9-v4-fresh-freeze.json`, and
-`phase9_v4_colab.ipynb`.
+`notebooks/phase9_evaluation.ipynb`.
 
 **Verification evidence.** `artifacts/evaluation/phase9-v4-fresh/aggregate.json`,
 `artifacts/evaluation/phase9-v4-fresh/per-case.csv`,
@@ -101,14 +101,15 @@ checksum-backed PostgreSQL backup/restore, and an offline deterministic regressi
 `.github/workflows/security.yml`, `src/incidentgraph/release.py`, and
 `docs/operations/RELEASE.md`.
 
-**Verification evidence.** `docs/progress/phase-10-report.md` records an isolated clean-clone run:
-150 offline backend tests, three frontend tests, one production frontend build, eight enabled
-service integration tests, one real-API Playwright flow, PostgreSQL backup/restore with post-restore
-smoke, and safe teardown.
+**Verification evidence.** `docs/portfolio/FINAL_TECHNICAL_REPORT.md` records an isolated
+clean-clone run: 150 offline backend tests, three frontend tests, one production frontend build,
+eight enabled service integration tests, one real-API Playwright flow, PostgreSQL backup/restore
+with post-restore smoke, and safe teardown.
 
-**Scope.** The workflows are committed and syntax-checked but have not run on GitHub because no
-push was authorized. The full dependency-heavy backend image build and Trivy image scan are
-assigned to that remote workflow. This is a local containerized release, not a public deployment.
+**Scope.** The workflows are committed and syntax-checked. Remote workflow status is separate from
+the committed local evidence. The full dependency-heavy backend image build and Trivy image scan
+are assigned to that remote workflow. This is a local containerized release, not a public
+deployment.
 
 ## Claims that must not be used
 

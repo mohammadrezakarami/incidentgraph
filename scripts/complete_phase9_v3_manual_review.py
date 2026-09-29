@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 REVIEWED_AT = "2026-09-28T00:00:00Z"
-REVIEWER = "Codex manual semantic review (AI-assisted; not independent human validation)"
+REVIEWER = "AI-assisted semantic review (not independent human validation)"
 SOURCE_ARCHIVE_SHA256 = "2345d2b070f26806cdfb96a874eb637e30e381c0562a5829aee08cd2ecbdde09"
 REPRODUCED_AGGREGATE_SHA256 = "e9a2cb42e31f3aadbf0111796093084ddc9c3287cddbb08ea5a99541385808ce"
 REPRODUCED_PER_CASE_SHA256 = "8a8effb01a46962629a66b55693d325f1989424cb5a50f5aa8194583413c55c7"

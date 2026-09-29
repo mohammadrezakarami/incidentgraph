@@ -9,7 +9,7 @@
   "reproduced_aggregate_sha256": "cdf77609bf2712484d21947cadbc95f92f93eced3a64260d49313349e66ff342",
   "reproduced_per_case_sha256": "bfcf14b5b105964c3b67b009ae11fb9c757aeedb22cbc01b408a95e72e137653",
   "reviewed_at": "2026-09-25T00:00:00Z",
-  "reviewer": "Codex manual semantic review (AI-assisted; not independent human validation)",
+  "reviewer": "AI-assisted semantic review (not independent human validation)",
   "rubric_rows": 30,
   "schema_version": 1,
   "source_archive_sha256": "34b1413c93e92733381b52c1de4a03f28ede626d0e4d09e2fc358ab8ceafbc06",

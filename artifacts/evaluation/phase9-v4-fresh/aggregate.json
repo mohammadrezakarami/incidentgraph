@@ -432,7 +432,7 @@
     "reproduced_aggregate_sha256": "e8aa980e89696a9529324289508cb07bfbdc7abba5ae1f9f625d3271ddbebe57",
     "reproduced_per_case_sha256": "7f7f0259d72d8c19aa13ec2e33f068ab1e78e45f95932f5f12f3207ec1108c46",
     "reviewed_at": "2026-09-28T17:18:16Z",
-    "reviewer": "Codex manual semantic review (AI-assisted; not independent human validation)",
+    "reviewer": "AI-assisted semantic review (not independent human validation)",
     "schema_version": 1,
     "selection": [
       "heldout-r1-adaptive-incident-v4-heldout-001",

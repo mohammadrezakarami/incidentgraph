@@ -69,10 +69,7 @@ markers = [
 target-version = "py312"
 line-length = 100
 extend-exclude = [
-  "phase5_colab.ipynb",
-  "phase9_colab.ipynb",
-  "phase9_repair_colab.ipynb",
-  "phase9_v4_colab.ipynb",
+  "notebooks/*.ipynb",
 ]
 
 [tool.ruff.lint]

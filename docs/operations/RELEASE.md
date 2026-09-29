@@ -29,9 +29,10 @@ that token outside Git. `make demo` is a headless, deterministic browser demonst
 real FastAPI/PostgreSQL lifecycle and a clearly labelled fixture publisher; it makes no model call
 and is not an AI-quality benchmark. Stop the retained core services with `make down`.
 
-The recorded Phase 10 verification must use a separate Compose project, for example
-`COMPOSE_PROJECT=incidentgraph-phase10-verify`, so its named volumes cannot reuse development data.
-The verification report and exact revision belong in `docs/progress/phase-10-report.md`.
+Release verification must use a separate Compose project, for example
+`COMPOSE_PROJECT=incidentgraph-release-verify`, so its named volumes cannot reuse development data.
+Record the exact revision and command output with the release evidence rather than modifying the
+frozen evaluation artifacts.
 
 ## Release configuration
 

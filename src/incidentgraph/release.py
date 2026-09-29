@@ -28,10 +28,10 @@ REQUIRED_FILES = (
     ".github/workflows/ci.yml",
     ".github/workflows/security.yml",
     ".github/workflows/real-model-evaluation.yml",
-    "docs/PROJECT_STATUS.md",
-    "docs/TASKS.md",
-    "docs/HANDOFF.md",
     "docs/operations/RELEASE.md",
+    "docs/portfolio/FINAL_TECHNICAL_REPORT.md",
+    "docs/portfolio/FINAL_READINESS.md",
+    "docs/security/THREAT_MODEL.md",
 )
 
 REQUIRED_MAKE_TARGETS = (

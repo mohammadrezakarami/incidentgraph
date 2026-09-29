@@ -197,8 +197,8 @@ make portfolio-verify
 ```
 
 `make demo` is deterministic and makes zero model calls. `make evaluate-test` verifies the committed
-frozen v4 evidence; it does not rerun the 120-job model workload. Heavy model evaluation remains a
-free-Colab-only procedure documented by the versioned notebooks.
+frozen v4 evidence; it does not rerun the 120-job model workload. Heavy model evaluation remains an
+explicitly approved hosted-GPU procedure documented by the two retained versioned notebooks.
 
 ## Limitations and truthful positioning
 
@@ -211,8 +211,7 @@ free-Colab-only procedure documented by the versioned notebooks.
 - Correlation, graph adjacency, and temporal proximity do not prove causality.
 - The UI screenshots use a deterministic zero-model fixture to prove the product path, not AI
   diagnosis quality.
-- GitHub workflow files have not run remotely because the repository changes have not been pushed
-  without separate approval.
+- Remote GitHub workflow status is not part of the committed local verification evidence.
 - The full backend image build and Trivy image scan are assigned to remote CI to avoid an
   unnecessary heavy laptop workload.
 - There is no public endpoint, production credential, automatic remediation, enterprise IAM,

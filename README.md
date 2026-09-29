@@ -1,113 +1,86 @@
 # IncidentGraph
 
-IncidentGraph is a production-inspired, evidence-grounded agent for investigating controlled infrastructure incidents. It is designed to combine an adaptive LangGraph workflow, LangChain model and tool contracts, Neo4j-backed graph-enhanced retrieval, durable PostgreSQL execution, and real laboratory telemetry.
+IncidentGraph is a local, evidence-grounded infrastructure incident investigator. It combines a
+bounded LangGraph workflow, LangChain model and tool contracts, Neo4j graph-enhanced retrieval,
+durable PostgreSQL execution, and a React incident console.
 
-## Problem and intended users
+The project is intentionally read-only: it can investigate controlled laboratory incidents and
+publish cited reports, but it cannot execute remediation, control Docker, generate arbitrary
+PromQL/Cypher/shell commands, or access production systems.
 
-Incident evidence is usually split across metrics, logs, changes, dependencies, and runbooks.
-IncidentGraph gives engineers and interview reviewers one bounded, auditable path from an incident
-question to a cited report. It is a personal laboratory project for local investigation and replay;
-it is not connected to production and cannot execute remediation.
+## Highlights
 
-## Current status
-
-Phase 0 through Phase 11 are complete and passed. Phase 9 reached **PASS** only in the separately
-frozen v4 post-repair evaluation; the earlier v1 and v3 failures remain immutable historical
-evidence. The versioned FastAPI surface and React console expose the durable investigator, while
-the hardened local runtime adds correlated API/worker/model/tool traces, bounded operational
-metrics, pre-export redaction, retention controls, adversarial tests, and a measured local resource
-snapshot. The Phase 5 and Phase 9 real-model evaluations used free Colab compute; no paid model
-call was made.
-
-Roadmap progress: **12 of 12 gated phases are complete: Phases 0–11 passed.** Phase 10 added the
-local release/CI contract and passed a real isolated clean-clone
-setup, offline suite, browser demo, service integration, backup/restore, and safe shutdown at USD 0.
-Phase 11 added the final technical report, repeatable five-minute demo, architecture and agent-state
-diagrams, sanitized real-flow screenshots, benchmark tables, technical-defense guide, and five CV
-claims mapped to implementation and verification evidence.
-
-Phase 9 repair-3 rejects contradictory healthy decisions, preserves fact-to-source citations,
-prevents premature observation stops, and passes the retained core branch-coverage gate at
-85.14%. Its sealed 30-case v4 holdout uses 11 new post-repair laboratory captures. The free-Colab
-run completed 120/120 jobs at estimated cost USD 0; every automated target passed, and the written
-review found 69/69 supported atomic claims across 20 actual reports. See
-[`phase-09-repair.md`](docs/progress/phase-09-repair.md) and the committed
-[`phase9-v4-fresh`](artifacts/evaluation/phase9-v4-fresh/) evidence.
-
-See:
-
-- [`docs/progress/phase-00-report.md`](docs/progress/phase-00-report.md)
-- [`docs/progress/phase-01-report.md`](docs/progress/phase-01-report.md)
-- [`docs/progress/phase-02-report.md`](docs/progress/phase-02-report.md)
-- [`docs/progress/phase-03-report.md`](docs/progress/phase-03-report.md)
-- [`docs/progress/phase-04-report.md`](docs/progress/phase-04-report.md)
-- [`docs/progress/phase-05-report.md`](docs/progress/phase-05-report.md)
-- [`docs/progress/phase-06-report.md`](docs/progress/phase-06-report.md)
-- [`docs/progress/phase-07-report.md`](docs/progress/phase-07-report.md)
-- [`docs/progress/phase-08-report.md`](docs/progress/phase-08-report.md)
-- [`docs/progress/phase-09-report.md`](docs/progress/phase-09-report.md)
-- [`docs/progress/phase-10-report.md`](docs/progress/phase-10-report.md)
-- [`docs/progress/phase-11-report.md`](docs/progress/phase-11-report.md)
-- [`docs/portfolio/FINAL_TECHNICAL_REPORT.md`](docs/portfolio/FINAL_TECHNICAL_REPORT.md)
-- [`docs/portfolio/DEMO_SCRIPT.md`](docs/portfolio/DEMO_SCRIPT.md)
-- [`docs/portfolio/DIAGRAMS.md`](docs/portfolio/DIAGRAMS.md)
-- [`docs/portfolio/CLAIMS_EVIDENCE.md`](docs/portfolio/CLAIMS_EVIDENCE.md)
-- [`docs/portfolio/TECHNICAL_DEFENSE.md`](docs/portfolio/TECHNICAL_DEFENSE.md)
-- [`docs/portfolio/FINAL_READINESS.md`](docs/portfolio/FINAL_READINESS.md)
-- [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
-- [`docs/TASKS.md`](docs/TASKS.md)
-- [`docs/HANDOFF.md`](docs/HANDOFF.md)
-
-## Safety boundary
-
-The investigator is read-only. It cannot execute remediation, control Docker, inject faults, generate arbitrary shell/Cypher/PromQL, or access production systems.
+- 12-node stateful investigator with eight registered read-only tools.
+- PostgreSQL-backed queue leases, fencing, checkpoints, resumable review, cancellation, and
+  immutable report versions.
+- Neo4j topology plus versioned vector and full-text retrieval over a 37-document corpus.
+- Authenticated FastAPI API, resumable SSE, and a React evidence-review console.
+- Immutable replay captures, sealed evaluation inputs, and committed per-case results.
+- Loopback-only Docker Compose runtime with standard and low-resource profiles.
+- Deterministic CI, security checks, backup/restore, and offline regression verification.
 
 ## Architecture
 
-The local runtime is React → authenticated FastAPI → PostgreSQL-backed durable work → one bounded
-LangGraph investigator. PostgreSQL owns queue leases, events, checkpoints, evidence, review, and
-report versions. Neo4j supplies time-valid topology plus document vector/full-text indexes.
-Immutable captures support replay. The optional local model can select only registered read-only
-observations; deterministic code owns scope, reviewed query templates, limits, citations, and the
-v4 synthetic-lab diagnosis policy. See the rendered
-[`architecture and state diagrams`](docs/portfolio/DIAGRAMS.md).
+```text
+React console
+    |
+    v
+Authenticated FastAPI  ------> PostgreSQL
+    |                            queue, events, checkpoints,
+    v                            evidence, reviews, reports
+Durable worker + LangGraph
+    |             |
+    v             v
+Neo4j          Immutable captures / local telemetry
+topology +     (bounded, read-only observations)
+documents
+```
 
-## Phase 1 quick start
+PostgreSQL is the authority for durable execution. Neo4j stores time-valid topology and document
+indexes. The model may choose only registered observations; deterministic code owns identity,
+authorization, query templates, budgets, citation validation, and the synthetic-lab evaluation
+policy. Detailed diagrams are in [docs/portfolio/DIAGRAMS.md](docs/portfolio/DIAGRAMS.md).
 
-Requirements: Docker Desktop, Node 24.13.1, npm 11.8.0, and `curl`. The bootstrap script installs project-local uv 0.12.17 and Python 3.12.14; it does not replace the system Python.
+## Quick start
+
+Requirements: Docker Desktop, Node 24.13.1, npm 11.8.0, and `curl`. The bootstrap script installs
+project-local uv 0.12.17 and Python 3.12.14 without replacing the system Python.
 
 ```bash
 git clone https://github.com/mohammadrezakarami/incidentgraph.git
 cd incidentgraph
 ./bootstrap.sh
 .venv/bin/python scripts/create_local_env.py
-```
-
-The configuration command writes an ignored mode-0600 `.env` with independent local secrets and
-prints a one-time bearer token. Store that token outside Git. To hash another token manually:
-
-```bash
-.tools/uv run incidentgraph generate-token
-```
-
-Store only the emitted SHA-256 hash in `INCIDENTGRAPH_AUTH_TOKENS_JSON`; keep the token itself outside Git. Each principal entry must also include an explicit non-empty `service_ids` list using canonical IDs such as `svc-gateway`, `svc-checkout`, or `svc-payments`. Then run:
-
-```bash
 make doctor
 make up
 make migrate
 make smoke
-make lint
-make typecheck
-make test
-make test-integration
 ```
 
-`make down` removes containers and the project network but intentionally preserves database volumes. Removing volumes is a separate destructive operation and is not part of the normal teardown.
+`create_local_env.py` writes an ignored mode-0600 `.env` and prints a one-time bearer token. Keep
+the plaintext token outside Git. The generated configuration binds exposed services to loopback.
 
-## Operational command contract
+To initialize the graph and corpus:
 
-The release interface is implemented and kept in parity with this README:
+```bash
+make seed
+make ingest
+make verify-ingestion
+```
+
+To run the API and console, use separate terminals:
+
+```bash
+make api
+make worker
+make frontend
+```
+
+Then open <http://127.0.0.1:5173>. Starting a new model-backed investigation requires an explicitly
+configured approved local provider. With `MODEL_PROVIDER=disabled`, existing records remain
+viewable and new model-backed work fails closed with a configuration error.
+
+## Main commands
 
 ```bash
 make doctor
@@ -118,13 +91,13 @@ make ingest
 make smoke
 make scenario SCENARIO=healthy
 make capture SCENARIO=healthy
-make demo                       # deterministic real-API browser flow; zero model calls
+make demo                       # real browser/API/PostgreSQL flow; zero model calls
 make test
 make test-offline
 make test-integration
 make test-e2e
 make evaluate-dev
-make evaluate-test              # verifies current v4 freeze and committed result; no model call
+make evaluate-test              # verifies committed v4 evidence; no model call
 make report
 make backup-app BACKUP=backups/incidentgraph-app.dump
 make restore-app BACKUP=backups/incidentgraph-app.dump CONFIRM=RESTORE_INCIDENTGRAPH_APP_DB
@@ -132,93 +105,17 @@ make release-verify
 make down
 ```
 
-First-time dependency, image, browser, and optional embedding-model downloads are online. After
-dependencies are present, `make test-offline` makes no package or model download. A new stochastic
-model evaluation remains explicitly gated to the free-Colab notebook; it is never triggered by CI
-or a normal test target. Release profiles, clean-clone steps, backup/restore, safe shutdown, and
-troubleshooting are in [`docs/operations/RELEASE.md`](docs/operations/RELEASE.md).
+`make down` preserves database volumes. Destructive volume removal is a separate confirmation-
+gated operation. First-time dependency, image, browser, and embedding-model downloads require a
+network connection; once dependencies are cached, `make test-offline` performs no package or model
+download.
 
-## API surface
+The complete operations procedure is in
+[docs/operations/RELEASE.md](docs/operations/RELEASE.md).
 
-- `GET /health/live`
-- `GET /health/ready`
-- `POST /api/v1/investigations`
-- `GET /api/v1/investigations`
-- `GET /api/v1/investigations/{id}`
-- `GET /api/v1/investigations/{id}/events`
-- `GET /api/v1/investigations/{id}/report`
-- `GET /api/v1/investigations/{id}/evidence/{evidence_id}`
-- `POST /api/v1/investigations/{id}/reviews`
-- `POST /api/v1/investigations/{id}/cancel`
-- `POST /api/v1/investigations/{id}/followups`
-- `GET /api/v1/services`
-- `GET /api/v1/services/{id}/dependencies`
-- `GET /metrics` (operator only)
+## Retrieval
 
-Investigation endpoints require a configured bearer token and enforce owner scope or an explicit operator role. Review decisions additionally require a `reviewer` or `operator` role and are bound to a report version, expiry, reviewer identity, and idempotency key. SSE uses authenticated fetch streaming and `Last-Event-ID`; bearer tokens never enter URLs.
-
-## Resource and cost boundary
-
-The core and lab Compose services have explicit CPU and memory ceilings; Prometheus also has time and size retention. The optional Ollama profile remains off unless separately requested. No paid API or GPU workload is required for deterministic replay and security checks. Heavy evaluation work remains gated and will be moved to free Colab when appropriate.
-
-## Phase 2 laboratory
-
-Start the full local profile and run its integration checks with:
-
-```bash
-make lab-up
-make test-lab-integration
-make verify-captures
-```
-
-The real transaction path is:
-
-```text
-gateway -> checkout -> payments
-               |          |  |
-          lab PostgreSQL <-+  Redis
-```
-
-Prometheus scrapes each service every second. Each request produces bounded metrics, structured JSON logs, and W3C-propagated trace IDs. All published host ports bind to loopback.
-
-Run one bounded scenario with, for example:
-
-```bash
-make scenario SCENARIO=downstream_latency
-```
-
-Supported fault families are `downstream_latency`, `pool_exhaustion`, `dependency_errors`, `cache_degradation`, `deployment_regression`, and `resource_contention`. Additional controls cover healthy traffic, healthy high traffic, misleading correlation, incomplete telemetry, and an ambiguous two-cause case.
-
-Agent-readable captures are under `data/captures/`. Evaluator-only labels are under `data/evaluator/`, excluded from the Docker build context, and never mounted into a lab runtime container. The committed Phase 2 dataset contains 12 independent fault captures and five control captures. It is laboratory data, not production incident data.
-
-Faults require a separate high-entropy operator token, expire automatically, are capped at 30 seconds, and can only affect the isolated lab. The services and investigator do not receive the Docker socket or fault-control token.
-
-## Phase 3 knowledge graph and corpus
-
-Apply the graph schema, load the reviewed topology, and incrementally ingest the corpus:
-
-```bash
-make seed
-make ingest
-make verify-ingestion
-make benchmark-embeddings
-```
-
-The compact corpus contains 37 project-authored documents in `data/corpus/documents.json`, with one provenance record per document in `data/corpus/manifest.jsonl`. It includes service/API documentation, runbooks, configuration notes, link-oriented official reference summaries, reviewed synthetic development incidents, and explicit outdated/untrusted controls. It does not contain evaluator labels or held-out answers.
-
-Neo4j stores three services, three resources, versioned relationships, deployments, reviewed synthetic incidents, documents, chunks, and normalized embeddings. `DEPENDS_ON` points from caller to callee; potential-impact traversal follows the reverse direction. Both the 384-dimensional cosine vector index and the full-text index are verified `ONLINE` before the corpus is marked searchable.
-
-Embeddings use `sentence-transformers/all-MiniLM-L6-v2` at immutable revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`, locally on CPU. The first model snapshot download is approximately 92 MB and is stored under ignored `models/`. The measured 37-chunk benchmark does not require Colab or a GPU.
-
-## Phase 4 retrieval
-
-All three retrieval variants use one typed, bounded interface and the same corpus snapshot, embedding revision, cutoff, authorization scope, and final context budget:
-
-- `vector`: Neo4j cosine vector search.
-- `hybrid`: vector and full-text candidate lists combined only by reciprocal-rank fusion.
-- `graph`: hybrid retrieval over an authorization-filtered, time-valid `DEPENDS_ON` neighborhood of at most two hops and 50 nodes.
-
-Try a graph-enhanced query:
+Run a graph-enhanced query:
 
 ```bash
 make retrieve \
@@ -227,7 +124,7 @@ make retrieve \
   QUERY="Gateway latency rose while cache hits fell. Which downstream service should be investigated?"
 ```
 
-Verify the sealed evaluation fixture and run only the development split:
+Verify the sealed fixture and run the development split:
 
 ```bash
 make verify-retrieval
@@ -235,163 +132,93 @@ make test-retrieval-integration
 make evaluate-retrieval-dev
 ```
 
-The 40-question fixture contains 20 development and 20 held-out questions with disjoint groups. Evaluator labels remain under `data/evaluator/`; the held-out payload is SHA-256 sealed and was not evaluated in Phase 4. The committed development artifacts are under `artifacts/evaluation/phase4-dev/`.
+On the sealed 20-question project-authored laboratory holdout, graph retrieval reached Recall@5
+of 0.925, hybrid 0.9083, and vector 0.8833. The corpus contains 37 chunks, so these results do not
+establish large-index performance or production generalization. Graph adjacency is evidence of
+operational relationship, not causality.
 
-## Phase 5 free Colab gate
+## Evaluation
 
-The completed gate is reproducible with [`phase5_colab.ipynb`](phase5_colab.ipynb). It accepts a generated Git bundle without repository credentials, starts ephemeral Colab-local PostgreSQL and Ollama services, pulls `qwen3:4b-instruct-2507-q4_K_M`, runs deterministic checks and the two-case real-model gate, verifies that the held-out seal is unchanged, and downloads `gate-results.json`. The verified result is committed under `artifacts/evaluation/phase5-real-local/`; no paid API is configured or permitted.
+The final frozen evaluation contains 30 case variants over 11 post-repair laboratory capture
+groups. A resumable zero-paid-cost run produced 120 per-job records across fixed and adaptive
+workflows. The committed aggregate reports:
 
-## Phase 6 durable execution
+| Measure | Fixed | Adaptive |
+|---|---:|---:|
+| Top-1 diagnosis | 20/20 | 20/20 |
+| Top-3 diagnosis | 20/20 | 20/20 |
+| Appropriate abstention | 5/5 | 5/5 |
+| False incidents | 0/5 | 0/5 |
+| Task completion | 30/30 | 30/30 |
 
-Apply the third migration and run the lightweight durability gate with:
+Citation validity, policy compliance, warm latency, and the retained branch-aware core coverage
+target also passed. The written semantic review checked 69/69 supported atomic claims across 20
+reports. That review was AI-assisted and is not independent human validation.
 
-```bash
-make migrate
-make test-phase6-integration
-```
+The variants share capture groups and are not independent production incidents. The local model
+controls bounded observation order; trusted pre-registered code owns the synthetic-lab diagnosis
+and citation content. Historical v1 and v3 failures remain committed under `artifacts/evaluation/`
+to preserve the actual repair trail.
 
-The gate uses only the local PostgreSQL container and deterministic model fixtures. It covers expired-lease recovery, stale-worker fencing, idempotent publication and review decisions, process restart at a LangGraph review checkpoint, capacity release while waiting for a human, rejected stale/expired/unauthorized decisions, cooperative cancellation, and a budgeted follow-up that publishes report version 2. At-least-once delivery is assumed; externally visible effects are idempotent rather than described as exactly-once.
-
-## Phase 7 API and incident console
-
-The API and frontend run as separate local processes:
-
-```bash
-make api       # terminal 1
-make worker    # terminal 2; requires an explicitly configured approved model
-make frontend  # terminal 3, then open http://127.0.0.1:5173
-```
-
-The browser asks for the unhashed bearer token. It is sent only in the `Authorization` header and is not stored unless **Keep only for this browser tab** is selected. With the default `MODEL_PROVIDER=disabled`, existing records remain viewable but starting a new investigation returns a clean configuration error; the API never substitutes a fake model.
-
-The console includes authorized history, LIVE/REPLAY and lifecycle states, resumable SSE, a bounded dependency graph, API-backed reports and citations, metric rendering, evidence provenance, human review, cancellation, and versioned follow-ups. Review acceptance explicitly does not execute recommendations or infrastructure changes.
-
-The deterministic browser gate uses the real FastAPI/PostgreSQL queue and a clearly labeled fixture publisher, not a fake success route or an AI-quality claim:
+Verify the sealed inputs and committed result without calling a model:
 
 ```bash
-make test-frontend
-make test-e2e
-```
-
-Install the single Playwright browser once if it is not cached:
-
-```bash
-cd frontend && npx playwright install chromium
-```
-
-## Phase 8 observability and security
-
-Application metrics are exposed only to an authenticated operator at `/metrics`. Optional local
-tracing correlates API, durable worker, model, and read-only tool spans through a PostgreSQL-stored
-W3C parent. It is disabled by default and, when enabled, writes redacted rotating JSONL under the
-ignored `data/runtime/app-traces/` directory. No external collector is required.
-
-Run the deterministic hardening gate and preview event retention:
-
-```bash
-RUN_INTEGRATION=1 .venv/bin/pytest tests/integration/test_phase8_hardening.py -v
-make retention-status
-```
-
-The security suite rejects injected shell-like fields and unauthorized service expansion, samples
-traces for secrets, and proves dependency errors fail closed. The lightweight resource snapshot is
-reproducible with `.venv/bin/python scripts/phase8_profile.py`; it is not a capacity benchmark.
-See [`docs/operations/OBSERVABILITY.md`](docs/operations/OBSERVABILITY.md) and
-[`docs/security/SECURITY_TESTS.md`](docs/security/SECURITY_TESTS.md).
-
-## Phase 9 frozen evaluation
-
-The prompts, workflow, evaluator, datasets, seals, corpus snapshot, dependency lock, exact local
-Qwen digest, scoring rules, targets, and zero-paid-cost budget were frozen in
-[`config/phase9-freeze-v1.json`](config/phase9-freeze-v1.json). That historical v1 source freeze is
-retained with its failed artifacts; the release code has intentionally advanced through v4. Verify
-the current passing freeze and its committed per-job evidence without running a model:
-
-```bash
+make verify-phase9-v4-freeze
 make evaluate-test
+make report
 ```
 
-The heavy 120-job agent comparison is intentionally not a local Make workload. Use
-[`phase9_colab.ipynb`](phase9_colab.ipynb) with the matching
-`incidentgraph-phase9-colab.bundle` on a free T4. It runs 12 resumable shards of 10 jobs, carries
-progress between sessions as `phase9-progress.zip`, and never configures a paid provider. The
-comparison includes fixed versus adaptive workflows, three repeats of the frozen 10-case
-development subset, one run over all 30 held-out cases, and the 20-question three-variant held-out
-retrieval benchmark.
+The two retained notebooks document the optional hosted-GPU procedures:
 
-The returned zero-cost run completed all 120 agent jobs. Its aggregate and per-case hashes reproduced
-exactly, and the written claim-support review covers 20 actual reports. The frozen gate failed:
-graph Recall@5 passed at 0.925, but adaptive diagnosis Top 1 and Top 3 were both 0/20, citation
-validity was 77/78, warm p95 was 280.463 seconds, three blocked policy-violation attempts were
-recorded, coverage remained below target, and supported factual claims were 32/57 (56.1%). See the
-committed artifacts under `artifacts/evaluation/phase9-frozen-v1/`. The semantic review is explicitly
-AI-assisted and is not represented as independent human validation.
+- [notebooks/phase5_evaluation.ipynb](notebooks/phase5_evaluation.ipynb)
+- [notebooks/phase9_evaluation.ipynb](notebooks/phase9_evaluation.ipynb)
 
-The original v1 result remains immutable. A separately frozen corrective regression is available in
-[`config/phase9-v2-regression-freeze.json`](config/phase9-v2-regression-freeze.json) and
-[`phase9_v2_colab.ipynb`](phase9_v2_colab.ipynb). It fixes the context overflow, constructs canonical
-tool arguments in trusted code, presents explicit metric semantics, bounds the adaptive LangGraph to
-named observation bundles, and rejects unsupported citations. Verify it with
-`make verify-phase9-v2-freeze`. Its 120-job model run remains free-Colab-only and is explicitly a
-regression over the now-consumed v1 cases—not a replacement held-out claim. The later v3 iteration
-supplied the required fresh post-corpus suite and 20-report written rubric, but it still failed the
-unchanged quality targets.
+They use local open-source model serving inside the notebook runtime and do not configure a paid
+provider. Normal tests and CI never start a stochastic model evaluation.
 
-The separately versioned Phase 9 v3 path supplies that fresh surface: 22 post-corpus captures,
-disjoint capture groups between development and held-out splits, a sealed 60-case dataset, and
-trusted normalization of bounded lab signals. Verify it with `make verify-phase9-v3-freeze`; the
-real-model run was completed through `phase9_v3_colab.ipynb` on a free T4 and never authorized a
-paid provider. All 120 jobs completed and the returned aggregate reproduced byte-for-byte. The
-fresh v3 gate also failed: adaptive Top 1/Top 3 were 0/20, abstention was 3/5, false incidents were
-0/5, task completion was 30/30, and the 20-report written rubric found 0/20 supported factual
-conclusions. Complete artifacts are under `artifacts/evaluation/phase9-v3-fresh/`.
-
-The final repair is separately frozen as v4. Its 120-job free-Colab run reproduced byte-for-byte
-from the returned per-job records. Both fixed and adaptive workflows reached Top 1 20/20, Top 3
-20/20, appropriate abstention 5/5, zero false incidents, 30/30 task completion, 100% citation
-validity, zero policy violations, and a warm p95 below 90 seconds. The retained branch-aware core
-coverage is 85.14%. A written AI-assisted semantic review—not independent human validation—checked
-all 20 identifiable adaptive reports and found 69/69 supported atomic claims. All frozen v4 targets
-therefore pass; complete artifacts are under `artifacts/evaluation/phase9-v4-fresh/`.
-
-## Phase 10 local release and operations
-
-The release uses one non-root backend image for API and worker, loopback-only published ports,
-standard and low-resource Compose profiles, frozen dependency installs, safe volume-preserving
-shutdown, checksum-backed PostgreSQL backup/restore, and deterministic CI/security definitions.
-The optional model profile is off by default. An isolated clean clone passed 150 offline backend
-tests, three frontend tests, the production frontend build, eight enabled service integration tests,
-one real-API Playwright flow, frozen-v4 verification, backup/restore, and post-restore smoke at USD
-0. See [`docs/operations/RELEASE.md`](docs/operations/RELEASE.md).
-
-The GitHub workflows are committed but have not run remotely because pushing remains a separate
-approval. A full dependency-heavy backend image build and Trivy image scan are assigned to that
-remote workflow rather than the laptop.
-
-## Phase 11 portfolio handoff
-
-The final handoff keeps every claim attached to executable evidence:
-
-- [`FINAL_TECHNICAL_REPORT.md`](docs/portfolio/FINAL_TECHNICAL_REPORT.md) explains the design,
-  datasets, benchmark tables, failures, repair history, security, durability, and limitations.
-- [`DEMO_SCRIPT.md`](docs/portfolio/DEMO_SCRIPT.md) provides a timed five-minute walkthrough and a
-  replay fallback.
-- [`DIAGRAMS.md`](docs/portfolio/DIAGRAMS.md) contains repository-native Mermaid architecture and
-  investigator-state diagrams.
-- [`CLAIMS_EVIDENCE.md`](docs/portfolio/CLAIMS_EVIDENCE.md) maps five CV bullets to code, test IDs,
-  dataset scope, result artifacts, and caveats.
-- [`TECHNICAL_DEFENSE.md`](docs/portfolio/TECHNICAL_DEFENSE.md) answers the 12 design and evaluation
-  questions a presenter should understand.
-- [`FINAL_READINESS.md`](docs/portfolio/FINAL_READINESS.md) distinguishes portfolio readiness from
-  production readiness and lists remaining work.
-
-Generate and verify the sanitized deterministic UI evidence with:
+## Testing and release verification
 
 ```bash
-make portfolio-screenshots
-make portfolio-verify
+make lint
+make format-check
+make typecheck
+make test-frontend
+make test-offline
+make test-integration
+make test-e2e
+make release-verify
 ```
 
-The three screenshots under `artifacts/portfolio/` come from the real FastAPI/PostgreSQL browser
-flow and contain no token or real identity. Their deterministic publisher is labeled as a fixture
-and makes zero model calls; the images prove product wiring, not diagnosis quality.
+The deterministic browser test uses the real FastAPI/PostgreSQL lifecycle with a clearly labeled
+fixture publisher. It verifies the product path, not diagnosis quality. Sanitized screenshots from
+that flow are stored under `artifacts/portfolio/`.
+
+Application metrics are exposed only to an authenticated operator. Optional tracing correlates API,
+worker, model, and tool spans and applies recursive redaction before writing rotating local JSONL.
+See [docs/operations/OBSERVABILITY.md](docs/operations/OBSERVABILITY.md) and
+[docs/security/THREAT_MODEL.md](docs/security/THREAT_MODEL.md).
+
+## Portfolio documentation
+
+- [Final technical report](docs/portfolio/FINAL_TECHNICAL_REPORT.md)
+- [Five-minute demo](docs/portfolio/DEMO_SCRIPT.md)
+- [Architecture and state diagrams](docs/portfolio/DIAGRAMS.md)
+- [Claims and evidence map](docs/portfolio/CLAIMS_EVIDENCE.md)
+- [Technical defense](docs/portfolio/TECHNICAL_DEFENSE.md)
+- [Final readiness](docs/portfolio/FINAL_READINESS.md)
+- [Release and operations](docs/operations/RELEASE.md)
+- [Security tests](docs/security/SECURITY_TESTS.md)
+
+## Limitations
+
+- This is a personal controlled-laboratory project, not a production deployment.
+- The corpus, captures, questions, and labels are small and project-authored.
+- The final variants share capture groups, and the semantic review was not independent.
+- The retained 85.14% coverage result applies to the frozen core scope, not the whole repository.
+- The browser demo uses a deterministic zero-model fixture and is not an AI-quality benchmark.
+- There is no enterprise identity, public endpoint, production credential, automatic remediation,
+  sustained load study, or real-organization MTTR claim.
+
+## License
+
+See [LICENSE.md](LICENSE.md).

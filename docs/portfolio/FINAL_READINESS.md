@@ -56,9 +56,8 @@ real-organization outcome evidence.
 
 ## Remaining work outside the completed portfolio scope
 
-1. **Publication approval.** The local branch is ahead of the private remote. The GitHub workflows
-   have not run remotely because pushing remains a separate user decision. **GitHub workflows have not run remotely.** Once authorized, push
-   and inspect CI, security, full image build, and Trivy results.
+1. **Remote verification.** Inspect CI, security, full image build, and Trivy results after each
+   published revision; remote workflow status is not part of the committed local evidence.
 2. **Independent review.** Replace or supplement the AI-assisted rubric with independent domain
    reviewers and a larger, organization-independent dataset.
 3. **Real-environment adaptation.** Add enterprise identity, centrally managed read-only telemetry

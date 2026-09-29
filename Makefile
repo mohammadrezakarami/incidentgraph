@@ -101,15 +101,15 @@ evaluate-test:
 	$(UV) run python -m incidentgraph.release verify-evaluation
 
 evaluate-phase9-v2:
-	@echo "Phase 9 v2 real-model regression is intentionally Colab-only; use phase9_v2_colab.ipynb."
+	@echo "Phase 9 v2 is a retained historical regression result; new runs are not authorized."
 	@exit 2
 
 evaluate-phase9-v3:
-	@echo "Phase 9 v3 fresh real-model evaluation is intentionally Colab-only; use phase9_v3_colab.ipynb."
+	@echo "Phase 9 v3 is a retained historical evaluation result; new runs are not authorized."
 	@exit 2
 
 evaluate-phase9-v4:
-	@echo "Phase 9 v4 fresh post-repair evaluation is intentionally Colab-only; use phase9_v4_colab.ipynb."
+	@echo "A new stochastic run requires a separately frozen dataset; see notebooks/phase9_evaluation.ipynb."
 	@exit 2
 
 report:

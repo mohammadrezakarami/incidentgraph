@@ -84,7 +84,7 @@ def test_readiness_keeps_non_production_limitations_visible() -> None:
     for phrase in (
         "not production-ready",
         "AI-assisted",
-        "GitHub workflows have not run remotely",
+        "remote workflow status is not part of the committed local evidence",
         "No public deployment",
         "12 of 12",
     ):

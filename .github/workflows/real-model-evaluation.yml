@@ -22,4 +22,4 @@ jobs:
           uv run python -m incidentgraph.phase9_v4_runner verify-freeze
           uv run python -m incidentgraph.release verify-evaluation
       - name: Explain the explicit budget boundary
-        run: echo "A new stochastic model run is not authorized here. Use phase9_v4_colab.ipynb on free Colab only after separately approving a new frozen evaluation."
+        run: echo "A new stochastic model run is not authorized here. Use notebooks/phase9_evaluation.ipynb only after separately approving and freezing a new evaluation."
