@@ -92,9 +92,7 @@ def test_chunk_ids_are_stable_and_change_with_content() -> None:
 
 
 def test_manifest_rejects_path_traversal(tmp_path: Path) -> None:
-    record = load_manifest()[0].model_copy(
-        update={"path": "../outside.txt", "selector": None}
-    )
+    record = load_manifest()[0].model_copy(update={"path": "../outside.txt", "selector": None})
     (tmp_path.parent / "outside.txt").write_text("x" * 100, encoding="utf-8")
 
     with pytest.raises(ValueError, match="leaves corpus root"):

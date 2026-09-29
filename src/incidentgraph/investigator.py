@@ -424,9 +424,7 @@ def validate_tool_request(
             raise PolicyViolation("observation time exceeds the cutoff")
     if isinstance(validated, RetrieveInput) and validated.cutoff != runtime.observation_cutoff:
         raise PolicyViolation("retrieval cutoff must equal the immutable observation cutoff")
-    normalized_request = request.model_copy(
-        update={"arguments": validated.model_dump(mode="json")}
-    )
+    normalized_request = request.model_copy(update={"arguments": validated.model_dump(mode="json")})
     fingerprint = request_fingerprint(normalized_request)
     if fingerprint in fingerprints:
         raise PolicyViolation("duplicate tool request requires a changed window or arguments")
@@ -833,9 +831,7 @@ def build_workflow(
                 "objective": decision.objective,
                 "summary": decision.decision_summary,
                 "next_tool": (
-                    decision.tool_request.tool.value
-                    if decision.tool_request is not None
-                    else None
+                    decision.tool_request.tool.value if decision.tool_request is not None else None
                 ),
             },
             (
@@ -1015,8 +1011,7 @@ def build_workflow(
         except ModelCallFailure as exc:
             counters = exc.counters
             can_continue = (
-                counters.rounds < 2
-                and counters.model_calls < settings.model_max_calls - 1
+                counters.rounds < 2 and counters.model_calls < settings.model_max_calls - 1
             )
             return {
                 "termination_reason": "" if can_continue else "model_failure_or_budget",

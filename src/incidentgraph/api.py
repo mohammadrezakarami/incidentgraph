@@ -215,9 +215,7 @@ def create_app(
                 )
                 observe_process_rss("api")
 
-    def error_payload(
-        request: Request, code: str, message: str, retryable: bool
-    ) -> dict[str, Any]:
+    def error_payload(request: Request, code: str, message: str, retryable: bool) -> dict[str, Any]:
         return {
             "error": {
                 "code": code,
@@ -262,9 +260,7 @@ def create_app(
                 )
             elif declared_length > app_settings.api_max_request_bytes:
                 response = JSONResponse(
-                    error_payload(
-                        request, "PAYLOAD_TOO_LARGE", "request body is too large", False
-                    ),
+                    error_payload(request, "PAYLOAD_TOO_LARGE", "request body is too large", False),
                     status_code=413,
                 )
             else:
@@ -395,8 +391,7 @@ def create_app(
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "model provider configuration is invalid: "
-                    f"{model_configuration_problems[0]}"
+                    f"model provider configuration is invalid: {model_configuration_problems[0]}"
                 ),
             )
         request_id = UUID(request.state.request_id)

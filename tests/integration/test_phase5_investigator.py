@@ -101,9 +101,7 @@ class CheckpointModel:
                         "window_start": start,
                         "window_end": end,
                         "event": (
-                            "request.failure"
-                            if diagnostic_round == 0
-                            else "dependency.failure"
+                            "request.failure" if diagnostic_round == 0 else "dependency.failure"
                         ),
                         "limit": 20,
                     },
@@ -218,9 +216,7 @@ async def test_postgres_checkpointer_persists_completed_workflow_state() -> None
     database = Database(settings.app_database_dsn.get_secret_value())
     await database.open()
     try:
-        persisted_evidence = await database.get_evidence(
-            investigation_id, tools.item.evidence_id
-        )
+        persisted_evidence = await database.get_evidence(investigation_id, tools.item.evidence_id)
         persisted_report = await database.get_report(investigation_id, 1)
     finally:
         await database.close()

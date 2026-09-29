@@ -154,9 +154,7 @@ def write_fixture() -> dict[str, Any]:
     cases, labels = build_fixture()
     validate_fixture(cases, labels)
     CASE_PATH.write_text("\n".join(_canonical(item) for item in cases) + "\n", encoding="utf-8")
-    LABEL_PATH.write_text(
-        "\n".join(_canonical(item) for item in labels) + "\n", encoding="utf-8"
-    )
+    LABEL_PATH.write_text("\n".join(_canonical(item) for item in labels) + "\n", encoding="utf-8")
     digest = heldout_digest(cases, labels)
     seal = {
         "schema_version": 1,

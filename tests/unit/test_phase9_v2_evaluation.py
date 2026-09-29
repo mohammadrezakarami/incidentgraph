@@ -196,9 +196,7 @@ def test_fake_model_conforms_to_v2_protocol_shape() -> None:
 
 
 class _FakeToolbox:
-    async def execute(
-        self, request: ToolRequest, context: ToolRuntimeContext
-    ) -> ToolResult:
+    async def execute(self, request: ToolRequest, context: ToolRuntimeContext) -> ToolResult:
         if request.tool == ToolName.RESOLVE_SERVICE:
             return ToolResult(
                 tool=request.tool,

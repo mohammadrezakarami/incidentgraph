@@ -320,9 +320,7 @@ class HarnessRetriever(Neo4jRetriever):
         return (
             ("svc-gateway", "svc-payments"),
             {
-                "svc-gateway": GraphPath(
-                    node_ids=("svc-gateway",), relationships=(), hops=0
-                ),
+                "svc-gateway": GraphPath(node_ids=("svc-gateway",), relationships=(), hops=0),
                 "svc-payments": GraphPath(
                     node_ids=("svc-gateway", "svc-payments"),
                     relationships=(

@@ -137,9 +137,7 @@ class ScriptedModel:
             ]
         )
         if self.selected_tool == ToolName.GET_METRICS:
-            metric_template = (
-                "request_latency" if diagnostic_round == 0 else "cpu_time"
-            )
+            metric_template = "request_latency" if diagnostic_round == 0 else "cpu_time"
             arguments: dict[str, Any] = MetricsInput(
                 service_id="svc-gateway",
                 template=metric_template,
@@ -152,11 +150,7 @@ class ScriptedModel:
                 "service_ids": ["svc-gateway"],
                 "window_start": start,
                 "window_end": end,
-                "event": (
-                    "request.failure"
-                    if diagnostic_round == 0
-                    else "dependency.failure"
-                ),
+                "event": ("request.failure" if diagnostic_round == 0 else "dependency.failure"),
                 "limit": 20,
             }
         return ToolRequest(

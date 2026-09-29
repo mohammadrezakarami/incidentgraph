@@ -729,9 +729,7 @@ class Neo4jKnowledgeStore:
         return row
 
     @staticmethod
-    def _archive_missing(
-        tx: ManagedTransaction, corpus_id: str, active_ids: list[str]
-    ) -> int:
+    def _archive_missing(tx: ManagedTransaction, corpus_id: str, active_ids: list[str]) -> int:
         rows = list(
             tx.run(
                 "MATCH (doc:Document {corpus_id: $corpus_id}) "
@@ -968,9 +966,7 @@ def run_ingestion(settings: Settings, report_path: Path = DEFAULT_REPORT_PATH) -
                     if len(vector) != settings.embedding_dimension:
                         raise ValueError("encoder returned an incompatible vector dimension")
                     enriched.append(chunk.model_copy(update={"embedding": vector}))
-                store.upsert_document(
-                    settings, record, enriched, model_key, corpus_version
-                )
+                store.upsert_document(settings, record, enriched, model_key, corpus_version)
                 if action == "insert":
                     inserted += 1
                 else:
@@ -1046,8 +1042,7 @@ def benchmark_embeddings(
     elapsed = time.perf_counter() - started
     result = {
         "status": "pass"
-        if vectors
-        and all(len(vector) == settings.embedding_dimension for vector in vectors)
+        if vectors and all(len(vector) == settings.embedding_dimension for vector in vectors)
         else "fail",
         "model_id": settings.embedding_model_id,
         "revision": settings.embedding_model_revision,

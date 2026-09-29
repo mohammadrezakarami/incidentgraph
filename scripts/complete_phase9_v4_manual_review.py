@@ -19,8 +19,7 @@ POLICY_VERSION = "phase9-repair-3-bounded-policy-v1"
 WORKFLOW_VERSION = "phase9-v4-repair3-workflow-v1"
 
 SAMPLE_JOB_IDS = [
-    f"heldout-r1-adaptive-incident-v4-heldout-{case_number:03d}"
-    for case_number in range(1, 21)
+    f"heldout-r1-adaptive-incident-v4-heldout-{case_number:03d}" for case_number in range(1, 21)
 ]
 
 POLICY_CLAIM = (
@@ -148,8 +147,7 @@ MECHANISM_EXPECTATIONS: dict[str, dict[str, Any]] = {
         "measurements": [
             {
                 "description": (
-                    'process_cpu {"job": "payments"}: captured maximum '
-                    "0.538038 cpu_seconds/second."
+                    'process_cpu {"job": "payments"}: captured maximum 0.538038 cpu_seconds/second.'
                 ),
                 "source": "process_cpu",
                 "labels": {"job": "payments"},
@@ -238,8 +236,7 @@ def validate_change_evidence(item: dict[str, Any], spec: dict[str, Any]) -> None
         raise ValueError("reviewed change did not cite change evidence")
     changes = json.loads(item["content"])
     if not any(
-        all(change.get(key) == value for key, value in spec["change"].items())
-        for change in changes
+        all(change.get(key) == value for key, value in spec["change"].items()) for change in changes
     ):
         raise ValueError(f"reviewed approved change is absent: {spec['change']}")
 
@@ -463,9 +460,7 @@ def main() -> None:
         raise ValueError("per-case CSV does not match the reproduced Colab output")
 
     all_runs = [
-        row
-        for path in sorted(output_dir.glob("agent-part-*.jsonl"))
-        for row in load_jsonl(path)
+        row for path in sorted(output_dir.glob("agent-part-*.jsonl")) for row in load_jsonl(path)
     ]
     runs = validate_all_runs(all_runs)
     rows = [review_report(runs[job_id]) for job_id in SAMPLE_JOB_IDS]

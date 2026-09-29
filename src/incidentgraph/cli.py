@@ -58,9 +58,7 @@ async def migrate(settings: Settings) -> None:
     await database.open()
     try:
         paths = [
-            path
-            for path in sorted(MIGRATIONS.glob("*.sql"))
-            if not path.stem.endswith("_lab")
+            path for path in sorted(MIGRATIONS.glob("*.sql")) if not path.stem.endswith("_lab")
         ]
         if not paths:
             raise RuntimeError("no database migrations were found")

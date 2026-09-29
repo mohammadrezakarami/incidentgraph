@@ -13,8 +13,7 @@ REPRODUCED_AGGREGATE_SHA256 = "e9a2cb42e31f3aadbf0111796093084ddc9c3287cddbb08ea
 REPRODUCED_PER_CASE_SHA256 = "8a8effb01a46962629a66b55693d325f1989424cb5a50f5aa8194583413c55c7"
 
 SAMPLE_JOB_IDS = [
-    f"heldout-r1-adaptive-incident-v3-heldout-{case_number:03d}"
-    for case_number in range(1, 21)
+    f"heldout-r1-adaptive-incident-v3-heldout-{case_number:03d}" for case_number in range(1, 21)
 ]
 
 

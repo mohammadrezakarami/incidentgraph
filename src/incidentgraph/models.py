@@ -93,9 +93,9 @@ class JobLease(BaseModel):
     attempt: int = Field(ge=1)
     leased_until: datetime
     generation: int = Field(default=1, ge=1)
-    task_kind: Literal[
-        "investigation", "review_resume", "review_revision", "follow_up"
-    ] = "investigation"
+    task_kind: Literal["investigation", "review_resume", "review_revision", "follow_up"] = (
+        "investigation"
+    )
     target_report_version: int = Field(default=1, ge=1)
 
 

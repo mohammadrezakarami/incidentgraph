@@ -144,9 +144,7 @@ class Database:
             async with connection.transaction():
                 await connection.execute(statement)
 
-    async def persist_evidence(
-        self, investigation_id: UUID, items: Sequence[EvidenceItem]
-    ) -> None:
+    async def persist_evidence(self, investigation_id: UUID, items: Sequence[EvidenceItem]) -> None:
         """Persist full immutable evidence before only references enter checkpoint state."""
         async with self.pool.connection() as connection:
             async with connection.transaction():
@@ -213,9 +211,7 @@ class Database:
                     if existing is None or existing["payload"] != payload:
                         raise ValueError("immutable report version collision")
 
-    async def get_evidence(
-        self, investigation_id: UUID, evidence_id: UUID
-    ) -> EvidenceItem | None:
+    async def get_evidence(self, investigation_id: UUID, evidence_id: UUID) -> EvidenceItem | None:
         async with self.pool.connection() as connection:
             cursor = await connection.execute(
                 """
@@ -590,9 +586,7 @@ class Database:
                     row["investigation_id"],
                     "job.started",
                     {"attempt": row["attempt"], "worker_id": worker_id},
-                    deduplication_key=(
-                        f"job.started:{row['generation']}:{row['attempt']}"
-                    ),
+                    deduplication_key=(f"job.started:{row['generation']}:{row['attempt']}"),
                 )
                 return JobLease.model_validate(row)
 

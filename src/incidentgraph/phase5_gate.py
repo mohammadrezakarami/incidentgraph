@@ -186,9 +186,7 @@ def _assess(runs: list[dict[str, Any]]) -> dict[str, Any]:
         "different_evidence_driven_next_tools": (
             all(tool is not None for tool in second_tools) and len(set(second_tools)) == 2
         ),
-        "zero_monetary_cost": all(
-            run["counters"].get("estimated_cost_usd") == 0 for run in runs
-        ),
+        "zero_monetary_cost": all(run["counters"].get("estimated_cost_usd") == 0 for run in runs),
         "persistent_completion": all(
             run["checkpoint_status"] in {"completed", "inconclusive"} for run in runs
         ),

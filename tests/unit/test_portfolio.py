@@ -57,9 +57,7 @@ def test_diagrams_describe_implemented_architecture_and_state() -> None:
 
 
 def test_every_cv_claim_has_evidence_and_scope() -> None:
-    claims = (ROOT / "docs" / "portfolio" / "CLAIMS_EVIDENCE.md").read_text(
-        encoding="utf-8"
-    )
+    claims = (ROOT / "docs" / "portfolio" / "CLAIMS_EVIDENCE.md").read_text(encoding="utf-8")
     assert claims.count("### CV-") == 5
     assert claims.count("**Statement.**") == 5
     assert claims.count("**Implementation evidence.**") == 5
@@ -78,9 +76,7 @@ def test_sanitized_screenshots_are_real_pngs_with_useful_dimensions() -> None:
 
 
 def test_readiness_keeps_non_production_limitations_visible() -> None:
-    readiness = (ROOT / "docs" / "portfolio" / "FINAL_READINESS.md").read_text(
-        encoding="utf-8"
-    )
+    readiness = (ROOT / "docs" / "portfolio" / "FINAL_READINESS.md").read_text(encoding="utf-8")
     for phrase in (
         "not production-ready",
         "AI-assisted",

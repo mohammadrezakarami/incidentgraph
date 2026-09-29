@@ -67,11 +67,7 @@ class FakeRepository:
 def settings_with_tokens(tokens: dict[str, dict[str, Any]], **overrides: Any) -> Settings:
     scoped_tokens = {
         token: value
-        | {
-            "service_ids": value.get(
-                "service_ids", ["svc-gateway", "svc-checkout", "svc-payments"]
-            )
-        }
+        | {"service_ids": value.get("service_ids", ["svc-gateway", "svc-checkout", "svc-payments"])}
         for token, value in tokens.items()
     }
     return Settings(
@@ -306,12 +302,8 @@ def test_internal_metrics_require_operator_role() -> None:
         }
     )
     with TestClient(create_app(settings, FakeRepository())) as client:
-        denied = client.get(
-            "/metrics", headers={"Authorization": "Bearer viewer-token"}
-        )
-        allowed = client.get(
-            "/metrics", headers={"Authorization": "Bearer operator-token"}
-        )
+        denied = client.get("/metrics", headers={"Authorization": "Bearer viewer-token"})
+        allowed = client.get("/metrics", headers={"Authorization": "Bearer operator-token"})
 
     assert denied.status_code == 403
     assert allowed.status_code == 200

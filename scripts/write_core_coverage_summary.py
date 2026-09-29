@@ -34,13 +34,10 @@ def main() -> None:
         "test_selector": 'pytest -m "not integration"',
         "totals": raw["totals"],
         "files": {
-            Path(path).name: value["summary"]
-            for path, value in sorted(raw["files"].items())
+            Path(path).name: value["summary"] for path, value in sorted(raw["files"].items())
         },
     }
-    args.output.write_text(
-        json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    args.output.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(document["totals"], indent=2, sort_keys=True))
 
 
