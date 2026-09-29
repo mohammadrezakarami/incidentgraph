@@ -42,6 +42,15 @@ def _case() -> dict[str, object]:
     }
 
 
+def _settings() -> Settings:
+    return Settings(  # type: ignore[call-arg]
+        app_database_dsn="postgresql://unit:unit@127.0.0.1:5432/app",
+        lab_database_dsn="postgresql://unit:unit@127.0.0.1:5433/lab",
+        neo4j_uri="bolt://127.0.0.1:7687",
+        neo4j_password="unit-test-password",
+    )
+
+
 def _evidence() -> EvidenceItem:
     now = datetime(2026, 9, 22, 21, 46, tzinfo=UTC)
     return EvidenceItem(
@@ -240,7 +249,9 @@ async def test_adaptive_langgraph_executes_bounded_bundles_without_raw_model_arg
         "tool_latency_ms": 0,
         "report": None,
     }
-    workflow = build_adaptive_workflow(Settings(), _FakeModel(), _FakeToolbox())  # type: ignore[arg-type,call-arg]
+    workflow = build_adaptive_workflow(  # type: ignore[arg-type]
+        _settings(), _FakeModel(), _FakeToolbox()
+    )
 
     state = await workflow.ainvoke(initial, config={"recursion_limit": 16})
 
