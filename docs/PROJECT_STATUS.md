@@ -24,12 +24,14 @@ Phase 9 — Frozen evaluation and error analysis: **PASS (separately frozen v4 r
 
 Phase 10 — Reproducible release and operations: **PASS**.
 
-Roadmap position: **Phases 0–10 passed; Phase 11 has not started.** The immutable Phase 9 v1 and v3
+Phase 11 — Portfolio handoff and technical defense: **PASS**.
+
+Roadmap position: **Phases 0–11 passed; all 12 gates are complete.** The immutable Phase 9 v1 and v3
 evaluations remain FAIL; the later separately frozen v4 post-repair gate is PASS.
 
 See `docs/progress/phase-09-repair.md` for the returned repair-2 failure, repair-3's trusted bounded
 policy, and the final v4 result. Repair-3 is integrated into the separately versioned v4 workflow,
-145 non-integration tests pass, and branch-aware core coverage is 85.14%. The sealed 30-case
+155 non-integration tests pass, and branch-aware core coverage is 85.14%. The sealed 30-case
 holdout came from 11 new post-repair live captures. Its zero-cost Colab execution completed 120/120
 jobs, and the written review found 69/69 supported claims across 20 actual reports.
 
@@ -39,6 +41,9 @@ implemented and verified. Phase 9 preserved its failed historical evaluations, t
 newly sealed zero-cost v4 evaluation and passed every unchanged target in that versioned gate.
 Phase 10 added release/CI configuration, resource profiles, backup/restore, safe shutdown, and a
 clean-clone proof covering offline tests plus the real deterministic browser demonstration.
+Phase 11 added the final technical report, timed demo, Mermaid diagrams, three sanitized
+real-flow screenshots, five evidence-mapped CV bullets, technical-defense answers, and the final
+readiness report. The result is portfolio-ready but explicitly not production-ready.
 
 ## Verified environment
 
@@ -51,7 +56,7 @@ clean-clone proof covering offline tests plus the real deterministic browser dem
 - Docker 29.4.1 and Docker Compose v5.1.3 clients are installed.
 - Docker daemon is running on Linux/ARM64 with 10 CPUs and approximately 8 GiB assigned.
 - Digest-pinned PostgreSQL 18.6 and Neo4j 2026.09.0 services are healthy; real connectivity passes.
-- Ruff, strict mypy over 31 source files, 145 selected Python non-integration tests, 3 Vitest tests,
+- Ruff, strict mypy over 32 source files, 155 selected Python non-integration tests, 3 Vitest tests,
   the production frontend build, the real Phase 8 trace/security integration, the Phase 7 API
   contract, 6 Phase 6 queue/recovery tests, and prior Playwright/checkpoint gates pass; earlier live
   lab, graph-ingestion, retrieval, and Phase 5 gates also passed.
@@ -121,6 +126,10 @@ clean-clone proof covering offline tests plus the real deterministic browser dem
   backend tests, 3 frontend tests, the production frontend build, 8 enabled service integration
   tests, and the real deterministic Playwright flow. Its isolated backup/restore and post-restore
   smoke also passed; all Phase 10 model and paid-service usage remained zero.
+- The Phase 11 verification passed 5 portfolio checks, regenerated 3 sanitized 1280-pixel-wide
+  screenshots through one real API/PostgreSQL/Playwright flow, reran all 155 offline backend tests,
+  3 frontend tests, the production build, Ruff, strict mypy, and the frozen 120-record v4 evidence
+  check. It made zero model calls and used USD 0.
 
 ## Approved decisions recorded in ADRs
 
@@ -130,7 +139,7 @@ clean-clone proof covering offline tests plus the real deterministic browser dem
 - Accepted: immutable replay snapshots isolated by cutoff.
 - Accepted: read-only investigation with no remediation execution.
 
-## Open gates and limitations
+## Remaining external work and limitations
 
 - Phase 9 v1 and the separately frozen fresh v3 iteration are both complete with historical
   **FAIL** results. Their measured failures are retained without post-held-out tuning or target
@@ -149,6 +158,9 @@ clean-clone proof covering offline tests plus the real deterministic browser dem
   unexecuted remotely because publication requires separate approval. The dependency-heavy backend
   image received Docker's static build check locally; its full build and Trivy image scan are left
   to remote CI to avoid burdening the laptop.
+- There is no remaining roadmap phase. Optional publication, remote CI inspection, independent
+  domain review, real-organization adaptation, sustained operational testing, and public deployment
+  are outside the completed local portfolio scope.
 
 ## Repository
 
@@ -158,7 +170,8 @@ clean-clone proof covering offline tests plus the real deterministic browser dem
 
 ## Evidence
 
-See `docs/progress/phase-10-report.md` for the release gate and clean-clone evidence. Complete v1,
+See `docs/progress/phase-11-report.md` and `docs/portfolio/FINAL_READINESS.md` for the final
+portfolio gate. `docs/progress/phase-10-report.md` retains the release and clean-clone evidence. Complete v1,
 fresh v3, and final
 v4 returned runs, reproduced aggregates, and written rubrics are under
 `artifacts/evaluation/phase9-frozen-v1/`, `artifacts/evaluation/phase9-v3-fresh/`, and

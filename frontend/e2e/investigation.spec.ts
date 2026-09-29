@@ -1,11 +1,24 @@
 import { execFileSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const ownerToken = "phase7-e2e-owner-token";
 const otherToken = "phase7-e2e-other-token";
 const python = path.resolve("../.venv/bin/python");
 const fixture = path.resolve("../scripts/phase7_e2e_fixture.py");
+const portfolioOutput = process.env.INCIDENTGRAPH_PORTFOLIO_OUTPUT;
+
+async function capturePortfolio(page: Page, filename: string) {
+  if (!portfolioOutput) return;
+  mkdirSync(portfolioOutput, { recursive: true });
+  await page.screenshot({
+    path: path.join(portfolioOutput, filename),
+    fullPage: true,
+    animations: "disabled",
+    caret: "hide",
+  });
+}
 
 function fixtureAction(action: "publish" | "resume" | "cleanup", investigationId: string) {
   execFileSync(python, [fixture, action, investigationId], {
@@ -47,11 +60,13 @@ test("real API flow reconnects, drills into evidence, reviews, and preserves ref
     await expect(page.getByText("The browser fixture report is grounded in the API-served latency record.")).toBeVisible();
     await expect(page.getByText("get_metrics")).toBeVisible();
     await expect(page.getByText("ok · 3.7 ms")).toBeVisible();
+    await capturePortfolio(page, "01-report-and-review.png");
 
     await page.getByRole("button", { name: /Open evidence/ }).first().click();
     await expect(page.getByRole("heading", { name: "phase7-e2e-metric" })).toBeVisible();
     await expect(page.getByText("fixture://phase7/playwright/metric")).toBeVisible();
     await expect(page.getByLabel("Metric values over the evidence window")).toBeVisible();
+    await capturePortfolio(page, "02-evidence-drilldown.png");
     await page.getByRole("button", { name: "Close evidence" }).click();
 
     await expect(page.getByText(/Accepting this report authorizes publication only/)).toBeVisible();
@@ -61,6 +76,7 @@ test("real API flow reconnects, drills into evidence, reviews, and preserves ref
     await page.getByRole("button", { name: "Refresh", exact: true }).click();
     await expect(page.getByText("completed").first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Ask a follow-up" })).toBeVisible();
+    await capturePortfolio(page, "03-completed-and-follow-up.png");
 
     await page.reload();
     await expect(page.getByRole("heading", { name: /browser-test gateway latency/ })).toBeVisible();

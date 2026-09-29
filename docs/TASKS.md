@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-29
 
-Progress: **Phases 0–10 PASS; Phase 11 not started.** Historical Phase 9 v1/v3 FAIL results
+Progress: **Phases 0–11 PASS; all 12 gates complete.** Historical Phase 9 v1/v3 FAIL results
 remain preserved; the separately frozen v4 post-repair gate is the final passing result.
 
 ## Phase 0 — Discovery, architecture, and feasibility
@@ -240,9 +240,9 @@ Phase 10 gate result: **PASS**. The isolated clone passed 150 backend tests, 3 f
 production build, 8 enabled integration tests, 1 Playwright end-to-end flow, frozen v4 evidence
 replay, backup/restore, and teardown. Remote CI publication remains separately unauthorized.
 
-## Later phase gates
+## Roadmap gate summary
 
-The requested Phase 9 repair is complete. Historical failed versions and the final v4 evidence are
+All roadmap phases are complete. Historical Phase 9 failed versions and the final v4 evidence are
 documented in `docs/progress/phase-09-repair.md`.
 
 - [x] Phase 2: lab, telemetry, bounded faults, and independent captures.
@@ -254,7 +254,23 @@ documented in `docs/progress/phase-09-repair.md`.
 - [x] Phase 8: observability and security hardening.
 - [x] Phase 9: separately frozen v4 post-repair evaluation complete; quality gate **PASS**.
 - [x] Phase 10: reproducible release and operations.
-- [ ] Phase 11: portfolio handoff and technical defense.
+- [x] Phase 11: portfolio handoff and technical defense.
+
+## Phase 11 — Portfolio handoff and technical defense
+
+- [x] Write the final technical report with architecture, provenance, benchmark, failure, security,
+  durability, release, and limitation sections.
+- [x] Create an approximately five-minute repeatable demo script with a zero-model replay fallback.
+- [x] Add repository-native architecture and exact investigator-state diagrams.
+- [x] Generate three sanitized screenshots from the real FastAPI/PostgreSQL/Playwright flow.
+- [x] Map five CV bullets to code paths, exact test IDs, dataset scope, result artifacts, and caveats.
+- [x] Answer all 12 required technical-defense questions.
+- [x] Add an executable portfolio verification target.
+- [x] Rerun offline tests, frontend tests/build, Ruff, strict mypy, and frozen v4 verification.
+- [x] Publish the final readiness decision while keeping production and publication work explicit.
+
+Phase 11 gate result: **PASS**. The project is complete for its defined local portfolio scope, not
+production-ready. Publication and remote CI remain separate, unapproved actions.
 
 ## Explicitly deferred extensions
 

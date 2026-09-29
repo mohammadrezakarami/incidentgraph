@@ -11,7 +11,7 @@ endif
 COMPOSE := docker compose -p $(COMPOSE_PROJECT) $(COMPOSE_FILES) --env-file $(ENV_FILE)
 RELEASE_COMPOSE := docker compose -p $(COMPOSE_PROJECT) -f ops/compose.yaml -f ops/compose.release.yaml $(if $(filter low,$(RESOURCE_PROFILE)),-f ops/compose.low-resource.yaml) --env-file $(ENV_FILE)
 
-.PHONY: doctor bootstrap configure up down reset migrate retention-status seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev evaluate-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate verify-phase9-freeze verify-phase9-v2-freeze verify-phase9-v3-freeze verify-phase9-v4-freeze evaluate-test evaluate-phase9-v2 evaluate-phase9-v3 evaluate-phase9-v4 report smoke lab-up lab-migrate lab-ready scenario capture capture-suite verify-captures api worker frontend demo test test-offline test-frontend test-e2e coverage coverage-all test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint format-check typecheck release-verify release-build release-up release-down backup-app restore-app
+.PHONY: doctor bootstrap configure up down reset migrate retention-status seed ingest verify-ingestion benchmark-embeddings retrieve evaluate-retrieval-dev evaluate-dev verify-retrieval build-incident-eval verify-incident-eval investigator-status setup-checkpointer model-up model-pull phase5-real-gate verify-phase9-freeze verify-phase9-v2-freeze verify-phase9-v3-freeze verify-phase9-v4-freeze evaluate-test evaluate-phase9-v2 evaluate-phase9-v3 evaluate-phase9-v4 report smoke lab-up lab-migrate lab-ready scenario capture capture-suite verify-captures api worker frontend demo portfolio-screenshots portfolio-verify test test-offline test-frontend test-e2e coverage coverage-all test-integration test-phase6-integration test-lab-integration test-graph-integration test-retrieval-integration test-investigator-integration lint format-check typecheck release-verify release-build release-up release-down backup-app restore-app
 
 doctor:
 	$(UV) run incidentgraph doctor
@@ -152,6 +152,15 @@ frontend:
 
 demo: up migrate
 	npm --prefix frontend run test:e2e
+
+portfolio-screenshots:
+	$(COMPOSE) up -d --wait app-db
+	$(UV) run incidentgraph migrate
+	mkdir -p artifacts/portfolio
+	INCIDENTGRAPH_PORTFOLIO_OUTPUT="$(CURDIR)/artifacts/portfolio" npm --prefix frontend run test:e2e
+
+portfolio-verify:
+	$(UV) run pytest tests/unit/test_portfolio.py -q
 
 test:
 	$(UV) run pytest -m "not integration"

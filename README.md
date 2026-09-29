@@ -2,9 +2,16 @@
 
 IncidentGraph is a production-inspired, evidence-grounded agent for investigating controlled infrastructure incidents. It is designed to combine an adaptive LangGraph workflow, LangChain model and tool contracts, Neo4j-backed graph-enhanced retrieval, durable PostgreSQL execution, and real laboratory telemetry.
 
+## Problem and intended users
+
+Incident evidence is usually split across metrics, logs, changes, dependencies, and runbooks.
+IncidentGraph gives engineers and interview reviewers one bounded, auditable path from an incident
+question to a cited report. It is a personal laboratory project for local investigation and replay;
+it is not connected to production and cannot execute remediation.
+
 ## Current status
 
-Phase 0 through Phase 10 are complete and passed. Phase 9 reached **PASS** only in the separately
+Phase 0 through Phase 11 are complete and passed. Phase 9 reached **PASS** only in the separately
 frozen v4 post-repair evaluation; the earlier v1 and v3 failures remain immutable historical
 evidence. The versioned FastAPI surface and React console expose the durable investigator, while
 the hardened local runtime adds correlated API/worker/model/tool traces, bounded operational
@@ -12,9 +19,12 @@ metrics, pre-export redaction, retention controls, adversarial tests, and a meas
 snapshot. The Phase 5 and Phase 9 real-model evaluations used free Colab compute; no paid model
 call was made.
 
-Roadmap progress: **11 of 12 gated phases are complete: Phases 0–10 passed, and Phase 11 has not
-started.** Phase 10 added the local release/CI contract and passed a real isolated clean-clone
+Roadmap progress: **12 of 12 gated phases are complete: Phases 0–11 passed.** Phase 10 added the
+local release/CI contract and passed a real isolated clean-clone
 setup, offline suite, browser demo, service integration, backup/restore, and safe shutdown at USD 0.
+Phase 11 added the final technical report, repeatable five-minute demo, architecture and agent-state
+diagrams, sanitized real-flow screenshots, benchmark tables, technical-defense guide, and five CV
+claims mapped to implementation and verification evidence.
 
 Phase 9 repair-3 rejects contradictory healthy decisions, preserves fact-to-source citations,
 prevents premature observation stops, and passes the retained core branch-coverage gate at
@@ -37,6 +47,13 @@ See:
 - [`docs/progress/phase-08-report.md`](docs/progress/phase-08-report.md)
 - [`docs/progress/phase-09-report.md`](docs/progress/phase-09-report.md)
 - [`docs/progress/phase-10-report.md`](docs/progress/phase-10-report.md)
+- [`docs/progress/phase-11-report.md`](docs/progress/phase-11-report.md)
+- [`docs/portfolio/FINAL_TECHNICAL_REPORT.md`](docs/portfolio/FINAL_TECHNICAL_REPORT.md)
+- [`docs/portfolio/DEMO_SCRIPT.md`](docs/portfolio/DEMO_SCRIPT.md)
+- [`docs/portfolio/DIAGRAMS.md`](docs/portfolio/DIAGRAMS.md)
+- [`docs/portfolio/CLAIMS_EVIDENCE.md`](docs/portfolio/CLAIMS_EVIDENCE.md)
+- [`docs/portfolio/TECHNICAL_DEFENSE.md`](docs/portfolio/TECHNICAL_DEFENSE.md)
+- [`docs/portfolio/FINAL_READINESS.md`](docs/portfolio/FINAL_READINESS.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)
@@ -44,6 +61,16 @@ See:
 ## Safety boundary
 
 The investigator is read-only. It cannot execute remediation, control Docker, inject faults, generate arbitrary shell/Cypher/PromQL, or access production systems.
+
+## Architecture
+
+The local runtime is React → authenticated FastAPI → PostgreSQL-backed durable work → one bounded
+LangGraph investigator. PostgreSQL owns queue leases, events, checkpoints, evidence, review, and
+report versions. Neo4j supplies time-valid topology plus document vector/full-text indexes.
+Immutable captures support replay. The optional local model can select only registered read-only
+observations; deterministic code owns scope, reviewed query templates, limits, citations, and the
+v4 synthetic-lab diagnosis policy. See the rendered
+[`architecture and state diagrams`](docs/portfolio/DIAGRAMS.md).
 
 ## Phase 1 quick start
 
@@ -326,3 +353,45 @@ validity, zero policy violations, and a warm p95 below 90 seconds. The retained 
 coverage is 85.14%. A written AI-assisted semantic review—not independent human validation—checked
 all 20 identifiable adaptive reports and found 69/69 supported atomic claims. All frozen v4 targets
 therefore pass; complete artifacts are under `artifacts/evaluation/phase9-v4-fresh/`.
+
+## Phase 10 local release and operations
+
+The release uses one non-root backend image for API and worker, loopback-only published ports,
+standard and low-resource Compose profiles, frozen dependency installs, safe volume-preserving
+shutdown, checksum-backed PostgreSQL backup/restore, and deterministic CI/security definitions.
+The optional model profile is off by default. An isolated clean clone passed 150 offline backend
+tests, three frontend tests, the production frontend build, eight enabled service integration tests,
+one real-API Playwright flow, frozen-v4 verification, backup/restore, and post-restore smoke at USD
+0. See [`docs/operations/RELEASE.md`](docs/operations/RELEASE.md).
+
+The GitHub workflows are committed but have not run remotely because pushing remains a separate
+approval. A full dependency-heavy backend image build and Trivy image scan are assigned to that
+remote workflow rather than the laptop.
+
+## Phase 11 portfolio handoff
+
+The final handoff keeps every claim attached to executable evidence:
+
+- [`FINAL_TECHNICAL_REPORT.md`](docs/portfolio/FINAL_TECHNICAL_REPORT.md) explains the design,
+  datasets, benchmark tables, failures, repair history, security, durability, and limitations.
+- [`DEMO_SCRIPT.md`](docs/portfolio/DEMO_SCRIPT.md) provides a timed five-minute walkthrough and a
+  replay fallback.
+- [`DIAGRAMS.md`](docs/portfolio/DIAGRAMS.md) contains repository-native Mermaid architecture and
+  investigator-state diagrams.
+- [`CLAIMS_EVIDENCE.md`](docs/portfolio/CLAIMS_EVIDENCE.md) maps five CV bullets to code, test IDs,
+  dataset scope, result artifacts, and caveats.
+- [`TECHNICAL_DEFENSE.md`](docs/portfolio/TECHNICAL_DEFENSE.md) answers the 12 design and evaluation
+  questions a presenter should understand.
+- [`FINAL_READINESS.md`](docs/portfolio/FINAL_READINESS.md) distinguishes portfolio readiness from
+  production readiness and lists remaining work.
+
+Generate and verify the sanitized deterministic UI evidence with:
+
+```bash
+make portfolio-screenshots
+make portfolio-verify
+```
+
+The three screenshots under `artifacts/portfolio/` come from the real FastAPI/PostgreSQL browser
+flow and contain no token or real identity. Their deterministic publisher is labeled as a fixture
+and makes zero model calls; the images prove product wiring, not diagnosis quality.
