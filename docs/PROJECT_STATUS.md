@@ -1,6 +1,6 @@
 # IncidentGraph Project Status
 
-Last updated: 2026-09-28
+Last updated: 2026-09-29
 
 ## Current phase
 
@@ -22,8 +22,10 @@ Phase 8 — Observability and security hardening: **PASS**.
 
 Phase 9 — Frozen evaluation and error analysis: **PASS (separately frozen v4 repair)**.
 
-Roadmap position: **Phases 0–9 passed; Phases 10–11 have not started.** The immutable Phase 9 v1
-and v3 evaluations remain FAIL; the later separately frozen v4 post-repair gate is PASS.
+Phase 10 — Reproducible release and operations: **PASS**.
+
+Roadmap position: **Phases 0–10 passed; Phase 11 has not started.** The immutable Phase 9 v1 and v3
+evaluations remain FAIL; the later separately frozen v4 post-repair gate is PASS.
 
 See `docs/progress/phase-09-repair.md` for the returned repair-2 failure, repair-3's trusted bounded
 policy, and the final v4 result. Repair-3 is integrated into the separately versioned v4 workflow,
@@ -35,6 +37,8 @@ The foundation, telemetry lab, operational graph, corpus ingestion, retrieval la
 investigator, durable human-review lifecycle, API/console, and observability/security hardening are
 implemented and verified. Phase 9 preserved its failed historical evaluations, then completed a
 newly sealed zero-cost v4 evaluation and passed every unchanged target in that versioned gate.
+Phase 10 added release/CI configuration, resource profiles, backup/restore, safe shutdown, and a
+clean-clone proof covering offline tests plus the real deterministic browser demonstration.
 
 ## Verified environment
 
@@ -113,6 +117,10 @@ newly sealed zero-cost v4 evaluation and passed every unchanged target in that v
 - The v4 written rubric reviewed all 20 identifiable adaptive reports across seven represented
   capture groups and found 69/69 supported atomic claims. The review is AI-assisted and is not
   independent human validation.
+- The Phase 10 clean clone installed its own locked runtimes/dependencies, passed 150 offline
+  backend tests, 3 frontend tests, the production frontend build, 8 enabled service integration
+  tests, and the real deterministic Playwright flow. Its isolated backup/restore and post-restore
+  smoke also passed; all Phase 10 model and paid-service usage remained zero.
 
 ## Approved decisions recorded in ADRs
 
@@ -137,6 +145,10 @@ newly sealed zero-cost v4 evaluation and passed every unchanged target in that v
 - Hybrid is slightly below vector on this development set; no tuning against held-out data is allowed.
 - Paid provider access remains intentionally unapproved; the completed Phase 5 evidence uses only the free local-compatible Colab path.
 - The existing untracked local `.env` needs an explicit `service_ids` list on each principal before interactive use; an omitted scope fails closed rather than authorizing all services.
+- Phase 10 GitHub workflow files are present and syntactically validated, but remain unpushed and
+  unexecuted remotely because publication requires separate approval. The dependency-heavy backend
+  image received Docker's static build check locally; its full build and Trivy image scan are left
+  to remote CI to avoid burdening the laptop.
 
 ## Repository
 
@@ -146,7 +158,8 @@ newly sealed zero-cost v4 evaluation and passed every unchanged target in that v
 
 ## Evidence
 
-See `docs/progress/phase-09-report.md` for the versioned decisions. Complete v1, fresh v3, and final
+See `docs/progress/phase-10-report.md` for the release gate and clean-clone evidence. Complete v1,
+fresh v3, and final
 v4 returned runs, reproduced aggregates, and written rubrics are under
 `artifacts/evaluation/phase9-frozen-v1/`, `artifacts/evaluation/phase9-v3-fresh/`, and
 `artifacts/evaluation/phase9-v4-fresh/`.

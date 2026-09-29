@@ -4,7 +4,7 @@ IncidentGraph is a production-inspired, evidence-grounded agent for investigatin
 
 ## Current status
 
-Phase 0 through Phase 9 are complete and passed. Phase 9 reached **PASS** only in the separately
+Phase 0 through Phase 10 are complete and passed. Phase 9 reached **PASS** only in the separately
 frozen v4 post-repair evaluation; the earlier v1 and v3 failures remain immutable historical
 evidence. The versioned FastAPI surface and React console expose the durable investigator, while
 the hardened local runtime adds correlated API/worker/model/tool traces, bounded operational
@@ -12,8 +12,9 @@ metrics, pre-export redaction, retention controls, adversarial tests, and a meas
 snapshot. The Phase 5 and Phase 9 real-model evaluations used free Colab compute; no paid model
 call was made.
 
-Roadmap progress: **10 of 12 gated phases are complete: Phases 0–9 passed. Phase 10 release and
-operations work is in progress; Phase 11 has not started.**
+Roadmap progress: **11 of 12 gated phases are complete: Phases 0–10 passed, and Phase 11 has not
+started.** Phase 10 added the local release/CI contract and passed a real isolated clean-clone
+setup, offline suite, browser demo, service integration, backup/restore, and safe shutdown at USD 0.
 
 Phase 9 repair-3 rejects contradictory healthy decisions, preserves fact-to-source citations,
 prevents premature observation stops, and passes the retained core branch-coverage gate at
@@ -35,6 +36,7 @@ See:
 - [`docs/progress/phase-07-report.md`](docs/progress/phase-07-report.md)
 - [`docs/progress/phase-08-report.md`](docs/progress/phase-08-report.md)
 - [`docs/progress/phase-09-report.md`](docs/progress/phase-09-report.md)
+- [`docs/progress/phase-10-report.md`](docs/progress/phase-10-report.md)
 - [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 - [`docs/TASKS.md`](docs/TASKS.md)
 - [`docs/HANDOFF.md`](docs/HANDOFF.md)

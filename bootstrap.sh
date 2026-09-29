@@ -31,4 +31,4 @@ UV_CACHE_DIR="$UV_PROJECT_CACHE_DIR" \
 npm --prefix "$PROJECT_ROOT/frontend" ci --ignore-scripts
 npm --prefix "$PROJECT_ROOT/frontend" run verify-runtime
 
-echo "Bootstrap complete. Copy .env.example to .env and replace CHANGE_ME values."
+echo "Bootstrap complete. Run 'make configure' to create an ignored local .env."

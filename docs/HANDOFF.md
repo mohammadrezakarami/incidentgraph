@@ -1,45 +1,37 @@
 # IncidentGraph Handoff
 
-Last updated: 2026-09-28
+Last updated: 2026-09-29
 
 ## Current phase
 
-Phase 9 quality repair is complete. Repair-3 uses a trusted, service-scoped bounded policy and
-generated evidence templates. It is integrated into v4, 145 non-integration tests pass,
-branch-aware core coverage is 85.14%, and the frozen 30-case holdout uses 11 new post-repair
-captures. The free-Colab v4 run completed 120/120 jobs at estimated USD 0 and reproduced
-byte-for-byte. Every automated target passed, and the written review found 69/69 supported atomic
-claims across all 20 identifiable adaptive reports. Details are in
-`docs/progress/phase-09-repair.md`.
+Phase 10 is complete. The local-first release now has CI/security workflows, a common backend image
+configuration, standard/low resource profiles, a generated secret-safe `.env`, an offline test
+gate, PostgreSQL backup/restore, graceful worker shutdown, and a full operations runbook. The
+isolated clean clone passed setup, 150 backend tests, 3 frontend tests, the production build, 8
+enabled integration tests, 1 real API/browser demo, frozen v4 replay, backup/restore, and safe
+teardown at USD 0. Details are in `docs/progress/phase-10-report.md`.
 
-Phase 0 through Phase 9 are complete and passed. Phase 9's immutable v1 and separately frozen fresh
-v3 quality gates remain historical **FAIL** results; the independently versioned v4 repair is the
-final **PASS** result.
+Phase 0 through Phase 10 are complete and passed. Phase 9's immutable v1 and separately frozen
+fresh v3 quality gates remain historical **FAIL** results; the independently versioned v4 repair
+is the final **PASS** result.
 
-Roadmap position: Phases 0–9 PASS; Phases 10–11 are not started.
+Roadmap position: Phases 0–10 PASS; Phase 11 is not started.
 
 ## Last verified command
 
-Current v4 repair verification:
+Current Phase 10 release verification:
 
 ```text
-.venv/bin/ruff check .
-.venv/bin/mypy
-.venv/bin/pytest -q -m "not integration"
-.venv/bin/python -m incidentgraph.phase9_v4_dataset verify
-.venv/bin/python -m incidentgraph.phase9_v4_runner verify-freeze
-.venv/bin/python scripts/complete_phase9_v4_manual_review.py \
-  artifacts/evaluation/phase9-v4-fresh \
-  --source-archive /Users/mohammadrezakarami/Desktop/phase9-v4-progress.zip
+make release-verify
+make test-offline
+make evaluate-test
+make report
 ```
 
-Result: Ruff and strict mypy pass; 145 selected non-integration tests pass. The exact retained core
-coverage command passes at 85.14%. The held-out seal digest is
-`b36dc01092ddc22565f061a4401b6710b9e77a46e5a10f3efc4a78058f23435d`; freeze verification covers
-28 files/manifests. The returned v4 archive SHA-256 is
-`47f77a40175203d3f2ee4d44e2b7baf5d26e4d9de1a7046ab238e5913fd98bcc`. The reproduced pre-review
-aggregate and per-case hashes are `e8aa980e89696a9529324289508cb07bfbdc7abba5ae1f9f625d3271ddbebe57`
-and `7f7f0259d72d8c19aa13ec2e33f068ab1e78e45f95932f5f12f3207ec1108c46`.
+Result: release contract and Compose render pass; 150 offline backend tests, 3 frontend tests, and
+the production build pass. In an isolated clean clone, the low-resource core, 4 migrations,
+PostgreSQL/Neo4j smoke, 8 enabled integration tests, 1 Playwright demo, frozen v4 replay,
+backup/restore, and safe teardown all pass.
 
 Previous executable verification of the completed Phase 9 v3 result:
 
@@ -101,9 +93,9 @@ estimated paid cost remains USD 0.
 
 ## Next three tasks
 
-1. Begin Phase 10 reproducible release and operations only when the user requests it.
-2. Preserve all Phase 9 v1/v2/v3/v4 frozen inputs and returned evidence without rewriting history.
-3. Keep heavy model evaluation off the laptop and paid providers disabled.
+1. Begin Phase 11 portfolio handoff and technical defense only when the user requests it.
+2. Obtain separate approval before pushing Phase 10, which would trigger private-repository CI.
+3. Preserve all Phase 9 frozen evidence and keep heavy model evaluation off the laptop.
 
 ## Relevant documents
 
@@ -117,6 +109,8 @@ estimated paid cost remains USD 0.
 - `docs/progress/phase-07-report.md`
 - `docs/progress/phase-08-report.md`
 - `docs/progress/phase-09-report.md`
+- `docs/progress/phase-10-report.md`
+- `docs/operations/RELEASE.md`
 - `docs/operations/OBSERVABILITY.md`
 - `docs/security/SECURITY_TESTS.md`
 - `docs/adr/0001-single-investigator.md`

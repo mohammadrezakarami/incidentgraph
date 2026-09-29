@@ -17,7 +17,7 @@ doctor:
 	$(UV) run incidentgraph doctor
 
 bootstrap:
-	$(UV) sync --frozen --dev
+	./bootstrap.sh
 
 configure:
 	.venv/bin/python scripts/create_local_env.py

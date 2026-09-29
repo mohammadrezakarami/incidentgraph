@@ -1,8 +1,8 @@
 # IncidentGraph Tasks
 
-Last updated: 2026-09-28
+Last updated: 2026-09-29
 
-Progress: **Phases 0–9 PASS; Phases 10–11 not started.** Historical Phase 9 v1/v3 FAIL results
+Progress: **Phases 0–10 PASS; Phase 11 not started.** Historical Phase 9 v1/v3 FAIL results
 remain preserved; the separately frozen v4 post-repair gate is the final passing result.
 
 ## Phase 0 — Discovery, architecture, and feasibility
@@ -175,8 +175,8 @@ Phase 9 gate result: **FAIL — EVALUATION COMPLETE**. The free-Colab run comple
 USD 0 estimated cost and the aggregates reproduced byte-for-byte. Retrieval Recall@5,
 appropriate abstention, and false-incident targets passed. Diagnosis Top 1/Top 3, citation validity,
 policy violations, warm p95, supported-claim rate, and coverage failed. The claim-support review
-measured 32/57 (56.1%) supported atomic claims against the frozen 95% target. Phase 10 remains
-unstarted pending a user decision on a newly versioned iteration.
+measured 32/57 (56.1%) supported atomic claims against the frozen 95% target. That failure was
+retained and followed by separately versioned v3/v4 iterations rather than rewriting v1.
 
 ### Phase 9 v3 — Fresh post-corpus iteration
 
@@ -220,6 +220,26 @@ review covered all 20 identifiable adaptive reports and found 69/69 supported at
 not independent human validation. The model selects observation order once per adaptive case but
 cannot change trusted diagnosis or citation content.
 
+## Phase 10 — Reproducible release and operations
+
+- [x] Add deterministic CI and a separate service/browser job with frozen installs.
+- [x] Add free secret, dependency/configuration, and container vulnerability workflows.
+- [x] Keep real-model evaluation manually gated and out of normal CI.
+- [x] Add the common non-root backend image and loopback-only release Compose overlay.
+- [x] Add standard/low resource profiles and keep Ollama off by default.
+- [x] Complete the documented Make command contract.
+- [x] Add generated local configuration without committing secrets.
+- [x] Implement checksum-backed PostgreSQL backup and explicitly confirmed restore.
+- [x] Document Neo4j reconstruction, safe shutdown, reset, and troubleshooting.
+- [x] Pass the offline deterministic suite after dependencies are present.
+- [x] Pass a clean-clone core startup, migration, smoke, browser demo, and integration slice.
+- [x] Verify backup/restore and safe shutdown against isolated clean-clone volumes.
+- [x] Preserve the zero-paid-cost and no-heavy-local-model boundary.
+
+Phase 10 gate result: **PASS**. The isolated clone passed 150 backend tests, 3 frontend tests, the
+production build, 8 enabled integration tests, 1 Playwright end-to-end flow, frozen v4 evidence
+replay, backup/restore, and teardown. Remote CI publication remains separately unauthorized.
+
 ## Later phase gates
 
 The requested Phase 9 repair is complete. Historical failed versions and the final v4 evidence are
@@ -233,7 +253,7 @@ documented in `docs/progress/phase-09-repair.md`.
 - [x] Phase 7: complete API and incident console.
 - [x] Phase 8: observability and security hardening.
 - [x] Phase 9: separately frozen v4 post-repair evaluation complete; quality gate **PASS**.
-- [ ] Phase 10: reproducible release and operations.
+- [x] Phase 10: reproducible release and operations.
 - [ ] Phase 11: portfolio handoff and technical defense.
 
 ## Explicitly deferred extensions
