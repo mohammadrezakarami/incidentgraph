@@ -5,6 +5,7 @@ import type {
   Investigation,
   InvestigationEvent,
   InvestigationPage,
+  ReplaySnapshot,
   ReportView,
   ServiceSummary,
 } from "./types";
@@ -56,6 +57,10 @@ export class IncidentApi {
 
   services() {
     return this.request<ServiceSummary[]>("/api/v1/services");
+  }
+
+  replaySnapshots() {
+    return this.request<ReplaySnapshot[]>("/api/v1/replay-snapshots");
   }
 
   investigations(cursor?: string) {

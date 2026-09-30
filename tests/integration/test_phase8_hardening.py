@@ -44,6 +44,25 @@ async def _migrate(database: Database) -> None:
         await database.apply_migration(Path("ops/migrations") / name)
 
 
+def _capture(root: Path, start: datetime, end: datetime) -> str:
+    snapshot_id = "cap-phase8-api-00000001"
+    directory = root / snapshot_id
+    directory.mkdir(parents=True)
+    (directory / "manifest.json").write_text(
+        json.dumps(
+            {
+                "observation_start": start.isoformat(),
+                "observation_cutoff": end.isoformat(),
+                "services": ["gateway"],
+                "provenance_category": "test_capture",
+                "limitations": ["integration test"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return snapshot_id
+
+
 @pytest.mark.skipif(
     os.getenv("RUN_INTEGRATION") != "1",
     reason="real services not enabled",
@@ -66,18 +85,21 @@ async def test_correlated_trace_retention_and_fail_closed_tool(tmp_path: Path) -
         model_base_url="http://127.0.0.1:11434/v1",
         model_cost_ceiling_usd=0,
         observability_tracing_enabled=True,
-        observability_trace_dir=tmp_path,
+        observability_trace_dir=tmp_path / "traces",
     )
     database = Database(settings.app_database_dsn.get_secret_value())
     await database.open()
     investigation_id: UUID | None = None
     try:
         await _migrate(database)
-        app = create_app(settings)
+        now = datetime.now(UTC)
+        start = now - timedelta(minutes=5)
+        capture_root = tmp_path / "captures"
+        snapshot_id = _capture(capture_root, start, now)
+        app = create_app(settings, capture_root=capture_root)
         async with app.router.lifespan_context(app):
             transport = httpx.ASGITransport(app=app)
             async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-                now = datetime.now(UTC)
                 response = await client.post(
                     "/api/v1/investigations",
                     headers={
@@ -88,9 +110,10 @@ async def test_correlated_trace_retention_and_fail_closed_tool(tmp_path: Path) -
                         "question": "Trace this bounded deterministic security probe.",
                         "target_service": "gateway",
                         "environment": "lab",
-                        "window_start": (now - timedelta(minutes=5)).isoformat(),
+                        "window_start": start.isoformat(),
                         "window_end": now.isoformat(),
                         "mode": "replay",
+                        "snapshot_id": snapshot_id,
                     },
                 )
                 assert response.status_code == 202
@@ -165,7 +188,7 @@ async def test_correlated_trace_retention_and_fail_closed_tool(tmp_path: Path) -
         assert await database.prune_event_history(30, investigation_id) >= 1
 
         records: list[dict[str, Any]] = []
-        for path in tmp_path.glob("*.jsonl"):  # noqa: ASYNC240
+        for path in (tmp_path / "traces").glob("*.jsonl"):  # noqa: ASYNC240
             records.extend(json.loads(line) for line in path.read_text().splitlines())
         names = {record["name"] for record in records}
         assert {

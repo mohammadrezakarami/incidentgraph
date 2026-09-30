@@ -87,6 +87,19 @@ Then open <http://127.0.0.1:5173>. Starting a new model-backed investigation req
 configured approved local provider. With `MODEL_PROVIDER=disabled`, existing records remain
 viewable and new model-backed work fails closed with a configuration error.
 
+For an interactive laboratory investigation, create an immutable observation first and then select
+the newest snapshot in the console:
+
+```bash
+make lab-up
+make scenario SCENARIO=deployment_regression
+```
+
+The scenario command injects a bounded fault, records telemetry, verifies recovery, and stores an
+agent-readable capture without the evaluator label. The console locks the investigation window to
+that snapshot before queueing it. Direct live-telemetry investigations are not exposed until a
+separately reviewed live adapter is configured.
+
 ## Main commands
 
 ```bash

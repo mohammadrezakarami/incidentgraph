@@ -5,6 +5,7 @@ import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Annotated, Any, Literal, Protocol, cast
 from uuid import UUID
 
@@ -14,6 +15,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from pydantic import BaseModel, Field, model_validator
 
 from incidentgraph.api_support import (
     LocalRateLimiter,
@@ -25,6 +27,7 @@ from incidentgraph.api_support import (
 from incidentgraph.auth import Principal, TokenAuthenticator, principal_dependency
 from incidentgraph.config import Settings
 from incidentgraph.ingestion import load_topology
+from incidentgraph.investigation_tools import CAPTURE_ROOT, SNAPSHOT_PATTERN
 from incidentgraph.logging import configure_logging
 from incidentgraph.models import (
     CancellationRecord,
@@ -35,6 +38,7 @@ from incidentgraph.models import (
     FollowUpRecord,
     InvestigationAccepted,
     InvestigationCreate,
+    InvestigationMode,
     InvestigationPage,
     InvestigationRecord,
     ReportView,
@@ -54,6 +58,27 @@ from incidentgraph.persistence import (
     DurableConflictError,
     ReviewAuthorizationError,
 )
+
+
+class InvestigationSubmission(InvestigationCreate):
+    snapshot_id: str | None = Field(default=None, pattern=SNAPSHOT_PATTERN.pattern)
+
+    @model_validator(mode="after")
+    def validate_observation_source(self) -> "InvestigationSubmission":
+        if self.mode != InvestigationMode.REPLAY:
+            raise ValueError("interactive investigations currently require replay mode")
+        if self.snapshot_id is None:
+            raise ValueError("snapshot_id is required for replay mode")
+        return self
+
+
+class ReplaySnapshotSummary(BaseModel):
+    snapshot_id: str
+    observation_start: datetime
+    observation_cutoff: datetime
+    services: list[str]
+    provenance_category: str
+    limitations: list[str]
 
 
 class RepositoryProtocol(Protocol):
@@ -143,6 +168,7 @@ class RepositoryProtocol(Protocol):
 def create_app(
     settings: Settings | None = None,
     repository: RepositoryProtocol | None = None,
+    capture_root: Path = CAPTURE_ROOT,
 ) -> FastAPI:
     app_settings = settings or Settings()  # type: ignore[call-arg]
     authenticator = TokenAuthenticator(app_settings.auth_tokens)
@@ -344,6 +370,35 @@ def create_app(
                 return item.id
         return None
 
+    def replay_snapshots(principal: Principal) -> list[ReplaySnapshotSummary]:
+        root = capture_root.resolve()
+        if not root.is_dir():
+            return []
+        snapshots: list[ReplaySnapshotSummary] = []
+        for directory in root.iterdir():
+            if (
+                not directory.is_dir()
+                or directory.is_symlink()
+                or not SNAPSHOT_PATTERN.fullmatch(directory.name)
+            ):
+                continue
+            try:
+                manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
+                services = [f"svc-{name}" for name in manifest["services"]]
+                snapshot = ReplaySnapshotSummary(
+                    snapshot_id=directory.name,
+                    observation_start=manifest["observation_start"],
+                    observation_cutoff=manifest["observation_cutoff"],
+                    services=services,
+                    provenance_category=str(manifest["provenance_category"]),
+                    limitations=[str(item) for item in manifest.get("limitations", [])],
+                )
+            except (KeyError, OSError, TypeError, ValueError, json.JSONDecodeError):
+                continue
+            if set(snapshot.services).intersection(principal.service_ids):
+                snapshots.append(snapshot)
+        return sorted(snapshots, key=lambda item: item.observation_cutoff, reverse=True)[:50]
+
     @app.get("/health/live")
     async def liveness() -> dict[str, str]:
         return {"status": "ok"}
@@ -359,13 +414,19 @@ def create_app(
             )
         return {"status": "ready"}
 
+    @app.get("/api/v1/replay-snapshots", response_model=list[ReplaySnapshotSummary])
+    async def list_replay_snapshots(
+        principal: Annotated[Principal, Depends(api_principal)],
+    ) -> list[ReplaySnapshotSummary]:
+        return replay_snapshots(principal)
+
     @app.post(
         "/api/v1/investigations",
         response_model=InvestigationAccepted,
         status_code=status.HTTP_202_ACCEPTED,
     )
     async def create_investigation(
-        body: InvestigationCreate,
+        body: InvestigationSubmission,
         request: Request,
         principal: Annotated[Principal, Depends(api_principal)],
         repository_dependency: Annotated[RepositoryProtocol, Depends(repo)],
@@ -393,6 +454,24 @@ def create_app(
                 detail=(
                     f"model provider configuration is invalid: {model_configuration_problems[0]}"
                 ),
+            )
+        snapshot = next(
+            (item for item in replay_snapshots(principal) if item.snapshot_id == body.snapshot_id),
+            None,
+        )
+        if snapshot is None:
+            raise HTTPException(status_code=404, detail="replay snapshot was not found")
+        if service_id not in snapshot.services:
+            raise HTTPException(
+                status_code=422, detail="target service is absent from the snapshot"
+            )
+        if (
+            body.window_start != snapshot.observation_start
+            or body.window_end != snapshot.observation_cutoff
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail="replay window must exactly match the immutable snapshot window",
             )
         request_id = UUID(request.state.request_id)
         normalized_body = body.model_copy(update={"target_service": service_id})

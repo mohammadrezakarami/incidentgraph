@@ -29,6 +29,7 @@ test-results/
 # Local runtime data
 .docker-data/
 data/runtime/
+data/captures/cap-*
 data/replay/private/
 artifacts/evaluation/*
 !artifacts/evaluation/phase4-dev/

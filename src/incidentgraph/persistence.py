@@ -297,7 +297,7 @@ class Database:
                                     "window_end": request.window_end.isoformat(),
                                     "observation_cutoff": request.window_end.isoformat(),
                                     "mode": request.mode.value,
-                                    "snapshot_id": None,
+                                    "snapshot_id": getattr(request, "snapshot_id", None),
                                     "corpus_version": corpus_version,
                                     "request_id": str(request_id),
                                 }

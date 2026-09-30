@@ -39,11 +39,30 @@ async def _migrate(database: Database) -> None:
         await database.apply_migration(Path("ops/migrations") / name)
 
 
+def _capture(root: Path, start: datetime, end: datetime) -> str:
+    snapshot_id = "cap-phase7-api-00000001"
+    directory = root / snapshot_id
+    directory.mkdir(parents=True)
+    (directory / "manifest.json").write_text(
+        json.dumps(
+            {
+                "observation_start": start.isoformat(),
+                "observation_cutoff": end.isoformat(),
+                "services": ["gateway", "checkout", "payments"],
+                "provenance_category": "test_capture",
+                "limitations": ["integration test"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return snapshot_id
+
+
 @pytest.mark.skipif(
     os.getenv("RUN_INTEGRATION") != "1",
     reason="real services not enabled",
 )
-async def test_real_api_report_evidence_sse_and_cross_user_boundaries() -> None:
+async def test_real_api_report_evidence_sse_and_cross_user_boundaries(tmp_path: Path) -> None:
     owner_token = "phase7-owner-token"
     other_token = "phase7-other-token"
     operator_token = "phase7-operator-token"
@@ -78,11 +97,14 @@ async def test_real_api_report_evidence_sse_and_cross_user_boundaries() -> None:
     investigation_id: UUID | None = None
     try:
         await _migrate(database)
-        app = create_app(settings)
+        now = datetime.now(UTC)
+        start = now - timedelta(minutes=5)
+        capture_root = tmp_path / "captures"
+        snapshot_id = _capture(capture_root, start, now)
+        app = create_app(settings, capture_root=capture_root)
         async with app.router.lifespan_context(app):
             transport = httpx.ASGITransport(app=app)
             async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-                now = datetime.now(UTC)
                 owner_headers = {"Authorization": f"Bearer {owner_token}"}
                 other_headers = {"Authorization": f"Bearer {other_token}"}
                 operator_headers = {"Authorization": f"Bearer {operator_token}"}
@@ -93,9 +115,10 @@ async def test_real_api_report_evidence_sse_and_cross_user_boundaries() -> None:
                         "question": "Why did gateway latency rise in this bounded replay window?",
                         "target_service": "gateway",
                         "environment": "lab",
-                        "window_start": (now - timedelta(minutes=5)).isoformat(),
+                        "window_start": start.isoformat(),
                         "window_end": now.isoformat(),
                         "mode": "replay",
+                        "snapshot_id": snapshot_id,
                     },
                 )
                 assert created.status_code == 202

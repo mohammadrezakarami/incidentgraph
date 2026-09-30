@@ -6,6 +6,7 @@ import type {
   EvidenceItem,
   Investigation,
   InvestigationEvent,
+  ReplaySnapshot,
   ReportView,
   ServiceSummary,
 } from "./types";
@@ -273,23 +274,24 @@ function EventTimeline({ events, state, onReconnect }: { events: InvestigationEv
   );
 }
 
-function CreateForm({ services, onCreate, busy }: { services: ServiceSummary[]; onCreate: (body: Record<string, unknown>) => Promise<void>; busy: boolean }) {
-  const end = useMemo(() => new Date(), []);
+function CreateForm({ services, snapshots, onCreate, busy }: { services: ServiceSummary[]; snapshots: ReplaySnapshot[]; onCreate: (body: Record<string, unknown>) => Promise<void>; busy: boolean }) {
   const [service, setService] = useState("");
   const [question, setQuestion] = useState("");
-  const [mode, setMode] = useState<"live" | "replay">("replay");
-  const [start, setStart] = useState(toLocalInput(new Date(end.getTime() - 10 * 60_000)));
-  const [finish, setFinish] = useState(toLocalInput(end));
+  const [snapshotId, setSnapshotId] = useState("");
+  const selectedSnapshot = snapshots.find((item) => item.snapshot_id === snapshotId);
   useEffect(() => { if (!service && services[0]) setService(services[0].service_id); }, [service, services]);
+  useEffect(() => { if (!snapshotId && snapshots[0]) setSnapshotId(snapshots[0].snapshot_id); }, [snapshotId, snapshots]);
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (!selectedSnapshot) return;
     await onCreate({
       question,
       target_service: service,
       environment: "lab",
-      window_start: new Date(start).toISOString(),
-      window_end: new Date(finish).toISOString(),
-      mode,
+      window_start: selectedSnapshot.observation_start,
+      window_end: selectedSnapshot.observation_cutoff,
+      mode: "replay",
+      snapshot_id: selectedSnapshot.snapshot_id,
     });
   }
   return (
@@ -298,10 +300,12 @@ function CreateForm({ services, onCreate, busy }: { services: ServiceSummary[]; 
       <form onSubmit={submit}>
         <label>Service<select value={service} onChange={(event) => setService(event.target.value)} required>{services.map((item) => <option value={item.service_id} key={item.service_id}>{item.name}</option>)}</select></label>
         <label className="wide">Incident question<textarea value={question} onChange={(event) => setQuestion(event.target.value)} minLength={8} maxLength={2000} placeholder="What changed in checkout latency during this window?" required /></label>
-        <fieldset className="mode-picker"><legend>Observation mode</legend><label><input type="radio" name="mode" value="replay" checked={mode === "replay"} onChange={() => setMode("replay")} /><span><b>REPLAY</b>Immutable snapshot at cutoff</span></label><label><input type="radio" name="mode" value="live" checked={mode === "live"} onChange={() => setMode("live")} /><span><b>LIVE</b>Running lab observations</span></label></fieldset>
-        <label>Window start<input type="datetime-local" value={start} onChange={(event) => setStart(event.target.value)} required /></label>
-        <label>Window end<input type="datetime-local" value={finish} onChange={(event) => setFinish(event.target.value)} required /></label>
-        <button className="primary" disabled={busy || !services.length}>{busy ? "Queueing…" : "Start investigation"}</button>
+        <label className="wide">Immutable lab snapshot<select value={snapshotId} onChange={(event) => setSnapshotId(event.target.value)} required><option value="">Select a captured scenario</option>{snapshots.map((item) => <option value={item.snapshot_id} key={item.snapshot_id}>{formatTime(item.observation_cutoff)} · {item.snapshot_id}</option>)}</select></label>
+        <fieldset className="mode-picker"><legend>Observation mode</legend><label><input type="radio" name="mode" value="replay" checked readOnly /><span><b>REPLAY</b>Immutable snapshot at cutoff</span></label></fieldset>
+        <label>Window start<input type="datetime-local" value={selectedSnapshot ? toLocalInput(new Date(selectedSnapshot.observation_start)) : ""} readOnly /></label>
+        <label>Window end<input type="datetime-local" value={selectedSnapshot ? toLocalInput(new Date(selectedSnapshot.observation_cutoff)) : ""} readOnly /></label>
+        {!snapshots.length && <p className="warning wide">No captured scenario is available. Run a bounded lab scenario first.</p>}
+        <button className="primary" disabled={busy || !services.length || !selectedSnapshot}>{busy ? "Queueing…" : "Start investigation"}</button>
       </form>
     </section>
   );
@@ -316,6 +320,7 @@ function AuthScreen({ onConnect }: { onConnect: (token: string, keep: boolean) =
 export default function App() {
   const [token, setToken] = useState(() => sessionStorage.getItem("incidentgraph-token") ?? "");
   const [services, setServices] = useState<ServiceSummary[]>([]);
+  const [snapshots, setSnapshots] = useState<ReplaySnapshot[]>([]);
   const [investigations, setInvestigations] = useState<Investigation[]>([]);
   const [selectedId, setSelectedId] = useState(() => new URLSearchParams(location.search).get("investigation"));
   const [selected, setSelected] = useState<Investigation | null>(null);
@@ -358,8 +363,8 @@ export default function App() {
     if (!api) return;
     let active = true;
     setError("");
-    Promise.all([api.services(), api.investigations()])
-      .then(([catalog, page]) => { if (active) { setServices(catalog); setInvestigations(page.items); } })
+    Promise.all([api.services(), api.replaySnapshots(), api.investigations()])
+      .then(([catalog, availableSnapshots, page]) => { if (active) { setServices(catalog); setSnapshots(availableSnapshots); setInvestigations(page.items); } })
       .catch((failure) => { if (active) setError(messageOf(failure)); });
     return () => { active = false; };
   }, [api]);
@@ -470,6 +475,7 @@ export default function App() {
     setSelected(null);
     setInvestigations([]);
     setServices([]);
+    setSnapshots([]);
     setReport(null);
     setEvents([]);
     setDependency(null);
@@ -515,7 +521,7 @@ export default function App() {
           {!investigations.length && <p className="empty-small">No investigations for this user.</p>}
         </aside>
         <main className="content">
-          {!selected && <CreateForm services={services} onCreate={create} busy={busy} />}
+          {!selected && <CreateForm services={services} snapshots={snapshots} onCreate={create} busy={busy} />}
           {selected && <>
             <section className="run-header"><button className="back-link" onClick={() => { setSelectedId(null); history.replaceState(null, "", location.pathname); }}>← New run</button><div className="run-title"><div><span className="eyebrow">{selected.target_service} · {selected.environment}</span><h1>{selected.question}</h1></div><div className="run-badges"><ModeBadge mode={selected.mode} /><StatusBadge status={selected.status} /></div></div><div className="window-line"><span>{formatTime(selected.window_start)} → {formatTime(selected.window_end)}</span><span>Owner {selected.owner_id}</span><span>Request {selected.request_id.slice(0, 8)}</span></div><div className="run-actions">{!terminalStatuses.has(selected.status) && <button className="danger-outline" disabled={busy} onClick={() => api && action(() => api.cancel(selected.investigation_id))}>Cancel run</button>}<button className="ghost" onClick={() => refreshSelected().catch((failure) => setError(messageOf(failure)))}>Refresh</button></div></section>
             <div className="dashboard-grid">

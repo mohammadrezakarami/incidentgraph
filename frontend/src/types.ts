@@ -37,6 +37,15 @@ export interface InvestigationPage {
   next_cursor: string | null;
 }
 
+export interface ReplaySnapshot {
+  snapshot_id: string;
+  observation_start: string;
+  observation_cutoff: string;
+  services: string[];
+  provenance_category: string;
+  limitations: string[];
+}
+
 export interface InvestigationEvent {
   investigation_id: string;
   sequence: number;

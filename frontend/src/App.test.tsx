@@ -43,6 +43,7 @@ describe("IncidentGraph console", () => {
   it("keeps a default token out of browser storage and URLs", async () => {
     const fetchMock = vi.fn((path: string) => {
       if (path.endsWith("/api/v1/services")) return json([]);
+      if (path.endsWith("/api/v1/replay-snapshots")) return json([]);
       return json({ items: [], next_cursor: null });
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -62,6 +63,7 @@ describe("IncidentGraph console", () => {
       if (path.endsWith("/api/v1/services")) {
         return json([{ service_id: "svc-checkout", name: "checkout", aliases: [], environment: "lab", owner: "commerce", metadata_version: "1" }]);
       }
+      if (path.endsWith("/api/v1/replay-snapshots")) return json([]);
       if (path.includes("/dependencies")) {
         return json({ service_id: "svc-checkout", cutoff: record.window_end, direction: "both", depth: 2, services: [], edges: [] });
       }
@@ -85,6 +87,7 @@ describe("IncidentGraph console", () => {
     const encoder = new TextEncoder();
     const fetchMock = vi.fn((path: string) => {
       if (path.endsWith("/api/v1/services")) return json([]);
+      if (path.endsWith("/api/v1/replay-snapshots")) return json([]);
       if (path.includes("/dependencies")) {
         return json({ service_id: "svc-checkout", cutoff: record.window_end, direction: "both", depth: 2, services: [], edges: [] });
       }
@@ -116,6 +119,7 @@ describe("IncidentGraph console", () => {
     history.replaceState(null, "", `/?investigation=${record.investigation_id}`);
     const fetchMock = vi.fn((path: string) => {
       if (path.endsWith("/api/v1/services")) return json([]);
+      if (path.endsWith("/api/v1/replay-snapshots")) return json([]);
       if (path.includes("/dependencies")) {
         return json({ service_id: "svc-checkout", cutoff: record.window_end, direction: "both", depth: 2, services: [], edges: [] });
       }
@@ -134,5 +138,52 @@ describe("IncidentGraph console", () => {
     expect(await screen.findByRole("button", { name: "Open console" })).toBeVisible();
     expect(sessionStorage.getItem("incidentgraph-token")).toBeNull();
     expect(location.search).toBe("");
+  });
+
+  it("submits the selected immutable snapshot and its exact window", async () => {
+    sessionStorage.setItem("incidentgraph-token", "viewer-token");
+    const snapshot = {
+      snapshot_id: "cap-ui-test-00000001",
+      observation_start: "2026-09-23T10:00:00Z",
+      observation_cutoff: "2026-09-23T10:10:00Z",
+      services: ["svc-checkout"],
+      provenance_category: "independent_lab_capture",
+      limitations: ["test capture"],
+    };
+    const fetchMock = vi.fn((path: string, init?: RequestInit) => {
+      if (path.endsWith("/api/v1/services")) {
+        return json([{ service_id: "svc-checkout", name: "checkout", aliases: [], environment: "lab", owner: "commerce", metadata_version: "1" }]);
+      }
+      if (path.endsWith("/api/v1/replay-snapshots")) return json([snapshot]);
+      if (path.endsWith("/api/v1/investigations") && init?.method === "POST") {
+        return json({ investigation_id: record.investigation_id, status: "queued", created_at: record.created_at });
+      }
+      if (path.endsWith(record.investigation_id)) return json(record);
+      if (path.includes("/dependencies")) {
+        return json({ service_id: "svc-checkout", cutoff: record.window_end, direction: "both", depth: 2, services: [], edges: [] });
+      }
+      if (path.endsWith("/events")) {
+        return Promise.resolve(new Response(new ReadableStream({ start(controller) { controller.close(); } }), { status: 200 }));
+      }
+      return json({ items: [], next_cursor: null });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+
+    fireEvent.change(await screen.findByLabelText("Incident question"), {
+      target: { value: "Why did checkout slow down in this capture?" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Start investigation" }));
+
+    await waitFor(() => {
+      const createCall = fetchMock.mock.calls.find(([, init]) => init?.method === "POST");
+      expect(createCall).toBeDefined();
+      expect(JSON.parse(String(createCall?.[1]?.body))).toMatchObject({
+        snapshot_id: snapshot.snapshot_id,
+        window_start: snapshot.observation_start,
+        window_end: snapshot.observation_cutoff,
+        mode: "replay",
+      });
+    });
   });
 });

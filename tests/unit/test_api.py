@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -102,6 +103,25 @@ def investigation(owner_id: str = "viewer-1") -> InvestigationRecord:
     )
 
 
+def replay_capture(root: Path, start: datetime, end: datetime) -> str:
+    snapshot_id = "cap-test-api-00000001"
+    directory = root / snapshot_id
+    directory.mkdir()
+    (directory / "manifest.json").write_text(
+        json.dumps(
+            {
+                "observation_start": start.isoformat(),
+                "observation_cutoff": end.isoformat(),
+                "services": ["gateway", "checkout", "payments"],
+                "provenance_category": "independent_lab_capture",
+                "limitations": ["test capture"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return snapshot_id
+
+
 def test_unauthorized_creation_is_rejected() -> None:
     settings = Settings(
         environment="test",
@@ -127,6 +147,7 @@ def test_unauthorized_creation_is_rejected() -> None:
         "window_start": (now - timedelta(minutes=5)).isoformat(),
         "window_end": now.isoformat(),
         "mode": "replay",
+        "snapshot_id": "cap-test-api-unauthorized",
     }
 
     with TestClient(create_app(settings, FakeRepository())) as client:
@@ -153,6 +174,39 @@ def test_liveness_does_not_require_authentication() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_replay_snapshot_catalog_is_authenticated_and_snapshot_is_required(
+    tmp_path: Path,
+) -> None:
+    settings = settings_with_tokens(
+        {"viewer-token": {"principal_id": "viewer-1", "roles": ["viewer"]}},
+        model_provider="local_openai_compatible",
+        model_id="test-model",
+        model_base_url="http://127.0.0.1:11434/v1",
+    )
+    now = datetime.now(UTC)
+    start = now - timedelta(minutes=5)
+    snapshot_id = replay_capture(tmp_path, start, now)
+    headers = {"Authorization": "Bearer viewer-token"}
+    with TestClient(create_app(settings, FakeRepository(), capture_root=tmp_path)) as client:
+        catalog = client.get("/api/v1/replay-snapshots", headers=headers)
+        missing = client.post(
+            "/api/v1/investigations",
+            headers={**headers, "Idempotency-Key": "missing-snapshot"},
+            json={
+                "question": "Why did gateway latency increase during this interval?",
+                "target_service": "svc-gateway",
+                "environment": "lab",
+                "window_start": start.isoformat(),
+                "window_end": now.isoformat(),
+                "mode": "replay",
+            },
+        )
+
+    assert catalog.status_code == 200
+    assert [item["snapshot_id"] for item in catalog.json()] == [snapshot_id]
+    assert missing.status_code == 422
 
 
 def test_viewer_cannot_submit_review_decision() -> None:
@@ -189,7 +243,9 @@ def test_viewer_cannot_submit_review_decision() -> None:
     assert response.status_code == 403
 
 
-def test_authorized_creation_normalizes_service_alias_and_uses_request_id() -> None:
+def test_authorized_creation_normalizes_service_alias_and_uses_request_id(
+    tmp_path: Path,
+) -> None:
     repository = FakeRepository()
     settings = settings_with_tokens(
         {
@@ -204,8 +260,10 @@ def test_authorized_creation_normalizes_service_alias_and_uses_request_id() -> N
         model_base_url="http://127.0.0.1:11434/v1",
     )
     now = datetime.now(UTC)
+    start = now - timedelta(minutes=5)
+    snapshot_id = replay_capture(tmp_path, start, now)
     request_id = uuid4()
-    with TestClient(create_app(settings, repository)) as client:
+    with TestClient(create_app(settings, repository, capture_root=tmp_path)) as client:
         response = client.post(
             "/api/v1/investigations",
             headers={
@@ -217,9 +275,10 @@ def test_authorized_creation_normalizes_service_alias_and_uses_request_id() -> N
                 "question": "Why did checkout latency increase during this interval?",
                 "target_service": "order-coordinator",
                 "environment": "lab",
-                "window_start": (now - timedelta(minutes=5)).isoformat(),
+                "window_start": start.isoformat(),
                 "window_end": now.isoformat(),
                 "mode": "replay",
+                "snapshot_id": snapshot_id,
             },
         )
 
@@ -227,6 +286,7 @@ def test_authorized_creation_normalizes_service_alias_and_uses_request_id() -> N
     assert response.headers["X-Request-ID"] == str(request_id)
     assert repository.created is not None
     assert repository.created["request"].target_service == "svc-checkout"
+    assert repository.created["request"].snapshot_id == snapshot_id
     assert repository.created["request_id"] == request_id
     assert repository.created["authorized_service_ids"] == ("svc-checkout",)
 
@@ -237,6 +297,7 @@ def test_creation_fails_cleanly_for_invalid_model_configuration() -> None:
         {"viewer-token": {"principal_id": "viewer-1", "roles": ["viewer"]}},
         model_provider="local_openai_compatible",
         model_id="configured-but-missing-base-url",
+        model_base_url="",
     )
     now = datetime.now(UTC)
     with TestClient(create_app(settings, repository)) as client:
@@ -253,6 +314,7 @@ def test_creation_fails_cleanly_for_invalid_model_configuration() -> None:
                 "window_start": (now - timedelta(minutes=5)).isoformat(),
                 "window_end": now.isoformat(),
                 "mode": "replay",
+                "snapshot_id": "cap-test-api-invalid-model",
             },
         )
 
