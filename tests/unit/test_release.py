@@ -8,9 +8,10 @@ import pytest
 from incidentgraph.release import (
     RESTORE_CONFIRMATION,
     backup_command,
-    evaluation_report,
     restore_app,
     restore_command,
+    verify_evaluation,
+    verify_release,
 )
 
 
@@ -38,7 +39,7 @@ def test_restore_rejects_missing_confirmation_before_running_commands(tmp_path: 
 
 
 def test_committed_v4_evaluation_is_complete_and_zero_paid_cost() -> None:
-    report = evaluation_report()
+    report = verify_evaluation()
 
     assert report["status"] == "pass"
     assert report["agent_parts"] == 12
@@ -46,3 +47,12 @@ def test_committed_v4_evaluation_is_complete_and_zero_paid_cost() -> None:
     assert report["targets_failed"] == []
     assert report["reports_reviewed"] == 20
     assert report["paid_cost_usd"] == 0
+    assert report["reproduced_from_records"] is True
+
+
+def test_release_verification_includes_the_phase9_source_and_data_seal() -> None:
+    result = verify_release()
+    checks = {check["name"]: check for check in result["checks"]}
+
+    assert result["status"] == "pass"
+    assert checks["phase9_v4_freeze"]["passed"] is True

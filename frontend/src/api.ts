@@ -44,11 +44,11 @@ export class IncidentApi {
         // The fallback below deliberately avoids reflecting an untrusted response body.
       }
       throw new ApiError(
-        failure?.error.message ?? `Request failed with status ${response.status}`,
+        failure?.error?.message ?? `Request failed with status ${response.status}`,
         response.status,
-        failure?.error.code,
-        failure?.error.request_id,
-        failure?.error.retryable,
+        failure?.error?.code,
+        failure?.error?.request_id,
+        failure?.error?.retryable,
       );
     }
     return (await response.json()) as T;

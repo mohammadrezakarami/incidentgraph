@@ -19,6 +19,13 @@ PromQL/Cypher/shell commands, or access production systems.
 - Loopback-only Docker Compose runtime with standard and low-resource profiles.
 - Deterministic CI, security checks, backup/restore, and offline regression verification.
 
+## Console preview
+
+![Incident report, cited evidence, dependency graph, and review controls](artifacts/portfolio/01-report-and-review.png)
+
+This screenshot comes from the deterministic browser/API/PostgreSQL demo. It shows the product
+workflow with a labeled fixture; diagnosis-quality measurements are reported separately below.
+
 ## Architecture
 
 ```text
@@ -168,13 +175,25 @@ make evaluate-test
 make report
 ```
 
-The two retained notebooks document the optional hosted-GPU procedures:
+The two retained notebooks contain the optional hosted-GPU procedures:
 
 - [notebooks/phase5_evaluation.ipynb](notebooks/phase5_evaluation.ipynb)
 - [notebooks/phase9_evaluation.ipynb](notebooks/phase9_evaluation.ipynb)
 
 They use local open-source model serving inside the notebook runtime and do not configure a paid
-provider. Normal tests and CI never start a stochastic model evaluation.
+provider. Normal tests and CI never start a stochastic model evaluation. To prepare a notebook
+upload from a full clone, run the matching command in the repository root:
+
+```bash
+git bundle create incidentgraph-phase5.bundle main
+git bundle create incidentgraph-phase9-v4.bundle main
+```
+
+Upload only the matching bundle in the notebook's first upload cell. The Phase 9 notebook checks
+out the original frozen evaluation revision from that bundle and verifies its sealed source and
+data before execution. Use a free T4 runtime; resumed progress archives belong in the separate
+progress-upload cell. These are optional historical reruns, not additional independent test data.
+The committed results can be verified with `make evaluate-test` without Colab or a model.
 
 ## Testing and release verification
 
@@ -221,4 +240,5 @@ See [docs/operations/OBSERVABILITY.md](docs/operations/OBSERVABILITY.md) and
 
 ## License
 
-See [LICENSE.md](LICENSE.md).
+Source is available for inspection under the all-rights-reserved terms in
+[LICENSE.md](LICENSE.md); this is not an open-source license.

@@ -91,6 +91,81 @@ def test_free_local_provider_requires_loopback_and_zero_cost() -> None:
     assert "keep MODEL_COST_CEILING_USD at zero" in problems
 
 
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://localhost.example.invalid/v1",
+        "http://127.0.0.1.example.invalid/v1",
+        "http://127.0.0.1@remote.example.invalid/v1",
+        "http://localhost:11434@remote.example.invalid/v1",
+        "http://user:password@localhost:11434/v1",
+        "http://localhost:invalid/v1",
+        "http://localhost:65536/v1",
+        "http://[invalid/v1",
+        "http://local\nhost:11434/v1",
+        "http://localhost:11434/v1?redirect=remote",
+        "http://localhost:11434/v1#remote",
+        "http://ollama:11434/v1",
+    ],
+)
+def test_local_provider_rejects_invalid_or_nonlocal_endpoint(url: str) -> None:
+    configured = Settings(
+        **(
+            settings_kwargs()
+            | {
+                "model_provider": "local_openai_compatible",
+                "model_id": "local-test-model",
+                "model_base_url": url,
+                "model_cost_ceiling_usd": 0,
+            }
+        )
+    )
+
+    assert "local MODEL_BASE_URL" in " ".join(configured.validate_runtime())
+
+
+@pytest.mark.parametrize("url", ["http://localhost:11434/v1", "http://127.0.0.1:8080/v1"])
+def test_local_provider_accepts_exact_loopback_endpoints(url: str) -> None:
+    configured = Settings(
+        **(
+            settings_kwargs()
+            | {
+                "model_provider": "local_openai_compatible",
+                "model_id": "local-test-model",
+                "model_base_url": url,
+                "model_cost_ceiling_usd": 0,
+            }
+        )
+    )
+
+    assert configured.validate_runtime() == []
+
+
+def test_model_constructor_rejects_nonlocal_endpoint_before_client_creation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from incidentgraph import investigator
+
+    def unexpected_client(**kwargs: object) -> None:
+        pytest.fail("invalid local endpoint must be rejected before client creation")
+
+    monkeypatch.setattr(investigator, "ChatOpenAI", unexpected_client)
+    configured = Settings(
+        **(
+            settings_kwargs()
+            | {
+                "model_provider": "local_openai_compatible",
+                "model_id": "local-test-model",
+                "model_base_url": "http://localhost.example.invalid/v1",
+                "model_cost_ceiling_usd": 0,
+            }
+        )
+    )
+
+    with pytest.raises(ValueError, match="local MODEL_BASE_URL"):
+        investigator.OpenAIInvestigatorModel(configured)
+
+
 def test_principal_requires_explicit_service_scope() -> None:
     values = settings_kwargs()
     values["auth_tokens_json"] = json.dumps(

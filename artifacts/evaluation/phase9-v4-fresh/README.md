@@ -14,7 +14,7 @@ applied the pre-registered synthetic-lab diagnosis and citation policy.
 - Reproduced per-case CSV SHA-256:
   `7f7f0259d72d8c19aa13ec2e33f068ab1e78e45f95932f5f12f3207ec1108c46`
 - Final post-review aggregate SHA-256:
-  `7b29a6f1ff32704a6effe80842225f8a9dee7cb82e97e2b652ce3f09e2f9c36b`
+  `905ee12983afdbda4830eb81324ce1e73ac76182ecb97e68ff8fde8784dcd5c5`
 
 `aggregate-pre-review.json` and `summary-pre-review.md` are the byte-for-byte Colab outputs.
 Running the frozen finalizer over the twelve `agent-part-*.jsonl` files reproduced both the

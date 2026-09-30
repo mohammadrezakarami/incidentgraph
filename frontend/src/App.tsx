@@ -238,6 +238,9 @@ function ReportPanel({ view, openEvidence }: { view: ReportView; openEvidence: (
         <article className="recommendation" key={index}>
           <div><strong>{step.description}</strong><span className={`risk risk-${step.risk_level}`}>{step.risk_level} risk</span></div>
           <p>{step.rationale} <CitationButtons ids={step.evidence_ids} open={openEvidence} /></p>
+          {step.preconditions.length > 0 && <div><h4>Preconditions</h4><ul>{step.preconditions.map((item) => <li key={item}>{item}</li>)}</ul></div>}
+          {step.verification_steps.length > 0 && <div><h4>Verification</h4><ul>{step.verification_steps.map((item) => <li key={item}>{item}</li>)}</ul></div>}
+          {step.rollback_considerations.length > 0 && <div><h4>Rollback considerations</h4><ul>{step.rollback_considerations.map((item) => <li key={item}>{item}</li>)}</ul></div>}
           <small>Not executed by IncidentGraph.</small>
         </article>
       ))}
@@ -328,30 +331,37 @@ export default function App() {
   const [followUp, setFollowUp] = useState("");
   const [reviewRationale, setReviewRationale] = useState("");
   const api = useMemo(() => token ? new IncidentApi(token) : null, [token]);
+  const activeContext = useRef({ api, selectedId });
+  activeContext.current = { api, selectedId };
 
   const refreshList = useCallback(async () => {
     if (!api) return;
     const page = await api.investigations();
-    setInvestigations(page.items);
+    if (activeContext.current.api === api) setInvestigations(page.items);
   }, [api]);
 
   const refreshSelected = useCallback(async () => {
     if (!api || !selectedId) return;
     const current = await api.investigation(selectedId);
+    const [graph, currentReport] = await Promise.all([
+      api.dependencies(current.target_service, current.window_end),
+      current.current_report_version > 0 ? api.report(selectedId) : Promise.resolve(null),
+    ]);
+    if (activeContext.current.api !== api || activeContext.current.selectedId !== selectedId) return;
     setSelected(current);
-    const graph = await api.dependencies(current.target_service, current.window_end);
     setDependency(graph);
-    if (current.current_report_version > 0) {
-      setReport(await api.report(selectedId));
-    }
+    setReport(currentReport);
+    return current;
   }, [api, selectedId]);
 
   useEffect(() => {
     if (!api) return;
+    let active = true;
     setError("");
     Promise.all([api.services(), api.investigations()])
-      .then(([catalog, page]) => { setServices(catalog); setInvestigations(page.items); })
-      .catch((failure) => setError(messageOf(failure)));
+      .then(([catalog, page]) => { if (active) { setServices(catalog); setInvestigations(page.items); } })
+      .catch((failure) => { if (active) setError(messageOf(failure)); });
+    return () => { active = false; };
   }, [api]);
 
   useEffect(() => {
@@ -388,18 +398,25 @@ export default function App() {
   }, [api, report, selectedId]);
 
   useEffect(() => {
-    if (!selectedId) { setSelected(null); setReport(null); setDependency(null); return; }
+    setSelected(null);
+    setEvents([]);
+    setReport(null);
+    setDependency(null);
+    setEvidence(null);
+    setFollowUp("");
+    setReviewRationale("");
+    if (!selectedId) return;
     const url = new URL(location.href);
     url.searchParams.set("investigation", selectedId);
     history.replaceState(null, "", url);
-    setEvents([]);
-    setReport(null);
-    refreshSelected().catch((failure) => setError(messageOf(failure)));
+    let active = true;
+    refreshSelected().catch((failure) => { if (active) setError(messageOf(failure)); });
+    return () => { active = false; };
   }, [refreshSelected, selectedId]);
 
   useEffect(() => {
-    if (!api || !selectedId || !selected || terminalStatuses.has(selected.status)) {
-      setStreamState(selectedId ? "complete" : "idle");
+    if (!api || !selectedId || !selected || selected.investigation_id !== selectedId) {
+      setStreamState(selectedId ? "loading" : "idle");
       return;
     }
     const streamApi = api;
@@ -413,10 +430,16 @@ export default function App() {
         try {
           setStreamState(retry ? "reconnecting" : "connected");
           lastSequence = await streamApi.streamEvents(streamInvestigationId, lastSequence, controller.signal, (event) => {
+            if (!active) return;
             setEvents((prior) => prior.some((item) => item.sequence === event.sequence) ? prior : [...prior, event]);
           });
           if (!active) return;
-          await Promise.all([refreshSelected(), refreshList()]);
+          const [current] = await Promise.all([refreshSelected(), refreshList()]);
+          if (!active) return;
+          if (current && terminalStatuses.has(current.status)) {
+            setStreamState("complete");
+            return;
+          }
           retry += 1;
         } catch (failure) {
           if (controller.signal.aborted) return;
@@ -439,6 +462,22 @@ export default function App() {
     setToken(value);
   }
 
+  function disconnect() {
+    activeContext.current = { api: null, selectedId: null };
+    sessionStorage.removeItem("incidentgraph-token");
+    setToken("");
+    setSelectedId(null);
+    setSelected(null);
+    setInvestigations([]);
+    setServices([]);
+    setReport(null);
+    setEvents([]);
+    setDependency(null);
+    setEvidence(null);
+    setError("");
+    history.replaceState(null, "", location.pathname);
+  }
+
   async function action(operation: () => Promise<unknown>) {
     setBusy(true); setError("");
     try { await operation(); await Promise.all([refreshSelected(), refreshList()]); }
@@ -456,7 +495,10 @@ export default function App() {
 
   async function openEvidence(id: string) {
     if (!api || !selectedId) return;
-    try { setEvidence(await api.evidence(selectedId, id)); }
+    try {
+      const item = await api.evidence(selectedId, id);
+      if (activeContext.current.api === api && activeContext.current.selectedId === selectedId) setEvidence(item);
+    }
     catch (failure) { setError(messageOf(failure)); }
   }
 
@@ -464,7 +506,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <header className="topbar"><div className="brand"><div className="brand-mark">IG</div><div><strong>IncidentGraph</strong><span>Evidence-grounded console</span></div></div><div className="top-actions"><span className="local-only">● LOCAL ONLY</span><button className="ghost" onClick={() => { sessionStorage.removeItem("incidentgraph-token"); setToken(""); }}>Disconnect</button></div></header>
+      <header className="topbar"><div className="brand"><div className="brand-mark">IG</div><div><strong>IncidentGraph</strong><span>Evidence-grounded console</span></div></div><div className="top-actions"><span className="local-only">● LOCAL ONLY</span><button className="ghost" onClick={disconnect}>Disconnect</button></div></header>
       {error && <div className="error-banner" role="alert"><strong>Request failed</strong><span>{error}</span><button onClick={() => setError("")} aria-label="Dismiss error">×</button></div>}
       <div className="workspace">
         <aside className="sidebar">

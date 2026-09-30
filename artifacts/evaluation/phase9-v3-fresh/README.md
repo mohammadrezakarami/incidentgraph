@@ -13,7 +13,7 @@ monetary cost of USD 0.
 - Reproduced per-case CSV SHA-256:
   `8a8effb01a46962629a66b55693d325f1989424cb5a50f5aa8194583413c55c7`
 - Final post-review aggregate SHA-256:
-  `aae0e6100e3fcfe24ad9de586993594d2f884e1caaae875b153319c18f2b1ae3`
+  `070c4f673efc64af9d3703a99a47b4346394d8e52f8ac4b3897021813b5b146d`
 
 `aggregate-pre-review.json` and `summary-pre-review.md` are the byte-for-byte Colab outputs.
 Running the frozen finalizer over the twelve `agent-part-*.jsonl` files reproduced both the
@@ -28,4 +28,3 @@ original returned archive is available with:
 
 The manual semantic review covers the 20 held-out identifiable adaptive reports in case order. It
 is AI-assisted and is not independent human validation. The final v3 quality gate is **FAIL**.
-

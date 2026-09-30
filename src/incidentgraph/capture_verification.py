@@ -202,8 +202,9 @@ def _telemetry_signal_present(scenario: str, capture_dir: Path) -> bool:
         )
     if scenario == "incomplete_telemetry":
         manifest = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
-        return not _series_values(metrics, "scrape_health", job="payments") and bool(
-            manifest.get("telemetry_gaps")
+        return (
+            not _series_values(metrics, "scrape_health", job="payments")
+            and bool(manifest.get("telemetry_gaps"))
         )
     if scenario == "ambiguous_two_cause":
         return float(workload["p95_latency_ms"]) >= 100 and int(workload["failure_count"]) > 0

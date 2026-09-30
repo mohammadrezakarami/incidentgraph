@@ -90,9 +90,8 @@ artifacts/traces/
 logs/
 backups/
 *.log
-phase9-progress.zip
-phase9-v2-progress.zip
-phase9-v3-progress.zip
+phase*-progress*.zip
+phase*-probe*.zip
 
 # Models and large generated files
 models/

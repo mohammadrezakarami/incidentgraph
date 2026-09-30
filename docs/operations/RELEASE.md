@@ -1,7 +1,7 @@
 # IncidentGraph release and operations runbook
 
-This runbook covers the local-first 0.1.0 release. It does not authorize publishing, cloud
-deployment, public endpoints, or a new model evaluation. All host ports remain bound to loopback.
+This runbook covers the local-first 0.1.0 release. The deployment configuration is designed for a
+single-machine installation. All host ports remain bound to loopback.
 No paid service is required for setup, deterministic replay, or the committed evaluation report.
 
 ## Clean-clone verification
@@ -165,7 +165,8 @@ local command and no paid third-party service is required.
   until an explicitly approved local provider is configured.
 - There is one worker and no high-availability or multi-tenant claim.
 - The low resource profile is a constrained replay profile, not a capacity benchmark.
-- Cloud deployment, public exposure, CI publication, tags, and GitHub Releases remain unauthorized.
-- Repository-wide Ruff formatting predates the v4 source freeze. CI format-checks the Phase 10
-  release paths and lints the whole repository; frozen evaluation files are not mechanically
-  reformatted because that would invalidate their hashes.
+- Publishing the source repository does not deploy the application. A public application endpoint
+  needs its own authentication, persistence, resource, and abuse-control configuration.
+- CI verifies the exact v4 source/data hashes and recomputes evaluation results from the committed
+  per-job evidence. Frozen source files retain their original bytes; mechanically reformatting
+  them invalidates the seal even when Python behavior is unchanged.

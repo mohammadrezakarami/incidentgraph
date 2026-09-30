@@ -5,8 +5,10 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -71,26 +73,167 @@ def evaluation_report(root: Path = ROOT) -> dict[str, Any]:
     aggregate = json.loads((directory / "aggregate.json").read_text(encoding="utf-8"))
     review = json.loads((directory / "manual-review-summary.json").read_text(encoding="utf-8"))
     parts = sorted(directory.glob("agent-part-*-of-12.jsonl"))
-    records = sum(
-        1
+    rows = [
+        json.loads(line)
         for part in parts
         for line in part.read_text(encoding="utf-8").splitlines()
         if line.strip()
-    )
+    ]
+    costs = [row.get("counters", {}).get("estimated_cost_usd") for row in rows]
+    if any(
+        isinstance(cost, bool) or not isinstance(cost, (int, float)) or cost < 0 for cost in costs
+    ):
+        raise ValueError("evaluation records contain an invalid estimated cost")
     targets = aggregate.get("targets", {})
     return {
         "status": aggregate.get("gate_status"),
         "freeze_id": aggregate.get("freeze", {}).get("freeze_id"),
         "agent_parts": len(parts),
-        "agent_records": records,
+        "agent_records": len(rows),
         "targets_passed": sorted(name for name, passed in targets.items() if passed is True),
         "targets_failed": sorted(name for name, passed in targets.items() if passed is not True),
         "reports_reviewed": review.get("actual_reports_reviewed"),
         "supported_claims": review.get("supported_factual_claim_count"),
         "factual_claims": review.get("factual_claim_count"),
-        "paid_cost_usd": 0,
+        "paid_cost_usd": sum(costs),
         "limitations": aggregate.get("limitations", []),
     }
+
+
+def verify_evaluation(root: Path = ROOT) -> dict[str, Any]:
+    from incidentgraph.phase9_v4_runner import finalize
+
+    directory = root / "artifacts" / "evaluation" / "phase9-v4-fresh"
+    expected_parts = {f"agent-part-{index:02d}-of-12.jsonl" for index in range(12)}
+    parts = sorted(directory.glob("agent-part-*-of-12.jsonl"))
+    if {part.name for part in parts} != expected_parts:
+        raise ValueError("committed evaluation must contain exactly the twelve expected shards")
+
+    by_job: dict[str, dict[str, Any]] = {}
+    record_count = 0
+    for part in parts:
+        for line in part.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            record_count += 1
+            row = json.loads(line)
+            job_id = row.get("job_id")
+            if not isinstance(job_id, str) or not job_id:
+                raise ValueError(f"evaluation record in {part.name} has no job ID")
+            if job_id in by_job and row != by_job[job_id]:
+                raise ValueError(f"conflicting duplicate evaluation job: {job_id}")
+            by_job[job_id] = row
+    if record_count != 120 or len(by_job) != 120:
+        raise ValueError(
+            f"expected exactly 120 evaluation records and jobs, found "
+            f"{record_count} records and {len(by_job)} jobs"
+        )
+
+    with tempfile.TemporaryDirectory(prefix="incidentgraph-evaluation-") as temporary:
+        replay = Path(temporary)
+        for part in parts:
+            shutil.copyfile(part, replay / part.name)
+        finalize(replay)
+        if (replay / "aggregate.json").read_bytes() != (
+            directory / "aggregate-pre-review.json"
+        ).read_bytes():
+            raise ValueError(
+                "committed pre-review aggregate does not reproduce from per-job records"
+            )
+        if (replay / "per-case.csv").read_bytes() != (directory / "per-case.csv").read_bytes():
+            raise ValueError("committed per-case table does not reproduce from per-job records")
+
+    review = json.loads((directory / "manual-review-summary.json").read_text(encoding="utf-8"))
+    if review.get("reproduced_aggregate_sha256") != _sha256(
+        directory / "aggregate-pre-review.json"
+    ):
+        raise ValueError("manual review references the wrong pre-review aggregate")
+    if review.get("reproduced_per_case_sha256") != _sha256(directory / "per-case.csv"):
+        raise ValueError("manual review references the wrong per-case table")
+
+    review_rows = [
+        json.loads(line)
+        for line in (directory / "manual-review.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    selection = review.get("selection")
+    if not isinstance(selection, list) or [row.get("job_id") for row in review_rows] != selection:
+        raise ValueError("manual-review rows do not match the declared selection")
+    factual = 0
+    supported = 0
+    groups: set[str] = set()
+    for row in review_rows:
+        job_id = row["job_id"]
+        run = by_job.get(job_id)
+        if run is None:
+            raise ValueError(f"manual review references an unknown job: {job_id}")
+        if row.get("report") != run.get("report"):
+            raise ValueError(f"manual review report differs from the run record: {job_id}")
+        if row.get("case_id") != run.get("case_id") or row.get("group_id") != run.get("group_id"):
+            raise ValueError(f"manual review identity differs from the run record: {job_id}")
+        rubric = row.get("rubric", {})
+        claims = rubric.get("claims")
+        if not isinstance(claims, list) or not claims:
+            raise ValueError(f"manual review has no claims: {job_id}")
+        supported_rows = [claim for claim in claims if claim.get("supported") is True]
+        run_evidence = set(run.get("evidence_ids", []))
+        if any(
+            not isinstance(claim.get("evidence_ids"), list)
+            or not claim["evidence_ids"]
+            or not set(claim["evidence_ids"]).issubset(run_evidence)
+            for claim in claims
+        ):
+            raise ValueError(f"manual review cites evidence outside its run: {job_id}")
+        if rubric.get("factual_claim_count") != len(claims) or rubric.get(
+            "supported_factual_claim_count"
+        ) != len(supported_rows):
+            raise ValueError(f"manual review claim counts are inconsistent: {job_id}")
+        factual += len(claims)
+        supported += len(supported_rows)
+        groups.add(str(row["group_id"]))
+
+    if (
+        len(review_rows) != review.get("actual_reports_reviewed")
+        or len(groups) != review.get("independent_groups_represented")
+        or factual != review.get("factual_claim_count")
+        or supported != review.get("supported_factual_claim_count")
+        or not review.get("passed")
+        or review.get("independent_human_validation") is not False
+    ):
+        raise ValueError("manual-review summary does not match its rubric rows")
+    rate = supported / factual
+    target = review.get("target")
+    if (
+        not isinstance(target, (int, float))
+        or review.get("supported_claim_rate") != rate
+        or rate < target
+    ):
+        raise ValueError("manual-review supported-claim rate is invalid")
+
+    aggregate = json.loads((directory / "aggregate.json").read_text(encoding="utf-8"))
+    pre_review = json.loads((directory / "aggregate-pre-review.json").read_text(encoding="utf-8"))
+    immutable_fields = (
+        "agent",
+        "coverage",
+        "evaluation_mode",
+        "freeze",
+        "independent_heldout_claim_allowed",
+    )
+    for key in immutable_fields:
+        if aggregate.get(key) != pre_review.get(key):
+            raise ValueError(f"post-review aggregate changed frozen automated field: {key}")
+    if (
+        aggregate.get("manual_review") != review
+        or aggregate.get("gate_status") != "pass"
+        or not aggregate.get("targets")
+        or any(value is not True for value in aggregate["targets"].values())
+    ):
+        raise ValueError("post-review aggregate is not a complete passing gate")
+
+    report = evaluation_report(root)
+    if report["paid_cost_usd"] != 0:
+        raise ValueError("committed zero-paid-cost evaluation contains a nonzero estimated cost")
+    return {**report, "reproduced_from_records": True}
 
 
 def _check(name: str, passed: bool, detail: str) -> dict[str, Any]:
@@ -98,6 +241,8 @@ def _check(name: str, passed: bool, detail: str) -> dict[str, Any]:
 
 
 def verify_release(root: Path = ROOT) -> dict[str, Any]:
+    from incidentgraph.phase9_v4_runner import verify_freeze
+
     checks: list[dict[str, Any]] = []
     missing = [item for item in REQUIRED_FILES if not (root / item).is_file()]
     checks.append(
@@ -179,7 +324,16 @@ def verify_release(root: Path = ROOT) -> dict[str, Any]:
     checks.append(_check("local_env_untracked", git.returncode != 0, ".env is not tracked"))
 
     try:
-        report = evaluation_report(root)
+        freeze = verify_freeze(root / "config" / "phase9-v4-fresh-freeze.json")
+        freeze_passed = freeze.get("status") == "pass" and freeze.get("file_count") == 28
+        freeze_detail = f"freeze_id={freeze.get('freeze_id')}, files={freeze.get('file_count')}"
+    except (FileNotFoundError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        freeze_passed = False
+        freeze_detail = f"invalid Phase 9 v4 source/data seal: {exc}"
+    checks.append(_check("phase9_v4_freeze", freeze_passed, freeze_detail))
+
+    try:
+        report = verify_evaluation(root)
         evaluation_passed = (
             report["status"] == "pass"
             and report["agent_parts"] == 12
@@ -190,7 +344,7 @@ def verify_release(root: Path = ROOT) -> dict[str, Any]:
         )
         evaluation_detail = (
             f"status={report['status']}, jobs={report['agent_records']}, "
-            f"reviewed={report['reports_reviewed']}, paid_usd=0"
+            f"reviewed={report['reports_reviewed']}, paid_usd={report['paid_cost_usd']}"
         )
     except (FileNotFoundError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
         evaluation_passed = False
@@ -363,7 +517,9 @@ def main() -> None:
     try:
         if args.command == "verify":
             result = verify_release()
-        elif args.command in {"verify-evaluation", "report"}:
+        elif args.command == "verify-evaluation":
+            result = verify_evaluation()
+        elif args.command == "report":
             result = evaluation_report()
         elif args.command == "backup-app":
             result = backup_app(args.output, args.project_name)

@@ -43,6 +43,8 @@ jobs:
           make UV=uv format-check
           uv run ruff check .
           uv run mypy
+          uv run python -m incidentgraph.phase9_v4_runner verify-freeze
+          uv run python -m incidentgraph.release verify-evaluation
           uv run pytest -m "not integration"
           npm --prefix frontend test
       - name: Reproducible builds and release contract

@@ -282,7 +282,10 @@ def _load_parts(output_dir: Path) -> list[dict[str, Any]]:
 def finalize(output_dir: Path) -> dict[str, Any]:
     freeze = verify_freeze()
     runs = _load_parts(output_dir)
-    labels = {item["case_id"]: item for item in [*_jsonl(DEV_LABEL_PATH), *_jsonl(LABEL_PATH)]}
+    labels = {
+        item["case_id"]: item
+        for item in [*_jsonl(DEV_LABEL_PATH), *_jsonl(LABEL_PATH)]
+    }
     scores = [score_incident_run(run, labels[run["case_id"]]) for run in runs]
     heldout = {
         workflow: _aggregate_agent(

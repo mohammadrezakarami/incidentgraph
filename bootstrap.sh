@@ -2,6 +2,7 @@
 set -eu
 
 PROJECT_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+cd "$PROJECT_ROOT"
 UV_VERSION=0.12.17
 PYTHON_VERSION=3.12.14
 UV_BIN="$PROJECT_ROOT/.tools/uv"

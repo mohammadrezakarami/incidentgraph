@@ -4,6 +4,7 @@ import json
 from functools import cached_property
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -130,12 +131,24 @@ class Settings(BaseSettings):
             if not self.model_base_url:
                 problems.append("MODEL_BASE_URL is required for a local model provider")
             else:
-                local_prefixes = ("http://127.0.0.1", "http://localhost")
-                container_prefixes = (*local_prefixes, "http://ollama:")
-                permitted = (
-                    container_prefixes if self.environment == "container" else local_prefixes
-                )
-                if not self.model_base_url.startswith(permitted):
+                permitted_hosts = {"127.0.0.1", "localhost"}
+                if self.environment == "container":
+                    permitted_hosts.add("ollama")
+                try:
+                    endpoint = urlsplit(self.model_base_url)
+                    valid_endpoint = (
+                        endpoint.scheme == "http"
+                        and endpoint.hostname in permitted_hosts
+                        and endpoint.username is None
+                        and endpoint.password is None
+                        and (endpoint.port is None or 1 <= endpoint.port <= 65535)
+                        and not endpoint.query
+                        and not endpoint.fragment
+                        and not any(char.isspace() for char in self.model_base_url)
+                    )
+                except ValueError:
+                    valid_endpoint = False
+                if not valid_endpoint:
                     problems.append(
                         "local MODEL_BASE_URL must use loopback or the container-only ollama host"
                     )
