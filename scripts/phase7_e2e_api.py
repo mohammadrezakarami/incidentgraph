@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from pathlib import Path
 
 import uvicorn
@@ -38,7 +39,28 @@ def main() -> None:
         model_base_url="http://127.0.0.1:11434/v1",
         model_cost_ceiling_usd=0,
     )
-    uvicorn.run(create_app(settings), host="127.0.0.1", port=8000, log_level="warning")
+    with tempfile.TemporaryDirectory(prefix="incidentgraph-browser-captures-") as temporary:
+        capture_root = Path(temporary)
+        capture = capture_root / "cap-browser-test-00000001"
+        capture.mkdir()
+        (capture / "manifest.json").write_text(
+            json.dumps(
+                {
+                    "observation_start": "2026-09-23T12:00:00Z",
+                    "observation_cutoff": "2026-09-23T12:05:00Z",
+                    "services": ["gateway", "checkout", "payments"],
+                    "provenance_category": "browser_test_fixture",
+                    "limitations": ["Deterministic browser fixture; no model validation."],
+                }
+            ),
+            encoding="utf-8",
+        )
+        uvicorn.run(
+            create_app(settings, capture_root=capture_root),
+            host="127.0.0.1",
+            port=8000,
+            log_level="warning",
+        )
 
 
 if __name__ == "__main__":

@@ -36,6 +36,7 @@ test("real API flow reconnects, drills into evidence, reviews, and preserves ref
     await page.getByRole("button", { name: "Open console" }).click();
     await expect(page.getByRole("heading", { name: "Start a run" })).toBeVisible();
 
+    await page.getByLabel("Immutable lab snapshot").selectOption("cap-browser-test-00000001");
     await page.getByLabel("Service").selectOption("svc-gateway");
     await page.getByLabel("Incident question").fill(
       "Why did the browser-test gateway latency rise in this bounded window?",
